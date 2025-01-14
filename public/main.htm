@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MediMentor</title>
+    <link rel="stylesheet" href="styles/style.css">
+</head>
+<body>
+    <header>
+        <nav>
+            <div class="logo">MediMentor</div>
+            <ul class="nav-links">
+                <li><a href="#about">About</a></li>
+                <li><a href="#features">Features</a></li>
+                <li><a href="#contact">Contact</a></li>
+            </ul>
+        </nav>
+        <label class="ui-switch">
+            <input type="checkbox" id="themeToggle">
+            <div class="slider">
+                <div class="circle"></div>
+            </div>
+        </label>
+    </header>
+
+    <main>
+        <section id="hero">
+            <h1>Your Personal Health Assistant</h1>
+            <p>Analyze symptoms and get personalized recommendations instantly.</p>
+            <form id="symptomForm">
+                <input type="text" id="symptomsInput" placeholder="Enter your symptoms..." required>
+                <button type="submit">Analyze Symptoms</button>
+            </form>
+        </section>
+
+        <section id="results" class="hidden">
+            <h2>Analysis Results</h2>
+            <div id="analysisOutput"></div>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2025 MediMentor. All Rights Reserved.</p>
+    </footer>
+
+    <script src="scripts/app.js"></script>
+</body>
+</html>
