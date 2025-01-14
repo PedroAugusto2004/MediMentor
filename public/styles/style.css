@@ -117,7 +117,7 @@ footer {
     --switch-bg: rgb(135, 150, 165);
     --switch-width: 48px;
     --switch-height: 24px;
-    --circle-diameter: 24px;
+    --circle-diameter: 28px; /* Increased size */
     --circle-bg: rgb(0, 56, 146);
     position: fixed;
     top: 1rem;
@@ -139,7 +139,7 @@ footer {
 }
 
 .slider .circle {
-    top: 0;
+    top: calc((var(--switch-height) - var(--circle-diameter)) / 2);
     left: 0;
     width: var(--circle-diameter);
     height: var(--circle-diameter);
