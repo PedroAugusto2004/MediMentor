@@ -3,42 +3,57 @@ document.addEventListener('DOMContentLoaded', () => {
     const symptomsInput = document.getElementById('symptomsInput');
     const resultsSection = document.getElementById('results');
     const analysisOutput = document.getElementById('analysisOutput');
+    const recommendationOutput = document.getElementById('recommendationOutput');
     const themeToggle = document.getElementById('themeToggle');
+
+    // Predefined list of symptoms with their IDs
+    const symptomMap = {
+        'fever': 10,
+        'headache': 15,
+        // Add more symptoms and their IDs here
+    };
 
     symptomForm.addEventListener('submit', async (event) => {
         event.preventDefault();
 
-        const symptoms = symptomsInput.value.trim();
-        if (!symptoms) return alert('Please enter your symptoms.');
+        const symptoms = symptomsInput.value.split(',').map(symptom => symptom.trim().toLowerCase());
+        if (!symptoms.length) return alert('Please enter your symptoms.');
 
-        const response = await analyzeSymptoms(symptoms);
+        // Map symptom names to their corresponding IDs
+        const symptomIds = symptoms.map(symptom => symptomMap[symptom]).filter(id => id !== undefined);
+        if (!symptomIds.length) return alert('Please enter valid symptoms.');
 
-        resultsSection.style.display = 'block';
-        analysisOutput.innerHTML = `
-            <p><strong>Symptoms:</strong> ${symptoms}</p>
-            <p><strong>Diagnosis:</strong> ${response.diagnosis}</p>
-            <p><strong>Recommendation:</strong> ${response.recommendation}</p>
-            <p><strong>Warning:</strong> If symptoms worsen, please consult a healthcare provider. Ensure you are not allergic to any recommended medications.</p>
-        `;
+        console.log('Submitting symptom IDs:', symptomIds); // Log the symptom IDs being submitted
+
+        try {
+            const response = await fetch('http://localhost:3000/analyze-symptoms', { // Update URL to match backend server
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ symptoms: symptomIds })
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                analysisOutput.textContent = `Diagnosis: ${data.diagnosis}`;
+                recommendationOutput.textContent = `Recommendation: ${data.recommendation}`;
+                resultsSection.classList.remove('hidden');
+                resultsSection.style.display = 'block'; // Ensure the results section is displayed
+            } else {
+                analysisOutput.textContent = `Error: ${data.error}`;
+                recommendationOutput.textContent = '';
+                resultsSection.classList.remove('hidden');
+                resultsSection.style.display = 'block'; // Ensure the results section is displayed
+            }
+        } catch (error) {
+            analysisOutput.textContent = `Error: ${error.message}`;
+            recommendationOutput.textContent = '';
+            resultsSection.classList.remove('hidden');
+            resultsSection.style.display = 'block'; // Ensure the results section is displayed
+        }
     });
-
-    async function analyzeSymptoms(symptoms) {
-        const response = await fetch('http://localhost:3000/analyze-symptoms', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ symptoms })
-        });
-
-        const data = await response.json();
-        console.log('API Response:', data); // Log the API response for debugging
-
-        return {
-            diagnosis: data.diagnosis || 'Unknown',
-            recommendation: data.recommendation || 'Consult a healthcare provider.'
-        };
-    }
 
     themeToggle.addEventListener('click', () => {
         const currentTheme = document.documentElement.getAttribute('data-theme');

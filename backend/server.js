@@ -1,9 +1,7 @@
 import express from 'express';
-import fetch from 'node-fetch';
+import axios from 'axios';
 import dotenv from 'dotenv';
 import cors from 'cors';
-import { GoogleAuth } from 'google-auth-library';
-import fs from 'fs';
 
 dotenv.config();
 
@@ -11,63 +9,55 @@ const app = express();
 app.use(express.json());
 app.use(cors());
 
+const APIMEDIC_TOKEN = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJlbWFpbCI6InBhNDA1MzY5QGdtYWlsLmNvbSIsInJvbGUiOiJVc2VyIiwiaHR0cDovL3NjaGVtYXMueG1sc29hcC5vcmcvd3MvMjAwNS8wNS9pZGVudGl0eS9jbGFpbXMvc2lkIjoiMTE3NjMiLCJodHRwOi8vc2NoZW1hcy5taWNyb3NvZnQuY29tL3dzLzIwMDgvMDYvaWRlbnRpdHkvY2xhaW1zL3ZlcnNpb24iOiIxMDkiLCJodHRwOi8vZXhhbXBsZS5vcmcvY2xhaW1zL2xpbWl0IjoiMTAwIiwiaHR0cDovL2V4YW1wbGUub3JnL2NsYWltcy9tZW1iZXJzaGlwIjoiQmFzaWMiLCJodHRwOi8vZXhhbXBsZS5vcmcvY2xhaW1zL2xhbmd1YWdlIjoiZW4tZ2IiLCJodHRwOi8vc2NoZW1hcy5taWNyb3NvZnQuY29tL3dzLzIwMDgvMDYvaWRlbnRpdHkvY2xhaW1zL2V4cGlyYXRpb24iOiIyMDk5LTEyLTMxIiwiaHR0cDovL2V4YW1wbGUub3JnL2NsYWltcy9tZW1iZXJzaGlwc3RhcnQiOiIyMDI1LTAxLTE1IiwiaXNzIjoiaHR0cHM6Ly9hdXRoc2VydmljZS5wcmlhaWQuY2giLCJhdWQiOiJodHRwczovL2hlYWx0aHNlcnZpY2UucHJpYWlkLmNoIiwiZXhwIjoxNzM3MDc4MTg3LCJuYmYiOjE3MzcwNzA5ODd9.7l2bgxB5QUEnytPNeVjMAZoy7ospFxIoYsnyMYaYDKQ';
+
 app.post('/analyze-symptoms', async (req, res) => {
     const { symptoms } = req.body;
 
+    console.log('Received symptoms:', symptoms); // Log the received symptoms for debugging
+
+    if (!Array.isArray(symptoms) || symptoms.some(isNaN)) {
+        console.error('Invalid symptoms format:', symptoms); // Log the invalid format
+        return res.status(400).json({ error: 'Invalid symptoms format. Expecting an array of symptom IDs.' });
+    }
+
     try {
-        const accessToken = await getAccessToken();
-        const response = await fetch(`https://healthcare.googleapis.com/v1/projects/${process.env.GOOGLE_PROJECT_ID}/locations/${process.env.YOUR_LOCATION}/datasets/${process.env.YOUR_DATASET}/fhirStores/${process.env.YOUR_FHIR_STORE}/fhir/Observation`, {
-            method: 'POST',
-            headers: {
-                'Authorization': `Bearer ${accessToken}`,
-                'Content-Type': 'application/fhir+json'
+        const token = APIMEDIC_TOKEN;
+
+        // Call Apimedic Health-Service for symptom analysis
+        const response = await axios.get('https://healthservice.priaid.ch/diagnosis', {
+            params: {
+                symptoms: JSON.stringify(symptoms),
+                gender: 'male',
+                year_of_birth: 1991,
+                format: 'json',
+                language: 'en-gb'
             },
-            body: JSON.stringify({
-                resourceType: 'Observation',
-                status: 'preliminary',
-                code: {
-                    coding: [{
-                        system: 'http://loinc.org',
-                        code: '75325-1',
-                        display: 'Symptom'
-                    }]
-                },
-                subject: {
-                    reference: `Patient/${process.env.YOUR_PATIENT_ID}`
-                },
-                valueString: symptoms
-            })
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            }
         });
 
-        const data = await response.json();
-        console.log('API Response:', data); // Log the API response for debugging
+        const diagnosisData = response.data;
+        console.log('Apimedic API Response:', diagnosisData); // Log the API response for debugging
 
-        if (data.issue) {
-            console.error('API Issue:', JSON.stringify(data.issue, null, 2));
-            return res.status(400).json({ error: data.issue });
+        if (!Array.isArray(diagnosisData) || diagnosisData.length === 0) {
+            return res.status(400).json({ error: 'No diagnosis data returned from API.' });
         }
 
+        const diagnosis = diagnosisData[0]?.Issue?.Name || 'Unknown';
+        const recommendation = diagnosisData[0]?.Specialisation?.[0]?.Name || 'Consult a healthcare provider.';
+
         res.json({
-            diagnosis: data.diagnosis || 'Unknown',
-            recommendation: data.recommendation || 'Consult a healthcare provider.'
+            diagnosis: diagnosis,
+            recommendation: recommendation
         });
     } catch (error) {
-        console.error('Error:', error);
+        console.error('Error:', error.response ? error.response.data : error.message);
         res.status(500).json({ error: 'An error occurred while analyzing symptoms.' });
     }
 });
-
-async function getAccessToken() {
-    const credentials = JSON.parse(fs.readFileSync(process.env.GOOGLE_CREDENTIALS_PATH, 'utf8'));
-    const auth = new GoogleAuth({
-        credentials,
-        scopes: ['https://www.googleapis.com/auth/cloud-platform']
-    });
-
-    const client = await auth.getClient();
-    const accessToken = await client.getAccessToken();
-    return accessToken.token;
-}
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {

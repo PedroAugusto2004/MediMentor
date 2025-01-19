@@ -1,0 +1,223 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+}
+
+body {
+    display: flex;
+    min-height: 100vh;
+    background: linear-gradient(135deg, #3a80ff, #622aff);
+    color: white;
+    align-items: center;
+    justify-content: center;
+}
+
+.container {
+    display: flex;
+    width: 80%;
+    max-width: 1200px;
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+    overflow: hidden;
+    color: black;
+}
+
+.welcome-section {
+    flex: 1;
+    background: linear-gradient(135deg, #3a80ff, #622aff);
+    color: white;
+    padding: 40px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    text-align: center;
+}
+
+.welcome-section h1 {
+    font-size: 2.5rem;
+    margin-bottom: 20px;
+}
+
+.welcome-section p {
+    font-size: 1rem;
+    line-height: 1.6;
+}
+
+.login-section {
+    flex: 1;
+    padding: 40px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.login-section h2 {
+    font-size: 1.5rem;
+    margin-bottom: 20px;
+}
+
+.login-section form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    align-items: center; /* Center the buttons */
+}
+
+.login-section input[type="email"],
+.login-section input[type="password"] {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 1rem;
+}
+
+.login-section {
+    padding: 10px;
+    font-size: 1rem;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+.login-now {
+    background: #3a80ff;
+    color: white;
+    border: 2px solid transparent;
+    border-radius: 20px;
+    padding: 8px 16px;
+    font-size: 0.9rem;
+    width: 150px;
+    transition: background 0.3s, border-color 0.3s, transform 0.3s;
+}
+
+.login-now:hover {
+    background: white;
+    color: #3a80ff;
+    border-color: #3a80ff;
+    transform: scale(1.05);
+}
+
+.google-login {
+    background: white;
+    color: #db4437;
+    border: 2px solid #db4437;
+    border-radius: 20px;
+    padding: 8px 16px;
+    font-size: 0.9rem;
+    width: 150px;
+    transition: background 0.3s, color 0.3s, transform 0.3s;
+}
+
+.google-login:hover {
+    background: #db4437;
+    color: white;
+    transform: scale(1.05);
+}
+
+.signup-now {
+    background: #622aff;
+    color: white;
+    border: 2px solid transparent;
+    border-radius: 20px;
+    padding: 8px 16px;
+    font-size: 0.9rem;
+    width: 150px;
+    transition: background 0.3s, border-color 0.3s, transform 0.3s;
+}
+
+.signup-now:hover {
+    background: rgb(25, 2, 90);
+    color: #ffffff;
+    transform: scale(1.05);
+}
+
+.back-to-login {
+    background: #3f3f3f;
+    color: white;
+    border: 2px solid transparent;
+    border-radius: 20px;
+    padding: 8px 16px;
+    font-size: 0.9rem;
+    width: 150px;
+    transition: background 0.3s, border-color 0.3s, transform 0.3s;
+}
+
+.back-to-login:hover {
+    background: white;
+    color: #3f3f3f;
+    border-color: #3f3f3f;
+    transform: scale(1.05);
+}
+
+.helper-text {
+    font-size: 0.9rem;
+    margin-top: 10px;
+    text-align: center;
+}
+
+.helper-text a {
+    color: #3a80ff;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.helper-text a:hover {
+    text-decoration: underline;
+}
+
+.signup-section {
+    display: none;
+    flex: 1;
+    padding: 40px;
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+    color: black;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.signup-section h2 {
+    font-size: 1.5rem;
+    margin-bottom: 20px;
+}
+
+.signup-section form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    align-items: center; /* Center the buttons */
+}
+
+.signup-section input[type="email"],
+.signup-section input[type="password"],
+.signup-section input[type="text"] {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 1rem;
+}
+
+.signup-section {
+    padding: 10px;
+    font-size: 1rem;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+.signup-now {
+    background: #622aff;
+    color: white;
+}
+
+.signup-now:hover {
+    background: #3366cc;
+}

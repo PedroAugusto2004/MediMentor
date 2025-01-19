@@ -5,6 +5,10 @@
     box-sizing: border-box;
 }
 
+.hidden {
+    display: none;
+}
+
 body {
     font-family: Arial, sans-serif;
     line-height: 1.6;

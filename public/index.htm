@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MediMentor - Welcome</title>
+    <link rel="stylesheet" href="styles/index.css">
+</head>
+<body>
+    <div class="container">
+        <div class="welcome-section">
+            <h1>Welcome to MediMentor!</h1>
+            <p>Your personal guide to better health and well-being. Skip the confusion and get personalized recommendations, powered by advanced AI technology.</p>
+        </div>
+        <div class="login-section">
+            <h2>Welcome!</h2>
+            <form id="login-form">
+                <input type="email" placeholder="Email" required>
+                <input type="password" placeholder="Password" required>
+                <button type="submit" class="login-now">Login Now</button>
+                <button type="button" class="google-login">Login with Google</button>
+                <p>Don't have an account?</p>
+                <button type="button" id="signup-btn" class="signup-now">Sign Up</button>
+
+            </form>
+            <div class="helper-text">
+                <p><a href="#">Forgot password?</a></p>
+            </div>
+        </div>
+        <div class="signup-section">
+            <h2>Create Your Account</h2>
+            <form id="signup-form">
+                <input type="text" placeholder="Full Name" required>
+                <input type="email" placeholder="Email" required>
+                <input type="password" placeholder="Password" required>
+                <button type="submit" class="signup-now">Sign Up</button>
+                <button type="button" id="back-to-login-btn" class="back-to-login">Back to Login</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="scripts/index.js"></script>
+    <script src="scripts/app.js"></script>
+</body>
+</html>
