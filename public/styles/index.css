@@ -1,3 +1,4 @@
+/* Reset and base styles */
 * {
     margin: 0;
     padding: 0;
@@ -5,6 +6,7 @@
     font-family: Arial, sans-serif;
 }
 
+/* Body styles */
 body {
     display: flex;
     min-height: 100vh;
@@ -14,6 +16,7 @@ body {
     justify-content: center;
 }
 
+/* Container styles */
 .container {
     display: flex;
     width: 80%;
@@ -25,6 +28,7 @@ body {
     color: black;
 }
 
+/* Welcome section styles */
 .welcome-section {
     flex: 1;
     background: linear-gradient(135deg, #3a80ff, #622aff);
@@ -46,6 +50,7 @@ body {
     line-height: 1.6;
 }
 
+/* Login section styles */
 .login-section {
     flex: 1;
     padding: 40px;
@@ -75,15 +80,7 @@ body {
     font-size: 1rem;
 }
 
-.login-section {
-    padding: 10px;
-    font-size: 1rem;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background 0.3s;
-}
-
+/* Button styles */
 .login-now {
     background: #3a80ff;
     color: white;
@@ -154,6 +151,7 @@ body {
     transform: scale(1.05);
 }
 
+/* Helper text styles */
 .helper-text {
     font-size: 0.9rem;
     margin-top: 10px;
@@ -170,8 +168,9 @@ body {
     text-decoration: underline;
 }
 
+/* Sign-up section styles */
 .signup-section {
-    display: none;
+    display: none; /* Ensure this is set to none initially */
     flex: 1;
     padding: 40px;
     background: white;

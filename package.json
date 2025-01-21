@@ -1,19 +1,16 @@
 {
   "dependencies": {
-    "@aws-sdk/client-cognito-identity-provider": "^3.731.1",
-    "aws-sdk": "^2.1692.0",
-    "ejs": "^3.1.10",
-    "express": "^4.21.1",
-    "express-session": "^1.18.1",
-    "openid-client": "^5.7.0"
+    "aws-amplify": "^6.12.1",
+    "aws-sdk": "^2.1692.0"
   },
-  "name": "node",
-  "version": "1.0.0",
-  "description": "",
-  "main": "app.js",
-  "scripts": {
-    "start": "node app.js"
-  },
-  "author": "",
-  "license": "ISC"
+  "devDependencies": {
+    "@aws-amplify/backend": "^1.13.0",
+    "@aws-amplify/backend-cli": "^1.4.7",
+    "aws-cdk": "^2.176.0",
+    "aws-cdk-lib": "^2.176.0",
+    "constructs": "^10.4.2",
+    "esbuild": "^0.24.2",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.3"
+  }
 }
