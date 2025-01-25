@@ -3,9 +3,9 @@
 
 Amplify.configure({
     Auth: {
-        region: 'us-east-1',
-        userPoolId: 'us-east-1_d37gujEI3',
-        userPoolWebClientId: '4pc8icbch8bfqis828i3qgqd3f'
+        region: process.env.COGNITO_REGION,
+        userPoolId: process.env.COGNITO_USER_POOL_ID,
+        userPoolWebClientId: process.env.COGNITO_USER_POOL_WEB_CLIENT_ID
     }
 });
 
@@ -15,12 +15,10 @@ document.getElementById('login-form').addEventListener('submit', async function(
     const email = event.target.querySelector('input[type="email"]').value;
     const password = event.target.querySelector('input[type="password"]').value;
     try {
-        await Auth.signIn(email, password);
-        alert('Sign In successful');
-        window.location.href = 'main.htm'; // Redirect to main.htm
+        const user = await Auth.signIn(email, password);
+        console.log('Login successful', user);
     } catch (error) {
-        console.error('Error signing in:', error);
-        alert('Error signing in');
+        console.error('Error during login', error);
     }
 });
 

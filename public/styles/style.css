@@ -5,10 +5,12 @@
     box-sizing: border-box;
 }
 
+/* Hidden class to hide elements */
 .hidden {
     display: none;
 }
 
+/* Body styles */
 body {
     font-family: Arial, sans-serif;
     line-height: 1.6;
@@ -17,6 +19,7 @@ body {
     transition: background 0.3s, color 0.3s;
 }
 
+/* CSS variables for light and dark themes */
 :root {
     --background-color: #fff;
     --text-color: #333;
@@ -33,6 +36,7 @@ body {
     --results-bg: #1d1d1d;
 }
 
+/* Header styles */
 header {
     background: var(--primary-color);
     color: #fff;
@@ -57,6 +61,7 @@ header .nav-links a {
     font-weight: bold;
 }
 
+/* Hero section styles */
 #hero {
     text-align: center;
     padding: 2rem;
@@ -72,22 +77,67 @@ header .nav-links a {
     margin-top: 1rem;
 }
 
-#hero input[type="text"] {
-    padding: 0.5rem;
+/* Input and select styles */
+#hero input[type="text"],
+#hero input[type="number"],
+#hero input[type="date"],
+#hero select {
+    padding: 0.75rem;
     width: 80%;
     max-width: 500px;
     border: 1px solid #ccc;
     border-radius: 5px;
     margin-bottom: 1rem;
+    font-size: 1rem;
+    transition: border-color 0.3s, box-shadow 0.3s;
 }
 
+#hero input[type="text"]:focus,
+#hero input[type="number"]:focus,
+#hero input[type="date"]:focus,
+#hero select:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 5px rgba(0, 122, 204, 0.5);
+    outline: none;
+}
+
+/* Button styles */
 #hero button {
-    padding: 0.5rem 1rem;
+    padding: 0.75rem 1.5rem;
     background: var(--primary-color);
     color: #fff;
     border: none;
     border-radius: 5px;
     cursor: pointer;
+    font-size: 1rem;
+    transition: background 0.3s, transform 0.3s;
+}
+
+#hero button:hover {
+    background: #004e81;
+    transform: translateY(-2px);
+}
+
+/* Results section styles */
+#results {
+    display: none;
+    margin-top: 20px;
+    padding: 20px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background-color: #f9f9f9;
+}
+
+#results.hidden {
+    display: none;
+}
+
+#results h3 {
+    margin-top: 0;
+}
+
+#results p {
+    margin: 5px 0;
 }
 
 #results {
@@ -100,6 +150,7 @@ header .nav-links a {
     margin-bottom: 1rem;
 }
 
+/* Footer styles */
 footer {
     text-align: center;
     padding: 1rem;
@@ -194,7 +245,10 @@ footer {
         font-size: 2rem;
     }
 
-    #hero input[type="text"] {
+    #hero input[type="text"],
+    #hero input[type="number"],
+    #hero input[type="date"],
+    #hero select {
         width: 90%;
     }
 }

@@ -1,0 +1,531 @@
+{
+	"info": {
+		"_postman_id": "dfb0d00f-07ad-4219-9434-a9b92b343c3c",
+		"name": "V3 SC Sandbox API Reference",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Age Groups",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "authorization",
+						"value": "4s21pzYoxqWZL6tG54g8g41G26R7PnT2"
+					}
+				],
+				"url": {
+					"raw": "https://apiscsandbox.isabelhealthcare.com/v3/age_groups?language=en&web_service=json",
+					"protocol": "https",
+					"host": [
+						"apiscsandbox",
+						"isabelhealthcare",
+						"com"
+					],
+					"path": [
+						"v3",
+						"age_groups"
+					],
+					"query": [
+						{
+							"key": "language",
+							"value": "en",
+							"description": "en, es,de,nl,ar,hi,tl,ml,ur,fi,ru"
+						},
+						{
+							"key": "web_service",
+							"value": "json"
+						},
+						{
+							"key": "callback",
+							"value": "ageGroups ",
+							"disabled": true
+						},
+						{
+							"key": "authorization",
+							"value": "4s21pzYoxqWZL6tG54g8g41G26R7PnT2",
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Regions",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "authorization",
+						"value": "4s21pzYoxqWZL6tG54g8g41G26R7PnT2"
+					}
+				],
+				"url": {
+					"raw": "https://apiscsandbox.isabelhealthcare.com/v3/regions?language=en&web_service=json",
+					"protocol": "https",
+					"host": [
+						"apiscsandbox",
+						"isabelhealthcare",
+						"com"
+					],
+					"path": [
+						"v3",
+						"regions"
+					],
+					"query": [
+						{
+							"key": "language",
+							"value": "en"
+						},
+						{
+							"key": "web_service",
+							"value": "json"
+						},
+						{
+							"key": "callback",
+							"value": "regions",
+							"disabled": true
+						},
+						{
+							"key": "authorization",
+							"value": "4s21pzYoxqWZL6tG54g8g41G26R7PnT2",
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Countries",
+			"protocolProfileBehavior": {
+				"disableCookies": false
+			},
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "authorization",
+						"value": "4s21pzYoxqWZL6tG54g8g41G26R7PnT2"
+					}
+				],
+				"url": {
+					"raw": "https://apiscsandbox.isabelhealthcare.com/v3/countries?language=en&web_service=json",
+					"protocol": "https",
+					"host": [
+						"apiscsandbox",
+						"isabelhealthcare",
+						"com"
+					],
+					"path": [
+						"v3",
+						"countries"
+					],
+					"query": [
+						{
+							"key": "language",
+							"value": "en",
+							"description": "en, es,de,nl,ar,hi,tl,ml,ur,fi,ru"
+						},
+						{
+							"key": "web_service",
+							"value": "json"
+						},
+						{
+							"key": "callback",
+							"value": "countries",
+							"disabled": true
+						},
+						{
+							"key": "authorization",
+							"value": "4s21pzYoxqWZL6tG54g8g41G26R7PnT2",
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Pregnancies",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "authorization",
+						"value": "4s21pzYoxqWZL6tG54g8g41G26R7PnT2"
+					}
+				],
+				"url": {
+					"raw": "https://apiscsandbox.isabelhealthcare.com/v3/pregnancies?language=en&web_service=json",
+					"protocol": "https",
+					"host": [
+						"apiscsandbox",
+						"isabelhealthcare",
+						"com"
+					],
+					"path": [
+						"v3",
+						"pregnancies"
+					],
+					"query": [
+						{
+							"key": "language",
+							"value": "en",
+							"description": "en, es,de,nl,ar,hi,tl,ml,ur,fi,ru"
+						},
+						{
+							"key": "web_service",
+							"value": "json"
+						},
+						{
+							"key": "callback",
+							"value": "pregnancies",
+							"disabled": true
+						},
+						{
+							"key": "authorization",
+							"value": "4s21pzYoxqWZL6tG54g8g41G26R7PnT2",
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Predictive Text",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "authorization",
+						"value": "4s21pzYoxqWZL6tG54g8g41G26R7PnT2",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "https://apiscsandbox.isabelhealthcare.com/v3/predictive-text?language=en",
+					"protocol": "https",
+					"host": [
+						"apiscsandbox",
+						"isabelhealthcare",
+						"com"
+					],
+					"path": [
+						"v3",
+						"predictive-text"
+					],
+					"query": [
+						{
+							"key": "language",
+							"value": "en"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Ranked Differential Diagnoses",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "authorization",
+						"value": "4s21pzYoxqWZL6tG54g8g41G26R7PnT2"
+					}
+				],
+				"url": {
+					"raw": "https://apiscsandbox.isabelhealthcare.com/v3/ranked_differential_diagnoses?language=en&dob=19850818&sex=m&pregnant=n&region=1&querytext= fever,running nose,tummy pain,nasua &specialties=28&suggest=Suggest+Differential+Diagnosis&flag=sortbyRW_advanced&searchType=0&web_service=json",
+					"protocol": "https",
+					"host": [
+						"apiscsandbox",
+						"isabelhealthcare",
+						"com"
+					],
+					"path": [
+						"v3",
+						"ranked_differential_diagnoses"
+					],
+					"query": [
+						{
+							"key": "language",
+							"value": "en",
+							"description": "en, es,de,nl,ar,hi,tl,ml,ur,fi,ru"
+						},
+						{
+							"key": "dob",
+							"value": "19850818"
+						},
+						{
+							"key": "sex",
+							"value": "m",
+							"description": "m-Male, f-Female"
+						},
+						{
+							"key": "pregnant",
+							"value": "n"
+						},
+						{
+							"key": "country_id",
+							"value": "221",
+							"disabled": true
+						},
+						{
+							"key": "region",
+							"value": "1"
+						},
+						{
+							"key": "querytext",
+							"value": " fever,running nose,tummy pain,nasua ",
+							"description": "English:  fever,running nose,tummy pain,nasua        --     Spanish: fiebre,nariz que moquea,dolor de barriga"
+						},
+						{
+							"key": "specialties",
+							"value": "28"
+						},
+						{
+							"key": "suggest",
+							"value": "Suggest+Differential+Diagnosis"
+						},
+						{
+							"key": "flag",
+							"value": "sortbyRW_advanced"
+						},
+						{
+							"key": "searchType",
+							"value": "0"
+						},
+						{
+							"key": "web_service",
+							"value": "json"
+						},
+						{
+							"key": "callback",
+							"value": "diagnosisCallback",
+							"disabled": true
+						},
+						{
+							"key": "authorization",
+							"value": "4s21pzYoxqWZL6tG54g8g41G26R7PnT2",
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Triage Score",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "authorization",
+						"value": "4s21pzYoxqWZL6tG54g8g41G26R7PnT2"
+					}
+				],
+				"url": {
+					"raw": "https://apiscsandbox.isabelhealthcare.com/v3/triage_score?language=en&dx=2,6,9&age=5&sex=2&region=1&text=cold,cough,fever,nasua&pregnancy=1&Q1=1&Q2=1&Q3=1&Q4=1&Q5=1&Q6=1&Q7=1&web_service=json",
+					"protocol": "https",
+					"host": [
+						"apiscsandbox",
+						"isabelhealthcare",
+						"com"
+					],
+					"path": [
+						"v3",
+						"triage_score"
+					],
+					"query": [
+						{
+							"key": "language",
+							"value": "en",
+							"description": "en, es,de,nl,ar,hi,tl,ml,ur,fi,ru"
+						},
+						{
+							"key": "dx",
+							"value": "2,6,9"
+						},
+						{
+							"key": "age",
+							"value": "5"
+						},
+						{
+							"key": "sex",
+							"value": "2"
+						},
+						{
+							"key": "region",
+							"value": "1"
+						},
+						{
+							"key": "text",
+							"value": "cold,cough,fever,nasua"
+						},
+						{
+							"key": "pregnancy",
+							"value": "1"
+						},
+						{
+							"key": "Q1",
+							"value": "1"
+						},
+						{
+							"key": "Q2",
+							"value": "1"
+						},
+						{
+							"key": "Q3",
+							"value": "1"
+						},
+						{
+							"key": "Q4",
+							"value": "1"
+						},
+						{
+							"key": "Q5",
+							"value": "1"
+						},
+						{
+							"key": "Q6",
+							"value": "1"
+						},
+						{
+							"key": "Q7",
+							"value": "1"
+						},
+						{
+							"key": "web_service",
+							"value": "json"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Convert to PRO Query",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "4s21pzYoxqWZL6tG54g8g41G26R7PnT2",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "https://apiscsandbox.isabelhealthcare.com/v3/convert_to_pro_query?language=en&query=fever,running nose,tummy pain&web_service=json",
+					"protocol": "https",
+					"host": [
+						"apiscsandbox",
+						"isabelhealthcare",
+						"com"
+					],
+					"path": [
+						"v3",
+						"convert_to_pro_query"
+					],
+					"query": [
+						{
+							"key": "language",
+							"value": "en",
+							"description": "en, es,de,nl,ar,hi,tl,ml,ur,fi,ru"
+						},
+						{
+							"key": "query",
+							"value": "fever,running nose,tummy pain",
+							"description": "English:  fever,running nose,tummy pain        --     Spanish: fiebre,nariz que moquea,dolor de barriga"
+						},
+						{
+							"key": "web_service",
+							"value": "json"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Knowledge Page API",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "4s21pzYoxqWZL6tG54g8g41G26R7PnT2",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "https://apiscsandbox.isabelhealthcare.com/v3/knowledge_window_urls?language=en&category_id=2351&category_type=standalone&diagnoses_name=Influenza&diagnoses_sub=2351&age_id=5&sex=Male&pregnancy=N&region=1&text=fever,running nose,tummy pain,nasua &specialty_id=28&audit_id=357828",
+					"protocol": "https",
+					"host": [
+						"apiscsandbox",
+						"isabelhealthcare",
+						"com"
+					],
+					"path": [
+						"v3",
+						"knowledge_window_urls"
+					],
+					"query": [
+						{
+							"key": "language",
+							"value": "en"
+						},
+						{
+							"key": "category_id",
+							"value": "2351"
+						},
+						{
+							"key": "category_type",
+							"value": "standalone"
+						},
+						{
+							"key": "diagnoses_name",
+							"value": "Influenza"
+						},
+						{
+							"key": "diagnoses_sub",
+							"value": "2351"
+						},
+						{
+							"key": "age_id",
+							"value": "5"
+						},
+						{
+							"key": "sex",
+							"value": "Male"
+						},
+						{
+							"key": "pregnancy",
+							"value": "N"
+						},
+						{
+							"key": "region",
+							"value": "1"
+						},
+						{
+							"key": "text",
+							"value": "fever,running nose,tummy pain,nasua "
+						},
+						{
+							"key": "specialty_id",
+							"value": "28"
+						},
+						{
+							"key": "audit_id",
+							"value": "357828"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

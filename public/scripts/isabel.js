@@ -1,6 +1,10 @@
 document.addEventListener('DOMContentLoaded', () => {
+    // Get references to the form and input elements
     const symptomForm = document.getElementById('symptomForm');
     const symptomsInput = document.getElementById('symptomsInput');
+    const genderInput = document.getElementById('genderInput');
+    const yearOfBirthInput = document.getElementById('yearOfBirthInput');
+    const regionInput = document.getElementById('regionInput');
     const resultsSection = document.getElementById('results');
     const analysisOutput = document.getElementById('analysisOutput');
     const recommendationOutput = document.getElementById('recommendationOutput');
@@ -13,11 +17,21 @@ document.addEventListener('DOMContentLoaded', () => {
         // Add more symptoms and their IDs here
     };
 
+    // Event listener for form submission
     symptomForm.addEventListener('submit', async (event) => {
-        event.preventDefault();
+        event.preventDefault(); // Prevent the default form submission behavior
 
+        // Get the values from the input fields
         const symptoms = symptomsInput.value.split(',').map(symptom => symptom.trim().toLowerCase());
+        const gender = genderInput.value;
+        const yearOfBirth = yearOfBirthInput.value;
+        const region = regionInput.value;
+
+        // Validate the inputs
         if (!symptoms.length) return alert('Please enter your symptoms.');
+        if (!gender) return alert('Please select your gender.');
+        if (!yearOfBirth) return alert('Please enter your date of birth.');
+        if (!region) return alert('Please select your region.');
 
         // Map symptom names to their corresponding IDs
         const symptomIds = symptoms.map(symptom => symptomMap[symptom]).filter(id => id !== undefined);
@@ -26,35 +40,40 @@ document.addEventListener('DOMContentLoaded', () => {
         console.log('Submitting symptom IDs:', symptomIds); // Log the symptom IDs being submitted
 
         try {
-            const response = await fetch('http://localhost:3000/analyze-symptoms', { // Update URL to match backend server
+            // Send a POST request to the backend server with the symptom IDs, gender, date of birth, and region
+            const response = await fetch('http://localhost:3000/analyze-symptoms', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ symptoms: symptomIds })
+                body: JSON.stringify({ symptoms: symptomIds, gender, yearOfBirth, region })
             });
 
             const data = await response.json();
 
             if (response.ok) {
-                analysisOutput.textContent = `Diagnosis: ${data.diagnosis}`;
-                recommendationOutput.textContent = `Recommendation: ${data.recommendation}`;
+                // Display the diagnosis and recommendation if the response is successful
+                analysisOutput.innerHTML = `<h3>Diagnosis:</h3><p>${data.diagnosis}</p>`;
+                recommendationOutput.innerHTML = `<h3>Recommendation:</h3><p>${data.recommendation}</p>`;
                 resultsSection.classList.remove('hidden');
                 resultsSection.style.display = 'block'; // Ensure the results section is displayed
             } else {
-                analysisOutput.textContent = `Error: ${data.error}`;
-                recommendationOutput.textContent = '';
+                // Display the error message if the response is not successful
+                analysisOutput.innerHTML = `<h3>Error:</h3><p>${data.error}</p>`;
+                recommendationOutput.innerHTML = '';
                 resultsSection.classList.remove('hidden');
                 resultsSection.style.display = 'block'; // Ensure the results section is displayed
             }
         } catch (error) {
-            analysisOutput.textContent = `Error: ${error.message}`;
-            recommendationOutput.textContent = '';
+            // Display the error message if there is an error in the request
+            analysisOutput.innerHTML = `<h3>Error:</h3><p>${error.message}</p>`;
+            recommendationOutput.innerHTML = '';
             resultsSection.classList.remove('hidden');
             resultsSection.style.display = 'block'; // Ensure the results section is displayed
         }
     });
 
+    // Event listener for theme toggle
     themeToggle.addEventListener('click', () => {
         const currentTheme = document.documentElement.getAttribute('data-theme');
         const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
