@@ -66,12 +66,19 @@ app.post('/analyze-symptoms', async (req, res) => {
             return res.status(400).json({ error: 'No diagnosis data returned from API.' });
         }
 
-        const diagnosis = diagnosisData.diagnoses[0]?.diagnosis_name || 'Unknown';
-        const recommendation = diagnosisData.diagnoses[0]?.recommendation || 'Consult a healthcare provider.';
+        // Extract relevant information from the diagnosis data
+        const diagnoses = diagnosisData.diagnoses.map(d => ({
+            name: d.diagnosis_name,
+            specialty: d.specialty,
+            common: d.common_diagnosis,
+            redFlag: d.red_flag,
+            knowledgeUrl: d.knowledge_window_api_url,
+            explanation: `Based on your symptoms (${symptoms.join(', ')}), age, and gender, this condition is a possible diagnosis.`,
+            description: `This is a brief description of ${d.diagnosis_name}. For more information, please visit the provided link.`
+        }));
 
         res.json({
-            diagnosis: diagnosis,
-            recommendation: recommendation
+            diagnoses: diagnoses
         });
     } catch (error) {
         console.error('Error:', error.response ? error.response.data : error.message);

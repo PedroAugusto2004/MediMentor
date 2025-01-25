@@ -52,9 +52,22 @@ document.addEventListener('DOMContentLoaded', () => {
             const data = await response.json();
 
             if (response.ok) {
-                // Display the diagnosis and recommendation if the response is successful
-                analysisOutput.innerHTML = `<h3>Diagnosis:</h3><p>${data.diagnosis}</p>`;
-                recommendationOutput.innerHTML = `<h3>Recommendation:</h3><p>${data.recommendation}</p>`;
+                // Display the diagnoses and recommendations if the response is successful
+                analysisOutput.innerHTML = '<h3>Diagnoses:</h3>';
+                data.diagnoses.forEach(d => {
+                    analysisOutput.innerHTML += `
+                        <div class="diagnosis">
+                            <p><strong>Name:</strong> ${d.name}</p>
+                            <p><strong>Specialty:</strong> ${d.specialty}</p>
+                            <p><strong>Common:</strong> ${d.common ? 'Yes' : 'No'}</p>
+                            <p><strong>Red Flag:</strong> ${d.redFlag ? 'Yes' : 'No'}</p>
+                            <p><strong>Explanation:</strong> ${d.explanation}</p>
+                            <p><strong>Description:</strong> ${d.description}</p>
+                            <p><a href="${d.knowledgeUrl}" target="_blank">More Info</a></p>
+                        </div>
+                    `;
+                });
+                recommendationOutput.innerHTML = '<h3>Recommendation:</h3><p>Consult a healthcare provider.</p>';
                 resultsSection.classList.remove('hidden');
                 resultsSection.style.display = 'block'; // Ensure the results section is displayed
             } else {

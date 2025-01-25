@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MediMentor</title>
+    <title>MediMentor ChatBot</title>
     <link rel="stylesheet" href="styles/style.css">
     <link rel="shortcut icon" href="assets/images/logo.JPG">
 </head>
@@ -26,34 +26,14 @@
     </header>
 
     <main>
-        <section id="hero">
-            <h1>Your Personal Health Assistant</h1>
-            <p>Analyze symptoms and get personalized recommendations instantly.</p>
-            <form id="symptomForm">
-                <input type="text" id="symptomsInput" placeholder="Enter your symptoms..." required>
-                <select id="genderInput" required>
-                    <option value="">Select Gender</option>
-                    <option value="male">Male</option>
-                    <option value="female">Female</option>
-                </select>
-                <input type="date" id="yearOfBirthInput" placeholder="Enter your date of birth..." required>
-                <select id="regionInput" required>
-                    <option value="">Select Region</option>
-                    <option value="north-america">North America</option>
-                    <option value="europe">Europe</option>
-                    <option value="asia">Asia</option>
-                    <option value="africa">Africa</option>
-                    <option value="south-america">South America</option>
-                    <option value="australia">Australia</option>
-                </select>
-                <button type="submit">Analyze Symptoms</button>
-            </form>
-        </section>
-
-        <section id="results" class="hidden">
-            <h2>Analysis Results</h2>
-            <div id="analysisOutput"></div>
-            <div id="recommendationOutput"></div>
+        <section id="chatbot">
+            <div id="chatWindow">
+                <div id="chatOutput"></div>
+            </div>
+            <div id="chatInputContainer">
+                <input type="text" id="chatInput" placeholder="Type your message..." required>
+                <button id="sendButton">Send</button>
+            </div>
         </section>
     </main>
 
@@ -61,6 +41,6 @@
         <p>&copy; 2025 MediMentor. All Rights Reserved.</p>
     </footer>
 
-    <script src="scripts/isabel.js"></script>
+    <script src="scripts/chatbot.js"></script>
 </body>
 </html>
