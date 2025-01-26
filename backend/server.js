@@ -24,7 +24,7 @@ const regionMap = {
 
 // Endpoint to analyze symptoms
 app.post('/analyze-symptoms', async (req, res) => {
-    const { symptoms, gender, yearOfBirth, region } = req.body;
+    const { symptoms, gender, yearOfBirth, region, symptomStart } = req.body;
 
     console.log('Received symptoms:', symptoms); // Log the received symptoms for debugging
 
@@ -50,6 +50,7 @@ app.post('/analyze-symptoms', async (req, res) => {
                 sex: gender.charAt(0), // Use 'm' or 'f'
                 querytext: symptoms.join(','),
                 region: regionId, // Use the mapped region ID
+                symptom_start: symptomStart, // Include symptom start date
                 web_service: 'json' // Ensure the response is in JSON format
             },
             headers: {
@@ -73,7 +74,7 @@ app.post('/analyze-symptoms', async (req, res) => {
             common: d.common_diagnosis,
             redFlag: d.red_flag,
             knowledgeUrl: d.knowledge_window_api_url,
-            explanation: `Based on your symptoms (${symptoms.join(', ')}), age, and gender, this condition is a possible diagnosis.`,
+            explanation: `Based on your symptoms (${symptoms.join(', ')}), age, gender, and symptom start date (${symptomStart}), this condition is a possible diagnosis.`,
             description: `This is a brief description of ${d.diagnosis_name}. For more information, please visit the provided link.`
         }));
 
