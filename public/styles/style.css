@@ -12,7 +12,7 @@
 
 /* Body styles */
 body {
-    font-family: Arial, sans-serif;
+    font-family: 'Roboto', sans-serif;
     line-height: 1.6;
     color: var(--text-color);
     background: var(--background-color);
@@ -21,10 +21,16 @@ body {
 
 /* CSS variables for light and dark themes */
 :root {
-    --background-color: #fff;
+    --background-color: #f4f4f4;
     --text-color: #333;
     --primary-color: #007acc;
-    --secondary-color: #f4f4f4;
+    --secondary-color: #fff;
+    --input-bg: #fff;
+    --input-border: #ccc;
+    --input-focus-border: #007acc;
+    --button-bg: #007acc;
+    --button-hover-bg: #005f99;
+    --button-text: #fff;
     --results-bg: #e6f7ff;
 }
 
@@ -32,7 +38,13 @@ body {
     --background-color: #1d1d1d;
     --text-color: #fff;
     --primary-color: #007acc;
-    --secondary-color: #1d1d1d;
+    --secondary-color: #2c2c2c;
+    --input-bg: #333;
+    --input-border: #555;
+    --input-focus-border: #007acc;
+    --button-bg: #007acc;
+    --button-hover-bg: #005f99;
+    --button-text: #fff;
     --results-bg: #1d1d1d;
 }
 
@@ -41,6 +53,9 @@ header {
     background: var(--primary-color);
     color: #fff;
     padding: 1rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 }
 
 header .logo {
@@ -51,7 +66,6 @@ header .logo {
 header .nav-links {
     list-style: none;
     display: flex;
-    justify-content: flex-end;
     gap: 1.5rem;
 }
 
@@ -85,10 +99,11 @@ header .nav-links a {
     padding: 0.75rem;
     width: 80%;
     max-width: 500px;
-    border: 1px solid #ccc;
+    border: 1px solid var(--input-border);
     border-radius: 5px;
     margin-bottom: 1rem;
     font-size: 1rem;
+    background: var(--input-bg);
     transition: border-color 0.3s, box-shadow 0.3s;
 }
 
@@ -96,7 +111,7 @@ header .nav-links a {
 #hero input[type="number"]:focus,
 #hero input[type="date"]:focus,
 #hero select:focus {
-    border-color: var(--primary-color);
+    border-color: var(--input-focus-border);
     box-shadow: 0 0 5px rgba(0, 122, 204, 0.5);
     outline: none;
 }
@@ -104,8 +119,8 @@ header .nav-links a {
 /* Button styles */
 #hero button {
     padding: 0.75rem 1.5rem;
-    background: var(--primary-color);
-    color: #fff;
+    background: var(--button-bg);
+    color: var(--button-text);
     border: none;
     border-radius: 5px;
     cursor: pointer;
@@ -114,7 +129,7 @@ header .nav-links a {
 }
 
 #hero button:hover {
-    background: #004e81;
+    background: var(--button-hover-bg);
     transform: translateY(-2px);
 }
 
@@ -186,11 +201,12 @@ header .nav-links a {
     width: 100%;
     max-width: 600px;
     height: 70vh;
-    border: 1px solid #c7c7c7;
-    border-radius: 5px;
+    border: 1px solid var(--input-border);
+    border-radius: 10px;
     overflow-y: auto;
     padding: 1rem;
     margin-bottom: 1rem;
+    background: var(--input-bg);
 }
 
 #chatOutput {
@@ -201,11 +217,11 @@ header .nav-links a {
 .message {
     margin-bottom: 1rem;
     padding: 0.75rem;
-    border-radius: 5px;
+    border-radius: 10px;
 }
 
 .user-message {
-    background-color: #007acc;
+    background-color: var(--primary-color);
     color: #fff;
     align-self: flex-end;
 }
@@ -222,28 +238,42 @@ header .nav-links a {
     max-width: 600px;
 }
 
-#chatInput {
+#chatInput,
+#dateInput {
     flex: 1;
     padding: 0.75rem;
-    border: 1px solid #ccc;
-    border-radius: 5px 0 0 5px;
+    border: 1px solid var(--input-border);
+    border-radius: 10px 0 0 10px;
     font-size: 1rem;
+    background: var(--input-bg);
+    transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+#chatInput:focus,
+#dateInput:focus {
+    border-color: var(--input-focus-border);
+    box-shadow: 0 0 5px rgba(0, 122, 204, 0.5);
+    outline: none;
 }
 
 #sendButton {
     padding: 0.75rem 1.5rem;
-    background: var(--primary-color);
-    color: #fff;
-    border: none;
-    border-radius: 0 5px 5px 0;
-    cursor: pointer;
     font-size: 1rem;
+    background: var(--button-bg);
+    color: var(--button-text);
+    border: none;
+    border-radius: 0 10px 10px 0;
+    cursor: pointer;
     transition: background 0.3s, transform 0.3s;
 }
 
 #sendButton:hover {
-    background: #004e81;
+    background: var(--button-hover-bg);
     transform: translateY(-2px);
+}
+
+#sendButton:active {
+    transform: translateY(0);
 }
 
 /* Footer styles */
@@ -333,10 +363,10 @@ footer {
 /* Option Button styles */
 .optionButton {
     padding: 0.75rem 1.5rem;
-    background: var(--primary-color);
-    color: #fff;
+    background: var(--button-bg);
+    color: var(--button-text);
     border: none;
-    border-radius: 5px;
+    border-radius: 10px;
     cursor: pointer;
     font-size: 1rem;
     margin: 0.5rem;
@@ -344,7 +374,7 @@ footer {
 }
 
 .optionButton:hover {
-    background: #004e81;
+    background: var(--button-hover-bg);
     transform: translateY(-2px);
 }
 
@@ -378,12 +408,13 @@ footer {
         flex-direction: column;
     }
 
-    #chatInput {
-        border-radius: 5px;
+    #chatInput,
+    #dateInput {
+        border-radius: 10px;
         margin-bottom: 0.5rem;
     }
 
     #sendButton {
-        border-radius: 5px;
+        border-radius: 10px;
     }
 }

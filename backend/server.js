@@ -29,7 +29,7 @@ app.post('/analyze-symptoms', async (req, res) => {
     console.log('Received symptoms:', symptoms); // Log the received symptoms for debugging
 
     // Validate the symptoms input
-    if (!Array.isArray(symptoms) || symptoms.some(isNaN)) {
+    if (!Array.isArray(symptoms) || symptoms.length === 0) {
         console.error('Invalid symptoms format:', symptoms); // Log the invalid format
         return res.status(400).json({ error: 'Invalid symptoms format. Expecting an array of symptom IDs.' });
     }

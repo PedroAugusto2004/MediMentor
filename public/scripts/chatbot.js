@@ -1,5 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
     const chatInput = document.getElementById('chatInput');
+    const dateInput = document.getElementById('dateInput');
     const sendButton = document.getElementById('sendButton');
     const chatOutput = document.getElementById('chatOutput');
     const themeToggle = document.getElementById('themeToggle');
@@ -34,12 +35,48 @@ document.addEventListener('DOMContentLoaded', () => {
         chatOutput.scrollTop = chatOutput.scrollHeight;
     };
 
-    const getBotResponse = (userMessage) => {
+    // Extended symptom map with more symptoms and their IDs
+    const symptomMap = {
+        'fever': '10',
+        'headache': '15',
+        'nausea': '20',
+        'cough': '25',
+        'fatigue': '30',
+        'sore throat': '35',
+        'shortness of breath': '40',
+        'body ache': '45',
+        'dizziness': '50',
+        'chest pain': '55'
+    };
+
+    const getBotResponse = (userMessage, step) => {
         const message = userMessage.toLowerCase();
 
         // Check for symptoms
-        const symptoms = ['fever', 'headache', 'nausea'];
-        if (symptoms.some(symptom => message.includes(symptom))) {
+        if (step === 0) {
+            const userSymptoms = message.split(',').map(s => s.trim());
+            const validSymptoms = userSymptoms.every(symptom => symptomMap[symptom]);
+            if (validSymptoms) return null;
+        }
+
+        // Check for symptom start date
+        if (step === 1 && /\d+ (day|week|month|year)s? ago/.test(message)) {
+            return null; // No need for a special response, proceed with the flow
+        }
+
+        // Check for gender
+        if (step === 2 && (message === 'male' || message === 'female')) {
+            return null; // No need for a special response, proceed with the flow
+        }
+
+        // Check for date of birth
+        if (step === 3 && /^\d{4}-\d{2}-\d{2}$/.test(message)) {
+            return null; // No need for a special response, proceed with the flow
+        }
+
+        // Check for region
+        const regions = ['north-america', 'europe', 'asia', 'africa', 'south-america', 'australia'];
+        if (step === 4 && regions.includes(message)) {
             return null; // No need for a special response, proceed with the flow
         }
 
@@ -54,7 +91,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     const handleUserInput = async (input) => {
-        const botReply = getBotResponse(input);
+        const botReply = getBotResponse(input, currentStep);
         if (botReply) {
             addMessage(botReply, 'bot');
             return; // Pause the flow until a relevant response is received
@@ -62,7 +99,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
         switch (currentStep) {
             case 0:
-                userInputs.symptoms = input.split(',').map(symptom => symptom.trim().toLowerCase());
+                // Convert symptoms to their IDs
+                const symptoms = input.split(',')
+                    .map(symptom => symptom.trim().toLowerCase())
+                    .map(symptom => symptomMap[symptom])
+                    .filter(id => id); // Remove any undefined values
+                userInputs.symptoms = symptoms;
                 break;
             case 1:
                 userInputs.symptomStart = input;
@@ -83,6 +125,9 @@ document.addEventListener('DOMContentLoaded', () => {
         if (currentStep === 2) {
             genderSelection.classList.remove('hidden');
             chatInputContainer.classList.add('hidden');
+        } else if (currentStep === 3) {
+            chatInput.classList.add('hidden');
+            dateInput.classList.remove('hidden');
         } else if (currentStep === 4) {
             regionSelection.classList.remove('hidden');
             chatInputContainer.classList.add('hidden');
@@ -90,6 +135,8 @@ document.addEventListener('DOMContentLoaded', () => {
             chatInputContainer.classList.remove('hidden');
             genderSelection.classList.add('hidden');
             regionSelection.classList.add('hidden');
+            chatInput.classList.remove('hidden');
+            dateInput.classList.add('hidden');
         }
     };
 
@@ -120,15 +167,28 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     sendButton.addEventListener('click', () => {
-        const userInput = chatInput.value.trim();
+        const userInput = currentStep === 3 ? dateInput.value : chatInput.value.trim();
         if (!userInput) return;
 
         addMessage(userInput, 'user');
         handleUserInput(userInput);
         chatInput.value = '';
+        dateInput.value = '';
+
+        // Ensure inputs return to normal after Date of Birth question
+        if (currentStep === 3) {
+            chatInput.classList.remove('hidden');
+            dateInput.classList.add('hidden');
+        }
     });
 
     chatInput.addEventListener('keypress', (event) => {
+        if (event.key === 'Enter') {
+            sendButton.click();
+        }
+    });
+
+    dateInput.addEventListener('keypress', (event) => {
         if (event.key === 'Enter') {
             sendButton.click();
         }
