@@ -34,7 +34,32 @@ document.addEventListener('DOMContentLoaded', () => {
         chatOutput.scrollTop = chatOutput.scrollHeight;
     };
 
+    const getBotResponse = (userMessage) => {
+        const message = userMessage.toLowerCase();
+
+        // Check for symptoms
+        const symptoms = ['fever', 'headache', 'nausea'];
+        if (symptoms.some(symptom => message.includes(symptom))) {
+            return null; // No need for a special response, proceed with the flow
+        }
+
+        // Check for medications
+        const medications = ['aspirin', 'ibuprofen', 'paracetamol'];
+        if (medications.some(med => message.includes(med))) {
+            return "I'm unable to provide medication advice. Could you tell me more about your symptoms instead?";
+        }
+
+        // Default response for unrelated inputs
+        return "I can help you with symptom analysis. Could you describe your symptoms instead?";
+    };
+
     const handleUserInput = async (input) => {
+        const botReply = getBotResponse(input);
+        if (botReply) {
+            addMessage(botReply, 'bot');
+            return; // Pause the flow until a relevant response is received
+        }
+
         switch (currentStep) {
             case 0:
                 userInputs.symptoms = input.split(',').map(symptom => symptom.trim().toLowerCase());
