@@ -32,10 +32,12 @@ body {
     --button-hover-bg: #005f99;
     --button-text: #fff;
     --results-bg: #e6f7ff;
+    --input-text: #333;
+    --input-placeholder: #666;
 }
 
 [data-theme="dark"] {
-    --background-color: #1d1d1d;
+    --background-color: #2c2c2c;
     --text-color: #fff;
     --primary-color: #007acc;
     --secondary-color: #2c2c2c;
@@ -46,6 +48,29 @@ body {
     --button-hover-bg: #005f99;
     --button-text: #fff;
     --results-bg: #1d1d1d;
+    --input-text: #fff;
+    --input-placeholder: #aaa;
+    --calendar-icon-filter: invert(1);
+}
+
+/* Custom scrollbar styles */
+::-webkit-scrollbar {
+    width: 12px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--input-bg);
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+    background-color: var(--primary-color);
+    border-radius: 10px;
+    border: 3px solid var(--input-bg);
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background-color: var(--button-hover-bg);
 }
 
 /* Header styles */
@@ -59,20 +84,17 @@ header {
 }
 
 header .logo {
-    font-size: 1.5rem;
-    font-weight: bold;
-}
-
-header .nav-links {
-    list-style: none;
     display: flex;
-    gap: 1.5rem;
+    align-items: center;
+    gap: 10px;
+    font-size: 1.5rem;
+    font-weight: lighter;
 }
 
-header .nav-links a {
-    color: #fff;
-    text-decoration: none;
-    font-weight: bold;
+.logo-img {
+    width: 80px;
+    height: 80px;
+    object-fit: contain;
 }
 
 /* Hero section styles */
@@ -207,11 +229,13 @@ header .nav-links a {
     padding: 1rem;
     margin-bottom: 1rem;
     background: var(--input-bg);
+    scroll-behavior: smooth;
 }
 
 #chatOutput {
     display: flex;
     flex-direction: column;
+    gap: 0.5rem;
 }
 
 .message {
@@ -227,7 +251,7 @@ header .nav-links a {
 }
 
 .bot-message {
-    background-color: #8bbcd3;
+    background-color: #81acc0;
     color: #333;
     align-self: flex-start;
 }
@@ -236,6 +260,7 @@ header .nav-links a {
     display: flex;
     width: 100%;
     max-width: 600px;
+    align-items: center; /* Align items vertically */
 }
 
 #chatInput,
@@ -247,6 +272,7 @@ header .nav-links a {
     font-size: 1rem;
     background: var(--input-bg);
     transition: border-color 0.3s, box-shadow 0.3s;
+    color: var(--input-text);
 }
 
 #chatInput:focus,
@@ -254,6 +280,15 @@ header .nav-links a {
     border-color: var(--input-focus-border);
     box-shadow: 0 0 5px rgba(0, 122, 204, 0.5);
     outline: none;
+}
+
+#chatInput::placeholder,
+#dateInput::placeholder {
+    color: var(--input-placeholder);
+}
+
+#dateInput::-webkit-calendar-picker-indicator {
+    filter: var(--calendar-icon-filter);
 }
 
 #sendButton {
@@ -274,6 +309,71 @@ header .nav-links a {
 
 #sendButton:active {
     transform: translateY(0);
+}
+
+#restartButton {
+    padding: 0.5rem; /* Smaller padding */
+    background: rgb(2, 64, 88); /* Different background color */
+    color: #fff; /* White text color */
+    border: none;
+    border-radius: 50%; /* Circular button */
+    cursor: pointer;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px; /* Fixed width */
+    height: 40px; /* Fixed height */
+    margin-left: 0.5rem; /* Add spacing between buttons */
+}
+
+#restartButton span {
+    font-size: 1.2rem;
+    transition: transform 0.3s ease;
+}
+
+#restartButton:hover {
+    background: rgb(0, 57, 95); /* Different background color */
+    transform: rotate(180deg); /* Rotate the button on hover */
+}
+
+/* Restart Button styles */
+#chatControls {
+    width: 100%;
+    max-width: 600px;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.restartButton {
+    padding: 0.75rem 1.5rem;
+    background: var(--button-bg);
+    color: var(--button-text);
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+.restartButton span {
+    font-size: 1.2rem;
+    transition: transform 0.3s ease;
+}
+
+.restartButton:hover {
+    background: var(--button-hover-bg);
+    transform: translateY(-2px);
+}
+
+.restartButton:hover span {
+    transform: rotate(180deg);
 }
 
 /* Footer styles */

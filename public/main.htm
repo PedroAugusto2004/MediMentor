@@ -3,19 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MediMentor ChatBot</title>
+    <title>MediMentor</title>
     <link rel="stylesheet" href="styles/style.css">
     <link rel="shortcut icon" href="assets/images/logo1.png">
 </head>
 <body>
     <header>
         <nav>
-            <div class="logo">MediMentor</div>
-            <ul class="nav-links">
-                <li><a href="#about">About</a></li>
-                <li><a href="#features">Features</a></li>
-                <li><a href="#contact">Contact</a></li>
-            </ul>
+            <div class="logo">
+                <img src="assets/images/logo1.png" alt="MediMentor Logo" class="logo-img">
+                <span>MediMentor</span>
+            </div>
         </nav>
         <label class="ui-switch">
             <input type="checkbox" id="themeToggle">
@@ -34,6 +32,9 @@
                 <input type="text" id="chatInput" placeholder="Type your message..." required>
                 <input type="date" id="dateInput" class="hidden">
                 <button id="sendButton">Send</button>
+                <button id="restartButton" class="restartButton">
+                    <span>↺</span>
+                </button>
             </div>
             <div id="genderSelection" class="hidden">
                 <button class="optionButton" data-value="male">Male</button>

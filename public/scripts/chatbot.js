@@ -7,6 +7,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const genderSelection = document.getElementById('genderSelection');
     const regionSelection = document.getElementById('regionSelection');
     const chatInputContainer = document.getElementById('chatInputContainer');
+    const restartButton = document.getElementById('restartButton');
 
     let userInputs = {
         symptoms: [],
@@ -32,7 +33,11 @@ document.addEventListener('DOMContentLoaded', () => {
         messageElement.classList.add('message', `${sender}-message`);
         messageElement.textContent = message;
         chatOutput.appendChild(messageElement);
-        chatOutput.scrollTop = chatOutput.scrollHeight;
+        
+        // Scroll to the new message with smooth animation
+        setTimeout(() => {
+            messageElement.scrollIntoView({ behavior: 'smooth', block: 'end' });
+        }, 100);
     };
 
     // Extended symptom map with more symptoms and their IDs
@@ -114,6 +119,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 break;
             case 3:
                 userInputs.yearOfBirth = input;
+                chatInput.classList.remove('hidden');
+                dateInput.classList.add('hidden');
                 break;
             case 4:
                 userInputs.region = input.toLowerCase();
@@ -166,20 +173,51 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
+    const resetConversation = () => {
+        // Reset user inputs
+        userInputs = {
+            symptoms: [],
+            gender: '',
+            yearOfBirth: '',
+            region: '',
+            symptomStart: ''
+        };
+
+        // Reset current step
+        currentStep = 0;
+
+        // Clear chat output
+        chatOutput.innerHTML = '';
+
+        // Reset UI elements
+        chatInput.classList.remove('hidden');
+        dateInput.classList.add('hidden');
+        genderSelection.classList.add('hidden');
+        regionSelection.classList.add('hidden');
+        chatInputContainer.classList.remove('hidden');
+
+        // Clear input fields
+        chatInput.value = '';
+        dateInput.value = '';
+
+        // Start new conversation
+        addMessage(steps[currentStep], 'bot');
+    };
+
     sendButton.addEventListener('click', () => {
         const userInput = currentStep === 3 ? dateInput.value : chatInput.value.trim();
         if (!userInput) return;
 
         addMessage(userInput, 'user');
         handleUserInput(userInput);
-        chatInput.value = '';
-        dateInput.value = '';
-
-        // Ensure inputs return to normal after Date of Birth question
+        
+        // Clear inputs and restore text input after date selection
         if (currentStep === 3) {
+            dateInput.value = '';
             chatInput.classList.remove('hidden');
             dateInput.classList.add('hidden');
         }
+        chatInput.value = '';
     });
 
     chatInput.addEventListener('keypress', (event) => {
@@ -222,6 +260,9 @@ document.addEventListener('DOMContentLoaded', () => {
         const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
         document.documentElement.setAttribute('data-theme', newTheme);
     });
+
+    // Event listener for restart button
+    restartButton.addEventListener('click', resetConversation);
 
     // Start the conversation
     addMessage(steps[currentStep], 'bot');
