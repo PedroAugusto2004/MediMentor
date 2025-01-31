@@ -6,6 +6,7 @@
     <title>MediMentor</title>
     <link rel="stylesheet" href="styles/style.css">
     <link rel="shortcut icon" href="assets/images/logo1.png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
 <body>
     <header>
@@ -15,12 +16,14 @@
                 <span>MediMentor</span>
             </div>
         </nav>
-        <label class="ui-switch">
-            <input type="checkbox" id="themeToggle">
-            <div class="slider">
-                <div class="circle"></div>
-            </div>
-        </label>
+        <div class="theme-toggle">
+            <input type="radio" id="light" name="theme" value="light">
+            <label for="light"><i class="fas fa-sun"></i></label>
+            <input type="radio" id="dark" name="theme" value="dark">
+            <label for="dark"><i class="fas fa-moon"></i></label>
+            <input type="radio" id="system" name="theme" value="system" checked>
+            <label for="system"><i class="fas fa-desktop"></i></label>
+        </div>
     </header>
 
     <main>

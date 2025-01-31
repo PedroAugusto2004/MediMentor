@@ -9,6 +9,20 @@
         "label": "off",
         "select-name": "off"
       }
+    ],
+    "axe/aria": [
+      "default",
+      {
+        "aria-required-attr": "off"
+      }
+    ],
+    "compat-api/css": [
+      "default",
+      {
+        "ignore": [
+          "backdrop-filter"
+        ]
+      }
     ]
   }
 }

@@ -3,7 +3,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const dateInput = document.getElementById('dateInput');
     const sendButton = document.getElementById('sendButton');
     const chatOutput = document.getElementById('chatOutput');
-    const themeToggle = document.getElementById('themeToggle');
+    const themeToggle = document.querySelectorAll('.theme-toggle input[name="theme"]');
     const genderSelection = document.getElementById('genderSelection');
     const regionSelection = document.getElementById('regionSelection');
     const chatInputContainer = document.getElementById('chatInputContainer');
@@ -29,15 +29,30 @@ document.addEventListener('DOMContentLoaded', () => {
     ];
 
     const addMessage = (message, sender) => {
-        const messageElement = document.createElement('div');
-        messageElement.classList.add('message', `${sender}-message`);
-        messageElement.textContent = message;
-        chatOutput.appendChild(messageElement);
-        
-        // Scroll to the new message with smooth animation
+        // Show typing indicator for bot messages
+        let typingIndicator;
+        if (sender === 'bot') {
+            typingIndicator = document.createElement('div');
+            typingIndicator.className = 'typing-indicator';
+            typingIndicator.innerHTML = '<span></span><span></span><span></span>';
+            chatOutput.appendChild(typingIndicator);
+        }
+
+        // Delay message appearance for bot messages
         setTimeout(() => {
+            // Remove typing indicator if it exists
+            if (typingIndicator) {
+                typingIndicator.remove();
+            }
+
+            const messageElement = document.createElement('div');
+            messageElement.classList.add('message', `${sender}-message`);
+            messageElement.innerHTML = message;
+            chatOutput.appendChild(messageElement);
+            
+            // Scroll to the new message
             messageElement.scrollIntoView({ behavior: 'smooth', block: 'end' });
-        }, 100);
+        }, sender === 'bot' ? 1000 : 0); // Add delay for bot messages
     };
 
     // Extended symptom map with more symptoms and their IDs
@@ -54,6 +69,57 @@ document.addEventListener('DOMContentLoaded', () => {
         'chest pain': '55'
     };
 
+    // Add these utility functions at the top level
+    const parseRelativeDate = (input) => {
+        const text = input.toLowerCase().trim();
+        const today = new Date();
+        const daysOfWeek = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+        
+        // Handle "X days/weeks/months ago"
+        const agoMatch = text.match(/(\d+)\s*(day|week|month|year)s?\s*ago/);
+        if (agoMatch) {
+            const [_, number, unit] = agoMatch;
+            const date = new Date();
+            switch (unit) {
+                case 'day': date.setDate(date.getDate() - parseInt(number)); break;
+                case 'week': date.setDate(date.getDate() - (parseInt(number) * 7)); break;
+                case 'month': date.setMonth(date.getMonth() - parseInt(number)); break;
+                case 'year': date.setFullYear(date.getFullYear() - parseInt(number)); break;
+            }
+            return { date, duration: `${number} ${unit}${number > 1 ? 's' : ''}` };
+        }
+
+        // Handle "yesterday", "today", etc.
+        if (text === 'yesterday') {
+            const date = new Date();
+            date.setDate(date.getDate() - 1);
+            return { date, duration: '1 day' };
+        }
+        if (text === 'today') {
+            return { date: today, duration: 'today' };
+        }
+
+        // Handle day names (e.g., "last Monday")
+        const dayMatch = text.match(/(last\s+)?(monday|tuesday|wednesday|thursday|friday|saturday|sunday)/);
+        if (dayMatch) {
+            const targetDay = daysOfWeek.indexOf(dayMatch[2]);
+            const date = new Date();
+            let diff = targetDay - date.getDay();
+            if (diff >= 0 || dayMatch[1]) diff -= 7; // Go to previous week if it's "last" or the day has passed
+            date.setDate(date.getDate() + diff);
+            return { date, duration: `since ${dayMatch[2]}` };
+        }
+
+        // Handle "X weeks/months" without "ago"
+        const timeMatch = text.match(/(\d+)\s*(day|week|month|year)s?/);
+        if (timeMatch) {
+            return parseRelativeDate(`${timeMatch[1]} ${timeMatch[2]}s ago`);
+        }
+
+        return null;
+    };
+
+    // Update the getBotResponse function
     const getBotResponse = (userMessage, step) => {
         const message = userMessage.toLowerCase();
 
@@ -64,9 +130,16 @@ document.addEventListener('DOMContentLoaded', () => {
             if (validSymptoms) return null;
         }
 
-        // Check for symptom start date
-        if (step === 1 && /\d+ (day|week|month|year)s? ago/.test(message)) {
-            return null; // No need for a special response, proceed with the flow
+        // Enhanced date understanding for step 1
+        if (step === 1) {
+            const parsedDate = parseRelativeDate(message);
+            if (parsedDate) {
+                userInputs.symptomStartDate = parsedDate.date;
+                userInputs.symptomDuration = parsedDate.duration;
+                return null;
+            }
+            // If we can't parse the date, ask for clarification
+            return "Could you please specify when the symptoms started? For example: '2 days ago' or 'last Monday'";
         }
 
         // Check for gender
@@ -112,7 +185,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 userInputs.symptoms = symptoms;
                 break;
             case 1:
-                userInputs.symptomStart = input;
+                const parsedDate = parseRelativeDate(input);
+                if (parsedDate) {
+                    userInputs.symptomStart = parsedDate.duration;
+                    userInputs.symptomStartFormatted = parsedDate.date.toISOString().split('T')[0];
+                } else {
+                    userInputs.symptomStart = input;
+                }
                 break;
             case 2:
                 userInputs.gender = input.toLowerCase();
@@ -150,21 +229,29 @@ document.addEventListener('DOMContentLoaded', () => {
     const analyzeSymptoms = async () => {
         addMessage('Analyzing your symptoms...', 'bot');
         try {
+            const payload = {
+                ...userInputs,
+                // Add formatted dates if available
+                symptomStart: userInputs.symptomStartFormatted || userInputs.symptomStart,
+                temporalContext: userInputs.symptomDuration || 'unspecified'
+            };
+
             const response = await fetch('http://localhost:3000/analyze-symptoms', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify(userInputs)
+                body: JSON.stringify(payload)
             });
 
             const data = await response.json();
 
             if (response.ok) {
-                data.diagnoses.forEach(d => {
-                    addMessage(`Diagnosis: ${d.name}\nSpecialty: ${d.specialty}\nCommon: ${d.common ? 'Yes' : 'No'}\nRed Flag: ${d.redFlag ? 'Yes' : 'No'}\nExplanation: ${d.explanation}\nDescription: ${d.description}\nMore Info: ${d.knowledgeUrl}`, 'bot');
-                });
-                addMessage('Recommendation: Consult a healthcare provider.', 'bot');
+                const topDiagnosis = data.diagnoses[0];
+                addDiagnosisToChat(topDiagnosis);
+                if (!topDiagnosis.redFlag) {
+                    addMessage('It seems like your symptoms are mild. Here are some friendly recommendations:\n- Stay hydrated\n- Get plenty of rest\n- Monitor your symptoms\n- Consult a healthcare professional if symptoms persist or worsen.', 'bot');
+                }
             } else {
                 addMessage(`Error: ${data.error}`, 'bot');
             }
@@ -172,6 +259,44 @@ document.addEventListener('DOMContentLoaded', () => {
             addMessage(`Error: ${error.message}`, 'bot');
         }
     };
+
+    function addDiagnosisToChat(diagnosis) {
+        const severityClass = diagnosis.redFlag ? 'recommendation-severe' : 
+                             diagnosis.common ? 'recommendation-mild' : 
+                             'recommendation-moderate';
+        
+        const diagnosisHtml = `
+            <div class="diagnosis">
+                <div class="diagnosis-header">
+                    <h3 class="diagnosis-name">${diagnosis.name}</h3>
+                    <span class="diagnosis-specialty">${diagnosis.specialty}</span>
+                </div>
+                
+                <div class="diagnosis-content">
+                    <div class="diagnosis-status">
+                        ${diagnosis.common ? '<span class="status-badge status-common">Common Condition</span>' : ''}
+                        ${diagnosis.redFlag ? '<span class="status-badge status-red-flag">Requires Attention</span>' : ''}
+                    </div>
+                    
+                    <p class="diagnosis-explanation">${diagnosis.explanation}</p>
+                    <p class="diagnosis-description">${diagnosis.description}</p>
+                    
+                    <a href="${diagnosis.knowledgeUrl}" target="_blank" class="diagnosis-link">
+                        Learn More About This Condition
+                    </a>
+                    
+                    <div class="diagnosis-recommendation ${severityClass}">
+                        <span class="recommendation-icon">
+                            ${diagnosis.redFlag ? '⚠️' : diagnosis.common ? 'ℹ️' : '🏥'}
+                        </span>
+                        <span class="recommendation-text">${diagnosis.recommendation}</span>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        addMessage(diagnosisHtml, 'bot');
+    }
 
     const resetConversation = () => {
         // Reset user inputs
@@ -255,11 +380,25 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // Event listener for theme toggle
-    themeToggle.addEventListener('click', () => {
-        const currentTheme = document.documentElement.getAttribute('data-theme');
-        const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-        document.documentElement.setAttribute('data-theme', newTheme);
+    themeToggle.forEach(radio => {
+        radio.addEventListener('change', (event) => {
+            const selectedTheme = event.target.value;
+            localStorage.setItem('theme', selectedTheme);
+            applyTheme(selectedTheme);
+        });
     });
+
+    const applyTheme = (theme) => {
+        if (theme === 'system') {
+            const prefersDarkScheme = window.matchMedia("(prefers-color-scheme: dark)").matches;
+            theme = prefersDarkScheme ? 'dark' : 'light';
+        }
+        document.documentElement.setAttribute('data-theme', theme);
+    };
+
+    const savedTheme = localStorage.getItem('theme') || 'system';
+    document.querySelector(`.theme-toggle input[value="${savedTheme}"]`).checked = true;
+    applyTheme(savedTheme);
 
     // Event listener for restart button
     restartButton.addEventListener('click', resetConversation);
