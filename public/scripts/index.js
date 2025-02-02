@@ -1,3 +1,12 @@
+import { CognitoUserPool, CognitoUser, AuthenticationDetails } from 'amazon-cognito-identity-js';
+
+const poolData = {
+    UserPoolId: process.env.COGNITO_USER_POOL_ID,
+    ClientId: process.env.COGNITO_USER_POOL_WEB_CLIENT_ID
+};
+
+const userPool = new CognitoUserPool(poolData);
+
 // Remove the import statement
 // import Amplify, { Auth } from 'aws-amplify';
 
@@ -14,12 +23,30 @@ document.getElementById('login-form').addEventListener('submit', async function(
     event.preventDefault();
     const email = event.target.querySelector('input[type="email"]').value;
     const password = event.target.querySelector('input[type="password"]').value;
-    try {
-        const user = await Auth.signIn(email, password);
-        console.log('Login successful', user);
-    } catch (error) {
-        console.error('Error during login', error);
-    }
+
+    const authenticationDetails = new AuthenticationDetails({
+        Username: email,
+        Password: password,
+    });
+
+    const userData = {
+        Username: email,
+        Pool: userPool
+    };
+
+    const cognitoUser = new CognitoUser(userData);
+
+    cognitoUser.authenticateUser(authenticationDetails, {
+        onSuccess: function (result) {
+            console.log('Login successful:', result);
+            // Handle successful login
+            window.location.href = 'main.htm'; // Redirect to main.htm
+        },
+        onFailure: function (err) {
+            console.error('Login failed:', err);
+            // Handle login failure
+        }
+    });
 });
 
 // Event listener for sign-up button click
@@ -38,9 +65,20 @@ document.getElementById('back-to-login-btn').addEventListener('click', function(
 });
 
 // Event listener for Google login button click
-document.getElementById('google-btn').addEventListener('click', function() {
-    // Add AWS Cognito Google authentication logic here
-    alert('Continue with Google functionality to be implemented');
+document.getElementById('google-btn').addEventListener('click', async function() {
+    try {
+        const response = await Auth.federatedSignIn({
+            provider: 'Google'
+        });
+        
+        if (response.success) {
+            console.log('Successfully signed in with Google');
+            window.location.href = 'main.htm';
+        }
+    } catch (error) {
+        console.error('Error signing in with Google:', error);
+        alert('Error signing in with Google');
+    }
 });
 
 // Event listener for sign-up form submission

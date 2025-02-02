@@ -1,7 +1,8 @@
 {
   "dependencies": {
     "aws-amplify": "^6.12.1",
-    "aws-sdk": "^2.1692.0"
+    "aws-sdk": "^2.1692.0",
+    "amazon-cognito-identity-js": "^5.0.3"
   },
   "devDependencies": {
     "@aws-amplify/backend": "^1.13.0",
