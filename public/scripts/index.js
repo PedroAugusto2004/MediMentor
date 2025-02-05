@@ -23,7 +23,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const data = await response.json();
             if (response.ok) {
                 console.log('Login successful');
-                window.location.href = 'main.htm';
+                window.location.href = 'main.html';
             } else {
                 alert(data.message || 'Login failed');
             }
@@ -52,7 +52,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const data = await response.json();
             if (response.ok) {
                 alert('Sign up successful');
-                window.location.href = 'main.htm';
+                window.location.href = 'main.html';
             } else {
                 alert(data.message || 'Sign up failed');
             }

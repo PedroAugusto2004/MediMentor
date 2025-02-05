@@ -10,7 +10,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     confirmLogoutBtn.addEventListener('click', () => {
         localStorage.removeItem('token');
-        window.location.href = 'index.htm';
+        localStorage.removeItem('userName');
+        window.location.href = 'index.html';
     });
 
     cancelLogoutBtn.addEventListener('click', () => {
@@ -23,4 +24,27 @@ document.addEventListener('DOMContentLoaded', () => {
             logoutPopup.classList.remove('show');
         }
     });
+
+    const userName = localStorage.getItem('userName');
+    if (userName) {
+        displayWelcomeMessage(userName);
+    }
+
+    // ...existing code...
+
+    cognitoUser.authenticateUser(authenticationDetails, {
+        onSuccess: (result) => {
+            const userName = result.idToken.payload['cognito:username'];
+            localStorage.setItem('userName', userName);
+            displayWelcomeMessage(userName);
+            res.json({
+                success: true,
+                token: result.getIdToken().getJwtToken(),
+                message: 'Login successful'
+            });
+        },
+        // ...existing code...
+    });
+
+    // ...existing code...
 });

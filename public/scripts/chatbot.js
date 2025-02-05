@@ -19,8 +19,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let currentStep = 0;
 
+    const userName = localStorage.getItem('userName') || 'User';
     const steps = [
-        'Hello! I am MediMentor. What symptoms are you experiencing?',
+        `Hello ${userName}! I am MediMentor. What symptoms are you experiencing?`,
         'Thank you for sharing your symptoms. Could you tell me when they started?',
         'Please select your gender (male/female).',
         'Please enter your date of birth (YYYY-MM-DD).',
@@ -296,6 +297,12 @@ document.addEventListener('DOMContentLoaded', () => {
         `;
 
         addMessage(diagnosisHtml, 'bot');
+    }
+
+    function displayWelcomeMessage(userName) {
+        const chatWindow = document.getElementById('chat-window');
+        const welcomeMessage = `Hello ${userName}! I am MediMentor. What symptoms are you experiencing?`;
+        chatWindow.innerHTML += `<div class="chat-message">${welcomeMessage}</div>`;
     }
 
     const resetConversation = () => {
