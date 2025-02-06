@@ -47,5 +47,16 @@
     </div>
 
     <script type="module" src="scripts/index.js"></script>
+    <script>
+        document.getElementById('signup-btn').addEventListener('click', function() {
+            document.querySelector('.login-section').style.display = 'none';
+            document.querySelector('.signup-section').style.display = 'flex';
+        });
+
+        document.getElementById('back-to-login-btn').addEventListener('click', function() {
+            document.querySelector('.signup-section').style.display = 'none';
+            document.querySelector('.login-section').style.display = 'flex';
+        });
+    </script>
 </body>
 </html>

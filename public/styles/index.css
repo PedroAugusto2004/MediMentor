@@ -220,3 +220,39 @@ body {
 .signup-now:hover {
     background: #3366cc;
 }
+
+/* Media queries for mobile responsiveness */
+@media (max-width: 768px) {
+    .container {
+        flex-direction: column;
+        width: 100%;
+        box-shadow: none;
+    }
+
+    .welcome-section, .login-section, .signup-section {
+        padding: 20px;
+    }
+
+    .welcome-section h1 {
+        font-size: 2rem;
+    }
+
+    .welcome-section p, .login-section h2, .signup-section h2 {
+        font-size: 1rem;
+    }
+
+    .login-section form, .signup-section form {
+        width: 100%;
+    }
+
+    .login-section input[type="email"], .login-section input[type="password"],
+    .signup-section input[type="email"], .signup-section input[type="password"],
+    .signup-section input[type="text"] {
+        font-size: 0.9rem;
+    }
+
+    .login-now, .google-login, .signup-now, .back-to-login {
+        width: 100%;
+        font-size: 0.8rem;
+    }
+}
