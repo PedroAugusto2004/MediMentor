@@ -234,7 +234,7 @@ body {
     bottom: 10px;
     left: 50%;
     transform: translateX(-50%);
-    color: #e4e4e4;
+    color: #3a3a3a;
     padding: 6px 12px;
     border-radius: 20px;
     font-size: 0.8rem;
@@ -248,7 +248,7 @@ body {
 }
 
 .attribution a {
-    color: #3a3a3a;
+    color: #000000;
     text-decoration: none;
 }
 
@@ -277,7 +277,7 @@ body {
     }
 
     .helper-text {
-        margin-bottom: 100px; /* Add space below the "Forgot password?" link */
+        margin-bottom: 80px; /* Add space below the "Forgot password?" link */
     }
 }
 
