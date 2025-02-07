@@ -277,7 +277,7 @@ body {
     }
 
     .helper-text {
-        margin-bottom: 20px; /* Add space below the "Forgot password?" link */
+        margin-bottom: 100px; /* Add space below the "Forgot password?" link */
     }
 }
 
