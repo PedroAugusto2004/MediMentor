@@ -298,6 +298,6 @@ body {
     }
 
     .background-video {
-        object-fit: contain; /* Adjust video fit for mobile */
+        object-fit: cover; /* Ensure video fits the whole screen on mobile */
     }
 }
