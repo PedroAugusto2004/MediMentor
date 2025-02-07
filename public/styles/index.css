@@ -257,23 +257,6 @@ body {
     text-decoration: underline;
 }
 
-@media (max-width: 768px) {
-    .attribution {
-        bottom: 0;
-        left: 0;
-        right: 0;
-        transform: none;
-        border-radius: 0;
-        font-size: 0.7rem;
-        padding: 4px 10px;
-    }
-
-    .container {
-        padding-bottom: 30px; /* Add space for the attribution */
-    }
-}
-
-
 
 
 /* Media queries for mobile responsiveness */
