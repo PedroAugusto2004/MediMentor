@@ -235,7 +235,7 @@ body {
     bottom: 10px;
     left: 50%;
     transform: translateX(-50%);
-    color: rgba(255, 255, 255, 0.8);
+    color: #d6d6d6;
     padding: 6px 12px;
     border-radius: 20px;
     font-size: 0.8rem;
@@ -247,8 +247,9 @@ body {
 .attribution:hover {
     opacity: 1;
 }
+
 .attribution a {
-    color: #303030;
+    color: #252525;
     text-decoration: none;
 }
 
@@ -258,11 +259,17 @@ body {
 
 @media (max-width: 768px) {
     .attribution {
-        bottom: 5px;
+        bottom: 40px; /* Move it up from the very bottom */
+        left: 0;
+        right: 0;
+        transform: none;
+        border-radius: 0;
         font-size: 0.7rem;
         padding: 4px 10px;
+        background: rgba(255, 255, 255, 0.9);
     }
 }
+
 
 
 /* Media queries for mobile responsiveness */
