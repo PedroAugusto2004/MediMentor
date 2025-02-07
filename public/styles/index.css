@@ -94,11 +94,11 @@ body {
     width: 100%;
     padding: 12px;
     border: none;
-    border-bottom: 2px solid #ccc; /* Single line */
+    border-bottom: 2px solid #424242; /* Single line */
     font-size: 1rem;
     transition: border-color 0.3s, box-shadow 0.3s;
     background-color: transparent;
-    color: #333;
+    color: #181818;
 }
 
 .login-section input[type="email"]:focus,
@@ -164,7 +164,6 @@ body {
     flex: 1;
     padding: 40px;
     border-radius: 10px;
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
     color: black;
     flex-direction: column;
     justify-content: center;
@@ -188,7 +187,7 @@ body {
     width: 100%;
     padding: 12px;
     border: none;
-    border-bottom: 2px solid #ccc; /* Single line */
+    border-bottom: 2px solid #424242; /* Single line */
     font-size: 1rem;
     transition: border-color 0.3s, box-shadow 0.3s;
     background-color: transparent;
@@ -240,6 +239,7 @@ body {
     padding: 5px 10px;
     border-radius: 5px;
     font-size: 0.8rem;
+    z-index: 1; /* Ensure it stays above other elements */
 }
 
 .attribution a {
