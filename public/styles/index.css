@@ -233,26 +233,37 @@ body {
 .attribution {
     position: fixed;
     bottom: 10px;
-    right: 10px;
-    background: rgba(0, 0, 0, 0.7); /* Darker background for better readability */
-    color: white;
-    padding: 8px 12px; /* Increased padding for better spacing */
-    border-radius: 8px; /* Slightly more rounded corners */
-    font-size: 0.9rem; /* Slightly larger text for readability */
-    z-index: 1; /* Ensure it stays above other elements */
-    display: flex;
-    align-items: center;
-    gap: 5px;
+    left: 50%;
+    transform: translateX(-50%);
+    color: rgba(255, 255, 255, 0.8);
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    z-index: 1000;
+    text-align: center;
+    transition: opacity 0.3s ease;
 }
 
+.attribution:hover {
+    opacity: 1;
+}
 .attribution a {
-    color: #3a80ff;
+    color: #303030;
     text-decoration: none;
 }
 
 .attribution a:hover {
     text-decoration: underline;
 }
+
+@media (max-width: 768px) {
+    .attribution {
+        bottom: 5px;
+        font-size: 0.7rem;
+        padding: 4px 10px;
+    }
+}
+
 
 /* Media queries for mobile responsiveness */
 @media (max-width: 768px) {
@@ -302,12 +313,5 @@ body {
 
     .background-video {
         object-fit: cover; /* Ensure video fits the whole screen on mobile */
-    }
-
-    .attribution {
-        bottom: 5px; /* Ensure it stays at the bottom on mobile */
-        right: 5px;
-        padding: 6px 10px; /* Adjust padding for mobile */
-        font-size: 0.8rem; /* Adjust text size for mobile */
     }
 }
