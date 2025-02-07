@@ -300,4 +300,9 @@ body {
     .background-video {
         object-fit: cover; /* Ensure video fits the whole screen on mobile */
     }
+
+    .attribution {
+        bottom: 5px; /* Ensure it stays at the bottom on mobile */
+        right: 5px;
+    }
 }
