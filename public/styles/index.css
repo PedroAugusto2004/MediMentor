@@ -229,7 +229,6 @@ body {
     height: auto;
 }
 
-/* Attribution styles */
 .attribution {
     position: fixed;
     bottom: 10px;
@@ -239,7 +238,7 @@ body {
     padding: 5px 10px;
     border-radius: 5px;
     font-size: 0.8rem;
-    z-index: 1; /* Ensure it stays above other elements */
+    z-index: 1;
 }
 
 .attribution a {
@@ -249,6 +248,19 @@ body {
 
 .attribution a:hover {
     text-decoration: underline;
+}
+
+@media (max-width: 768px) {
+    .attribution {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: rgba(0, 0, 0, 0.7);
+        text-align: center;
+        padding: 8px;
+        font-size: 0.7rem;
+    }
 }
 
 /* Media queries for mobile responsiveness */
