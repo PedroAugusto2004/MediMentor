@@ -3,7 +3,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const signupForm = document.getElementById('signup-form');
     const signupBtn = document.getElementById('signup-btn');
     const backToLoginBtn = document.getElementById('back-to-login-btn');
-    const googleBtn = document.getElementById('google-btn');
+    // Remove Google button reference
+    // const googleBtn = document.getElementById('google-btn');
 
     // Login form submission
     loginForm.addEventListener('submit', async (event) => {
@@ -62,7 +63,8 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Google sign in
+    // Remove Google sign in event listener
+    /*
     googleBtn.addEventListener('click', async () => {
         try {
             const response = await fetch('http://localhost:3000/auth/google'); // Ensure the correct URL
@@ -75,6 +77,7 @@ document.addEventListener('DOMContentLoaded', () => {
             alert('Google sign in failed');
         }
     });
+    */
 
     // UI Toggle Functions
     signupBtn.addEventListener('click', () => {

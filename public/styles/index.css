@@ -21,17 +21,29 @@ body {
     display: flex;
     width: 80%;
     max-width: 1200px;
-    background: white;
+    background: rgba(255, 255, 255, 0.781);
     border-radius: 10px;
     box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
     overflow: hidden;
     color: black;
+    position: relative; /* Ensure it stays above the video */
+}
+
+/* Background video styles */
+.background-video {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    z-index: -1;
 }
 
 /* Welcome section styles */
 .welcome-section {
     flex: 1;
-    background: linear-gradient(135deg, #3a80ff, #622aff);
+    background: linear-gradient(135deg, #3a7fffb0, #632affa9);
     color: white;
     padding: 40px;
     display: flex;
@@ -64,91 +76,69 @@ body {
     margin-bottom: 20px;
 }
 
-.login-section form {
+/* Form styles */
+.login-section form,
+.signup-section form {
     display: flex;
     flex-direction: column;
     gap: 15px;
-    align-items: center; /* Center the buttons */
+    align-items: center;
+    width: 100%;
 }
 
 .login-section input[type="email"],
-.login-section input[type="password"] {
+.login-section input[type="password"],
+.signup-section input[type="email"],
+.signup-section input[type="password"],
+.signup-section input[type="text"] {
     width: 100%;
-    padding: 10px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
+    padding: 12px;
+    border: none;
+    border-bottom: 2px solid #ccc; /* Single line */
     font-size: 1rem;
+    transition: border-color 0.3s, box-shadow 0.3s;
+    background-color: transparent;
+    color: #333;
+}
+
+.login-section input[type="email"]:focus,
+.login-section input[type="password"]:focus,
+.signup-section input[type="email"]:focus,
+.signup-section input[type="password"]:focus,
+.signup-section input[type="text"]:focus {
+    border-color: #3a80ff;
+    box-shadow: 0 2px 5px rgba(58, 128, 255, 0.5);
+    outline: none;
+    background-color: transparent;
 }
 
 /* Button styles */
-.login-now {
+.login-now,
+.signup-now,
+.back-to-login {
     background: #3a80ff;
     color: white;
-    border: 2px solid transparent;
-    border-radius: 20px;
-    padding: 8px 16px;
-    font-size: 0.9rem;
-    width: 150px;
-    transition: background 0.3s, border-color 0.3s, transform 0.3s;
+    border: none;
+    border-radius: 20px; /* Round edges */
+    padding: 12px 20px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background 0.3s, transform 0.3s;
 }
 
-.login-now:hover {
-    background: white;
-    color: #3a80ff;
-    border-color: #3a80ff;
-    transform: scale(1.05);
-}
-
-.google-login {
-    background: white;
-    color: #db4437;
-    border: 2px solid #db4437;
-    border-radius: 20px;
-    padding: 8px 16px;
-    font-size: 0.9rem;
-    width: 150px;
-    transition: background 0.3s, color 0.3s, transform 0.3s;
-}
-
-.google-login:hover {
-    background: #db4437;
-    color: white;
-    transform: scale(1.05);
-}
-
-.signup-now {
-    background: #622aff;
-    color: white;
-    border: 2px solid transparent;
-    border-radius: 20px;
-    padding: 8px 16px;
-    font-size: 0.9rem;
-    width: 150px;
-    transition: background 0.3s, border-color 0.3s, transform 0.3s;
-}
-
-.signup-now:hover {
-    background: rgb(25, 2, 90);
-    color: #ffffff;
+.login-now:hover,
+.signup-now:hover,
+.back-to-login:hover {
+    background: #3366cc;
     transform: scale(1.05);
 }
 
 .back-to-login {
     background: #3f3f3f;
-    color: white;
-    border: 2px solid transparent;
-    border-radius: 20px;
-    padding: 8px 16px;
-    font-size: 0.9rem;
-    width: 150px;
-    transition: background 0.3s, border-color 0.3s, transform 0.3s;
 }
 
 .back-to-login:hover {
-    background: white;
-    color: #3f3f3f;
-    border-color: #3f3f3f;
-    transform: scale(1.05);
+    background: #2c2c2c;
 }
 
 /* Helper text styles */
@@ -173,7 +163,7 @@ body {
     display: none; /* Ensure this is set to none initially */
     flex: 1;
     padding: 40px;
-    background: white;
+    background: rgba(255, 255, 255, 0.781);
     border-radius: 10px;
     box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
     color: black;
@@ -197,19 +187,22 @@ body {
 .signup-section input[type="password"],
 .signup-section input[type="text"] {
     width: 100%;
-    padding: 10px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
+    padding: 12px;
+    border: none;
+    border-bottom: 2px solid #ccc; /* Single line */
     font-size: 1rem;
+    transition: border-color 0.3s, box-shadow 0.3s;
+    background-color: transparent;
+    color: #333;
 }
 
-.signup-section {
-    padding: 10px;
-    font-size: 1rem;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background 0.3s;
+.signup-section input[type="email"]:focus,
+.signup-section input[type="password"]:focus,
+.signup-section input[type="text"]:focus {
+    border-color: #3a80ff;
+    box-shadow: 0 2px 5px rgba(58, 128, 255, 0.5);
+    outline: none;
+    background-color: transparent;
 }
 
 .signup-now {
@@ -221,12 +214,28 @@ body {
     background: #3366cc;
 }
 
+/* Powered by section styles */
+.powered-by {
+    position: absolute;
+    bottom: 10px;
+    left: 10px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.powered-by img {
+    width: 50px;
+    height: auto;
+}
+
 /* Media queries for mobile responsiveness */
 @media (max-width: 768px) {
     .container {
         flex-direction: column;
         width: 100%;
         box-shadow: none;
+        padding: 10px; /* Add padding for better spacing */
     }
 
     .welcome-section, .login-section, .signup-section {
@@ -251,8 +260,22 @@ body {
         font-size: 0.9rem;
     }
 
-    .login-now, .google-login, .signup-now, .back-to-login {
-        width: 100%;
+    .login-now, .signup-now, .back-to-login {
+        width: auto;
         font-size: 0.8rem;
+        padding: 6px 12px;
+    }
+
+    .powered-by {
+        bottom: 5px;
+        left: 5px;
+    }
+
+    .powered-by img {
+        width: 30px;
+    }
+
+    .background-video {
+        display: none; /* Hide video on mobile for better performance */
     }
 }
