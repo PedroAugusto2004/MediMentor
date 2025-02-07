@@ -229,13 +229,12 @@ body {
     height: auto;
 }
 
-/* Attribution styles */
 .attribution {
     position: fixed;
     bottom: 10px;
     left: 50%;
     transform: translateX(-50%);
-    color: #dfdfdf;
+    color: #e4e4e4;
     padding: 6px 12px;
     border-radius: 20px;
     font-size: 0.8rem;
@@ -249,13 +248,40 @@ body {
 }
 
 .attribution a {
-    color: #303030;
+    color: #3a3a3a;
     text-decoration: none;
 }
 
 .attribution a:hover {
     text-decoration: underline;
 }
+
+@media (max-width: 768px) {
+    .attribution {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        transform: none;
+        border-radius: 0;
+        font-size: 0.7rem;
+        padding: 4px 10px;
+    }
+
+    .container {
+        margin-bottom: 30px; /* Add space above the attribution */
+    }
+
+    .login-section, .signup-section {
+        padding-bottom: 40px; /* Increase bottom padding to avoid overlap */
+    }
+
+    .helper-text {
+        margin-bottom: 20px; /* Add space below the "Forgot password?" link */
+    }
+}
+
+
 
 
 
