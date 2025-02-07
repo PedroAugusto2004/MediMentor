@@ -259,14 +259,12 @@ body {
 
 @media (max-width: 768px) {
     .attribution {
-        bottom: 40px; /* Move it up from the very bottom */
         left: 0;
         right: 0;
         transform: none;
         border-radius: 0;
         font-size: 0.7rem;
         padding: 4px 10px;
-        background: rgba(255, 255, 255, 0.9);
     }
 }
 
