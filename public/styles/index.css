@@ -163,7 +163,6 @@ body {
     display: none; /* Ensure this is set to none initially */
     flex: 1;
     padding: 40px;
-    background: rgba(255, 255, 255, 0.781);
     border-radius: 10px;
     box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
     color: black;
@@ -217,16 +216,39 @@ body {
 /* Powered by section styles */
 .powered-by {
     position: absolute;
+    color: rgb(0, 0, 0);
     bottom: 10px;
     left: 10px;
     display: flex;
     align-items: center;
     gap: 5px;
+    font-size: 0.8rem; /* Decrease text size */
 }
 
 .powered-by img {
-    width: 50px;
+    width: 30px; /* Decrease image size */
     height: auto;
+}
+
+/* Attribution styles */
+.attribution {
+    position: fixed;
+    bottom: 10px;
+    right: 10px;
+    background: rgba(0, 0, 0, 0.5);
+    color: white;
+    padding: 5px 10px;
+    border-radius: 5px;
+    font-size: 0.8rem;
+}
+
+.attribution a {
+    color: #3a80ff;
+    text-decoration: none;
+}
+
+.attribution a:hover {
+    text-decoration: underline;
 }
 
 /* Media queries for mobile responsiveness */
@@ -276,6 +298,6 @@ body {
     }
 
     .background-video {
-        display: none; /* Hide video on mobile for better performance */
+        object-fit: contain; /* Adjust video fit for mobile */
     }
 }
