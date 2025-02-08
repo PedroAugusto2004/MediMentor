@@ -310,7 +310,7 @@ body {
     }
 
     .container {
-        margin-bottom: 30px; /* Add space above the attribution */
+        margin-bottom: 80px; /* Add space above the attribution */
     }
 
     .login-section, .signup-section {
