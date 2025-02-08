@@ -3,6 +3,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const signupForm = document.getElementById('signup-form');
     const signupBtn = document.getElementById('signup-btn');
     const backToLoginBtn = document.getElementById('back-to-login-btn');
+    const forgotPasswordLink = document.getElementById('forgot-password-link');
+    const forgotPasswordForm = document.getElementById('forgot-password-form');
+    const backToLoginFromForgot = document.getElementById('back-to-login-from-forgot');
     // Remove Google button reference
     // const googleBtn = document.getElementById('google-btn');
 
@@ -63,21 +66,47 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Remove Google sign in event listener
-    /*
-    googleBtn.addEventListener('click', async () => {
+    // Forgot password link click handler
+    forgotPasswordLink.addEventListener('click', (e) => {
+        e.preventDefault();
+        document.querySelector('.login-section').style.display = 'none';
+        document.querySelector('.forgot-password-section').style.display = 'flex';
+    });
+
+    // Back to login from forgot password
+    backToLoginFromForgot.addEventListener('click', () => {
+        document.querySelector('.forgot-password-section').style.display = 'none';
+        document.querySelector('.login-section').style.display = 'flex';
+    });
+
+    // Handle forgot password form submission
+    forgotPasswordForm.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        const email = event.target.querySelector('input[type="email"]').value;
+
         try {
-            const response = await fetch('http://localhost:3000/auth/google'); // Ensure the correct URL
+            const response = await fetch('http://localhost:3000/auth/forgot-password', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ email })
+            });
+
             const data = await response.json();
-            if (data.url) {
-                window.location.href = data.url;
+            if (response.ok) {
+                alert('Password reset instructions have been sent to your email');
+                // Return to login screen
+                document.querySelector('.forgot-password-section').style.display = 'none';
+                document.querySelector('.login-section').style.display = 'flex';
+            } else {
+                alert(data.message || 'Password reset failed');
             }
         } catch (error) {
-            console.error('Google sign in error:', error);
-            alert('Google sign in failed');
+            console.error('Password reset error:', error);
+            alert('Password reset failed. Please try again.');
         }
     });
-    */
 
     // UI Toggle Functions
     signupBtn.addEventListener('click', () => {
