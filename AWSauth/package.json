@@ -1,22 +1,43 @@
 {
+  "name": "medimentor-auth",
+  "version": "1.0.0",
+  "description": "Authentication service for MediMentor",
   "dependencies": {
     "amazon-cognito-identity-js": "^6.3.12",
     "aws-amplify": "^6.12.1",
-    "aws-sdk": "^2.1692.0",
-    "axios": "^1.4.0",
+    "axios": "^1.6.7",
     "body-parser": "^1.20.3",
     "cors": "^2.8.5",
-    "dotenv": "^16.4.7",
-    "express": "^4.21.2"
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "serverless-http": "^3.2.0"
   },
   "devDependencies": {
     "@aws-amplify/backend": "^1.14.0",
     "@aws-amplify/backend-cli": "^1.4.7",
+    "@types/aws-lambda": "^8.10.0",
+    "@types/express": "^4.17.0",
+    "@types/node": "^20.0.0",
     "aws-cdk": "^2.176.0",
     "aws-cdk-lib": "^2.176.0",
     "constructs": "^10.4.2",
     "esbuild": "^0.24.2",
-    "tsx": "^4.19.2",
+    "serverless": "^3.40.0",
+    "serverless-dotenv-plugin": "^4.0.2",
+    "serverless-offline": "^14.4.0",
     "typescript": "^5.7.3"
+  },
+  "scripts": {
+    "clean": "powershell Remove-Item -Recurse -Force -Path node_modules, package-lock.json -ErrorAction SilentlyContinue",
+    "reinstall": "npm run clean && npm install --legacy-peer-deps",
+    "start": "node server.js",
+    "deploy": "serverless deploy",
+    "build": "tsc",
+    "dev": "serverless offline",
+    "test": "echo 'Add tests here'",
+    "audit:fix": "npm audit fix --force"
+  },
+  "engines": {
+    "node": ">=18.0.0"
   }
 }

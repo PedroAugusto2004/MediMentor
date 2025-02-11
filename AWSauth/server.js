@@ -1,10 +1,10 @@
+const serverless = require('serverless-http');
 const express = require('express');
 const {
     CognitoUserPool,
     CognitoUser,
     AuthenticationDetails
 } = require('amazon-cognito-identity-js');
-const axios = require('axios');
 const cors = require('cors');
 require('dotenv').config();
 
@@ -12,43 +12,32 @@ const app = express();
 app.use(express.json());
 app.use(cors());
 
-// Debug environment variables
-console.log('Environment Variables:', {
-    userPoolId: process.env.COGNITO_USER_POOL_ID,
-    clientId: process.env.COGNITO_USER_POOL_WEB_CLIENT_ID,
-    region: process.env.COGNITO_REGION
+// 🔹 Log every request (for debugging)
+app.use((req, res, next) => {
+    console.log(`[${new Date().toISOString()}] ${req.method} ${req.path}`);
+    next();
 });
 
-// Validate required environment variables
-if (!process.env.COGNITO_USER_POOL_ID || !process.env.COGNITO_USER_POOL_WEB_CLIENT_ID) {
+// 🔹 Validate required environment variables
+const { COGNITO_USER_POOL_ID, COGNITO_USER_POOL_WEB_CLIENT_ID } = process.env;
+if (!COGNITO_USER_POOL_ID || !COGNITO_USER_POOL_WEB_CLIENT_ID) {
     throw new Error('Required environment variables are missing. Please check your .env file.');
 }
 
-const poolData = {
-    UserPoolId: process.env.COGNITO_USER_POOL_ID,
-    ClientId: process.env.COGNITO_USER_POOL_WEB_CLIENT_ID
-};
+const userPool = new CognitoUserPool({
+    UserPoolId: COGNITO_USER_POOL_ID,
+    ClientId: COGNITO_USER_POOL_WEB_CLIENT_ID
+});
 
-// Debug pool data
-console.log('Pool Data:', poolData);
-
-const userPool = new CognitoUserPool(poolData);
-
-// Login endpoint
+// 🔹 Login endpoint
 app.post('/auth/login', (req, res) => {
     const { email, password } = req.body;
+    if (!email || !password) {
+        return res.status(400).json({ success: false, message: 'Email and password are required' });
+    }
 
-    const authenticationDetails = new AuthenticationDetails({
-        Username: email,
-        Password: password
-    });
-
-    const userData = {
-        Username: email,
-        Pool: userPool
-    };
-
-    const cognitoUser = new CognitoUser(userData);
+    const cognitoUser = new CognitoUser({ Username: email, Pool: userPool });
+    const authenticationDetails = new AuthenticationDetails({ Username: email, Password: password });
 
     cognitoUser.authenticateUser(authenticationDetails, {
         onSuccess: (result) => {
@@ -59,91 +48,79 @@ app.post('/auth/login', (req, res) => {
             });
         },
         onFailure: (err) => {
-            res.status(401).json({
-                success: false,
-                message: err.message || 'Login failed'
-            });
+            console.error('Login error:', err);
+            res.status(401).json({ success: false, message: err.message || 'Login failed' });
         }
     });
 });
 
-// Sign up endpoint
+// 🔹 Sign up endpoint
 app.post('/auth/signup', (req, res) => {
     const { email, password, fullName } = req.body;
+    if (!email || !password || !fullName) {
+        return res.status(400).json({ success: false, message: 'Email, password, and full name are required' });
+    }
 
-    userPool.signUp(email, password, [{
-        Name: 'email',
-        Value: email
-    }, {
-        Name: 'name',
-        Value: fullName
-    }], null, (err, result) => {
-        if (err) {
-            res.status(400).json({
-                success: false,
-                message: err.message || 'Sign up failed'
-            });
-            return;
+    userPool.signUp(
+        email,
+        password,
+        [{ Name: 'email', Value: email }, { Name: 'name', Value: fullName }],
+        null,
+        (err, result) => {
+            if (err) {
+                console.error('Sign up error:', err);
+                return res.status(400).json({ success: false, message: err.message || 'Sign up failed' });
+            }
+            res.json({ success: true, message: 'Sign up successful' });
         }
-        res.json({
-            success: true,
-            message: 'Sign up successful'
-        });
+    );
+});
+
+// 🔹 Confirm signup endpoint
+app.post('/auth/confirm', (req, res) => {
+    const { email, code } = req.body;
+    if (!email || !code) {
+        return res.status(400).json({ success: false, message: 'Email and verification code are required' });
+    }
+
+    const cognitoUser = new CognitoUser({
+        Username: email,
+        Pool: userPool
+    });
+
+    cognitoUser.confirmRegistration(code, true, (err, result) => {
+        if (err) {
+            console.error('Confirmation error:', err);
+            return res.status(400).json({ success: false, message: err.message || 'Confirmation failed' });
+        }
+        res.json({ success: true, message: 'Email confirmed successfully' });
     });
 });
 
-// Google OAuth endpoint
-app.get('/auth/google', (req, res) => {
-    const domain = process.env.COGNITO_DOMAIN;
-    const clientId = process.env.COGNITO_USER_POOL_WEB_CLIENT_ID;
-    const redirectUri = 'http://localhost:3000/auth/google/callback';
-    
-    const url = `https://${domain}.auth.${process.env.COGNITO_REGION}.amazoncognito.com/oauth2/authorize?` +
-        `client_id=${clientId}&` +
-        `response_type=code&` +
-        `scope=email+openid+profile&` +
-        `redirect_uri=${redirectUri}&` +
-        `identity_provider=Google`;
-    
-    res.json({ url });
-});
-
-// Google OAuth callback endpoint
-app.get('/auth/google/callback', async (req, res) => {
-    const { code } = req.query;
-    const domain = process.env.COGNITO_DOMAIN;
-    const clientId = process.env.COGNITO_USER_POOL_WEB_CLIENT_ID;
-    const redirectUri = 'http://localhost:3000/auth/google/callback';
-
-    try {
-        const response = await axios.post(`https://${domain}.auth.${process.env.COGNITO_REGION}.amazoncognito.com/oauth2/token`, null, {
-            params: {
-                grant_type: 'authorization_code',
-                client_id: clientId,
-                redirect_uri: redirectUri,
-                code
-            },
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded'
-            }
-        });
-
-        const { id_token } = response.data;
-        res.json({
-            success: true,
-            token: id_token,
-            message: 'Google login successful'
-        });
-    } catch (error) {
-        console.error('Google login error:', error);
-        res.status(500).json({
-            success: false,
-            message: 'Google login failed'
-        });
+// 🔹 Resend confirmation code endpoint
+app.post('/auth/resend-code', (req, res) => {
+    const { email } = req.body;
+    if (!email) {
+        return res.status(400).json({ success: false, message: 'Email is required' });
     }
+
+    const cognitoUser = new CognitoUser({
+        Username: email,
+        Pool: userPool
+    });
+
+    cognitoUser.resendConfirmationCode((err, result) => {
+        if (err) {
+            console.error('Resend code error:', err);
+            return res.status(400).json({ success: false, message: err.message || 'Failed to resend code' });
+        }
+        res.json({ success: true, message: 'Verification code resent successfully' });
+    });
 });
 
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
+// 🔹 Catch-all for unknown routes
+app.use((req, res) => {
+    res.status(404).json({ success: false, message: 'Route not found' });
 });
+
+module.exports.handler = serverless(app);
