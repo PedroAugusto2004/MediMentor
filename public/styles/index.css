@@ -281,8 +281,9 @@ body {
 }
 
 .reset-password-btn {
-    color: #3a80ff;
+    color: white;
     border: 1px solid #3a80ff;
+    background: #2666e2;
     border-radius: 6px;
     padding: 10px 30px;
     font-size: 0.95rem;
