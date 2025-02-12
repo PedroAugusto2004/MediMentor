@@ -14,7 +14,11 @@ document.addEventListener('DOMContentLoaded', () => {
         event.preventDefault();
         const email = event.target.querySelector('input[type="email"]').value;
         const password = event.target.querySelector('input[type="password"]').value;
+        const submitButton = event.target.querySelector('button[type="submit"]');
 
+        // Disable submit button and show loading state
+        submitButton.disabled = true;
+        submitButton.textContent = 'Logging in...';
         try {
             const response = await fetch(`${apiUrl}/auth/login`, {
                 method: 'POST',
@@ -26,21 +30,24 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const data = await response.json();
             if (response.ok && data.token) {
-                // Store token securely
                 localStorage.setItem('authToken', data.token);
-                console.log('Login successful');
                 window.location.href = 'main.html';
             } else if (data.message === 'User is not confirmed.') {
                 alert('Please verify your email first');
                 await handleSignupConfirmation(email);
             } else {
-                alert(data.message || 'Login failed');
+                throw new Error(data.message || 'Login failed');
             }
         } catch (error) {
             console.error('Login error:', error);
-            alert('Login failed. Please try again.');
+            alert(error.message || 'Login failed. Please try again.');
+        } finally {
+            // Re-enable submit button and restore original text
+            submitButton.disabled = false;
+            submitButton.textContent = 'Login Now';
         }
     });
+
 
     // Sign-up form submission
     signupForm.addEventListener('submit', async (event) => {

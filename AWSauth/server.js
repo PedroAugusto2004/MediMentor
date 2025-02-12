@@ -29,7 +29,7 @@ const userPool = new CognitoUserPool({
     ClientId: COGNITO_USER_POOL_WEB_CLIENT_ID
 });
 
-// 🔹 Login endpoint
+// Optimize the login endpoint
 app.post('/auth/login', (req, res) => {
     const { email, password } = req.body;
     if (!email || !password) {
@@ -50,9 +50,18 @@ app.post('/auth/login', (req, res) => {
         onFailure: (err) => {
             console.error('Login error:', err);
             res.status(401).json({ success: false, message: err.message || 'Login failed' });
+        },
+        newPasswordRequired: () => {
+            res.status(403).json({ success: false, message: 'New password required' });
         }
     });
 });
+
+// Add a health check endpoint
+app.get('/health', (req, res) => {
+    res.status(200).json({ status: 'OK' });
+});
+
 
 // 🔹 Sign up endpoint
 app.post('/auth/signup', (req, res) => {
