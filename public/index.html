@@ -47,7 +47,19 @@
             <form id="signup-form">
                 <input type="text" placeholder="Full Name" required>
                 <input type="email" placeholder="Email" required>
-                <input type="password" placeholder="Password" required>
+                <input type="password" id="signup-password" placeholder="Password" required>
+                <div id="password-strength-meter">
+                    <p>PASSWORD MUST CONTAIN:</p>
+                    <ul>
+                        <li id="length">At least 8 characters</li>
+                        <li id="uppercase">At least one uppercase letter</li>
+                        <li id="lowercase">At least one lowercase letter</li>
+                        <li id="number">At least one number</li>
+                        <li id="special">At least one special character</li>
+                    </ul>
+                </div>
+                <input type="password" id="confirm-password" placeholder="Confirm Password" required>
+                <div id="password-match-message"></div>
                 <button type="submit" class="signup-now">Sign Up</button>
                 <button type="button" id="back-to-login-btn" class="back-to-login">
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -57,6 +69,8 @@
                 </button>
             </form>
         </div>
+
+
 
         <!-- Forgot Password section -->
         <div class="forgot-password-section">
@@ -68,7 +82,7 @@
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <polyline points="15 18 9 12 15 6"></polyline>
                     </svg>
-                    Back to Login
+                    Back
                 </button>
             </form>
         </div>
@@ -83,9 +97,6 @@
                 <button type="button" class="back-to-login">Back to Login</button>
             </form>
         </div>
-    </div>
-    <div class="attribution" style="position: absolute; bottom: 0; right: 0;">
-        <p>Video by <a href="https://www.freepik.com/free-video/medical-supplies-care_3743265#fromView=search&page=1&position=21&uuid=ff9ab050-113e-4b2f-9627-bdcc72b74a14" target="_blank">freepik</a></p>
     </div>
     <script type="module" src="scripts/index.js"></script>
     <script>

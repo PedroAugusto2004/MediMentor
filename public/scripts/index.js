@@ -72,6 +72,46 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+const signupPassword = document.getElementById('signup-password');
+const passwordStrengthMeter = document.getElementById('password-strength-meter');
+
+signupPassword.addEventListener('input', updatePasswordStrength);
+
+function updatePasswordStrength() {
+    const password = signupPassword.value;
+    const requirements = {
+        length: password.length >= 8,
+        uppercase: /[A-Z]/.test(password),
+        lowercase: /[a-z]/.test(password),
+        number: /[0-9]/.test(password),
+        special: /[!@#$%^&*(),.?":{}|<>]/.test(password)
+    };
+
+    for (const [requirement, met] of Object.entries(requirements)) {
+        const li = document.getElementById(requirement);
+        li.classList.toggle('met', met);
+    }
+}
+const confirmPassword = document.getElementById('confirm-password');
+const passwordMatchMessage = document.getElementById('password-match-message');
+
+confirmPassword.addEventListener('input', checkPasswordMatch);
+
+function checkPasswordMatch() {
+    const password = signupPassword.value;
+    const confirmPwd = confirmPassword.value;
+
+    if (confirmPwd === '') {
+        passwordMatchMessage.textContent = '';
+    } else if (password === confirmPwd) {
+        passwordMatchMessage.textContent = 'Passwords match';
+        passwordMatchMessage.style.color = '#4CAF50';
+    } else {
+        passwordMatchMessage.textContent = 'Passwords do not match';
+        passwordMatchMessage.style.color = '#f44336';
+    }
+}
+
     // Forgot password link click handler
     forgotPasswordLink.addEventListener('click', (e) => {
         e.preventDefault();
