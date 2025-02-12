@@ -9,8 +9,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     confirmLogoutBtn.addEventListener('click', () => {
-        localStorage.removeItem('token');
-        localStorage.removeItem('userName');
+        localStorage.removeItem('authToken');
         window.location.href = 'index.html';
     });
 
@@ -25,26 +24,24 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    const userName = localStorage.getItem('userName');
-    if (userName) {
-        displayWelcomeMessage(userName);
+    // Check if the user is authenticated
+    function checkAuth() {
+        return localStorage.getItem('authToken') !== null;
     }
 
-    // ...existing code...
+    // Show login popup if not authenticated
+    function showLoginPopupIfNeeded() {
+        if (!checkAuth()) {
+            document.getElementById('login-popup').style.display = 'block';
+        }
+    }
 
-    cognitoUser.authenticateUser(authenticationDetails, {
-        onSuccess: (result) => {
-            const userName = result.idToken.payload['cognito:username'];
-            localStorage.setItem('userName', userName);
-            displayWelcomeMessage(userName);
-            res.json({
-                success: true,
-                token: result.getIdToken().getJwtToken(),
-                message: 'Login successful'
-            });
-        },
-        // ...existing code...
-    });
+    showLoginPopupIfNeeded();
 
-    // ...existing code...
+    const redirectLoginBtn = document.getElementById('redirect-login');
+    if (redirectLoginBtn) {
+        redirectLoginBtn.addEventListener('click', () => {
+            window.location.href = 'index.html';
+        });
+    }
 });
