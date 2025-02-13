@@ -308,4 +308,31 @@ function checkPasswordMatch() {
             alert('Failed to resend code. Please try again.');
         }
     }
+
+    async function forgotPassword() {
+        const email = document.getElementById('email').value;
+        try {
+            const response = await fetch('/forgot-password', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ email }),
+            });
+            const data = await response.json();
+            if (data.success) {
+                alert('Password reset code sent to your email.');
+            } else {
+                alert('Error: ' + data.message);
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('An error occurred. Please try again.');
+        }
+    }
+
+    document.getElementById('forgot-password-form').addEventListener('submit', function (event) {
+        event.preventDefault();
+        forgotPassword();
+    });
 });

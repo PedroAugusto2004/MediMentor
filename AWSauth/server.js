@@ -7,10 +7,15 @@ const {
 } = require('amazon-cognito-identity-js');
 const cors = require('cors');
 require('dotenv').config();
+const AWS = require('aws-sdk');
 
 const app = express();
 app.use(express.json());
 app.use(cors());
+
+const cognito = new AWS.CognitoIdentityServiceProvider({
+  region: process.env.COGNITO_REGION,
+});
 
 // 🔹 Log every request (for debugging)
 app.use((req, res, next) => {
