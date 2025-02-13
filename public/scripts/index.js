@@ -26,27 +26,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    // Add token validation check
-    const validateToken = async () => {
-        const token = localStorage.getItem('authToken');
-        if (token) {
-            try {
-                const response = await fetch(`${apiUrl}/auth/validate-token`, {
-                    headers: { 'Authorization': token }
-                });
-                if (!response.ok) {
-                    localStorage.removeItem('authToken');
-                    window.location.reload();
-                }
-            } catch (error) {
-                localStorage.removeItem('authToken');
-                window.location.reload();
-            }
-        }
-    };
-
-    validateToken();
-
     // Improved login form submission
     loginForm.addEventListener('submit', async (event) => {
         event.preventDefault();
@@ -56,23 +35,35 @@ document.addEventListener('DOMContentLoaded', () => {
         const password = event.target.querySelector('input[type="password"]').value;
 
         try {
-            const response = await fetch(`${apiUrl}/auth/login`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ email, password })
-            });
+            const response = await Promise.race([
+                fetch(`${apiUrl}/auth/login`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ email, password })
+                }),
+                new Promise((_, reject) => 
+                    setTimeout(() => reject(new Error('Request timeout')), 10000)
+                )
+            ]);
 
             const data = await response.json();
             
             if (response.ok && data.token) {
                 localStorage.setItem('authToken', data.token);
-                window.location.href = 'main.html';
+                // Preload main.html
+                const preloadLink = document.createElement('link');
+                preloadLink.rel = 'preload';
+                preloadLink.as = 'document';
+                preloadLink.href = 'main.html';
+                document.head.appendChild(preloadLink);
+                
+                // Redirect after a brief delay to ensure token is stored
+                setTimeout(() => {
+                    window.location.href = 'main.html';
+                }, 100);
             } else if (data.message === 'User is not confirmed.') {
-                if (confirm('Your account is not confirmed. Would you like to resend the confirmation code?')) {
-                    await resendConfirmationCode(email);
-                }
                 await handleSignupConfirmation(email);
             } else {
                 throw new Error(data.message || 'Login failed');
@@ -188,15 +179,16 @@ function checkPasswordMatch() {
     // Update the forgot password form submission handler
     forgotPasswordForm.addEventListener('submit', async (event) => {
         event.preventDefault();
-        setLoading(forgotPasswordForm, true);
+        console.log('Form submitted'); // Debug log
 
         const emailInput = document.getElementById('forgot-password-email');
         const email = emailInput.value;
-        
-        // Store email for the reset flow
-        localStorage.setItem('resetEmail', email);
+        console.log('Email:', email); // Debug log
+
+        setLoading(forgotPasswordForm, true);
 
         try {
+            console.log('Sending request...'); // Debug log
             const response = await fetch(`${apiUrl}/auth/forgot-password`, {
                 method: 'POST',
                 headers: {
@@ -206,85 +198,45 @@ function checkPasswordMatch() {
             });
 
             const data = await response.json();
+            console.log('Response:', data); // Debug log
             
             if (response.ok) {
-                const resetForm = document.createElement('form');
-                resetForm.id = 'reset-password-form';
-                resetForm.innerHTML = `
-                    <input type="text" placeholder="Verification Code" required>
-                    <input type="password" id="new-password" placeholder="New Password" required>
-                    <input type="password" id="confirm-new-password" placeholder="Confirm New Password" required>
-                    <div id="reset-password-strength-meter">
-                        <p>Password must contain:</p>
-                        <ul>
-                            <li id="reset-length">At least 8 characters</li>
-                            <li id="reset-uppercase">At least one uppercase letter</li>
-                            <li id="reset-lowercase">At least one lowercase letter</li>
-                            <li id="reset-number">At least one number</li>
-                            <li id="reset-special">At least one special character</li>
-                        </ul>
-                    </div>
-                    <button type="submit">Reset Password</button>
-                    <button type="button" class="back-to-login">Back to Login</button>
-                `;
+                alert('Please check your email for the password reset code.');
+                
+                const code = prompt('Enter the verification code from your email:');
+                if (!code) {
+                    throw new Error('Verification code is required');
+                }
 
-                const forgotPasswordSection = document.querySelector('.forgot-password-section');
-                forgotPasswordSection.querySelector('form').replaceWith(resetForm);
+                const newPassword = prompt('Enter your new password:');
+                if (!newPassword) {
+                    throw new Error('New password is required');
+                }
 
-                // Add event listener for the new reset form
-                document.getElementById('reset-password-form').addEventListener('submit', async (e) => {
-                    e.preventDefault();
-                    const storedEmail = localStorage.getItem('resetEmail');
-                    const code = e.target.querySelector('input[type="text"]').value;
-                    const newPassword = e.target.querySelector('#new-password').value;
-                    const confirmPassword = e.target.querySelector('#confirm-new-password').value;
-
-                    if (newPassword !== confirmPassword) {
-                        showError('Passwords do not match');
-                        return;
-                    }
-
-                    if (!validatePassword(newPassword)) {
-                        showError('Password does not meet requirements');
-                        return;
-                    }
-
-                    try {
-                        const confirmResponse = await fetch(`${apiUrl}/auth/confirm-password`, {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                            },
-                            body: JSON.stringify({ 
-                                email: storedEmail, 
-                                code, 
-                                newPassword 
-                            })
-                        });
-
-                        const confirmData = await confirmResponse.json();
-                        
-                        if (confirmResponse.ok) {
-                            // Clean up stored email
-                            localStorage.removeItem('resetEmail');
-                            
-                            alert('Password has been reset successfully! You can now login with your new password.');
-                            document.querySelector('.forgot-password-section').style.display = 'none';
-                            document.querySelector('.login-section').style.display = 'flex';
-                            // Reset form to original state
-                            forgotPasswordSection.querySelector('form').replaceWith(forgotPasswordForm);
-                            emailInput.value = '';
-                        } else {
-                            throw new Error(confirmData.message || 'Failed to reset password');
-                        }
-                    } catch (error) {
-                        showError(error.message || 'Failed to reset password');
-                    }
+                const confirmResponse = await fetch(`${apiUrl}/auth/confirm-password`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ email, code, newPassword })
                 });
+
+                const confirmData = await confirmResponse.json();
+                console.log('Confirm response:', confirmData); // Debug log
+                
+                if (confirmResponse.ok) {
+                    alert('Password has been reset successfully! You can now login with your new password.');
+                    document.querySelector('.forgot-password-section').style.display = 'none';
+                    document.querySelector('.login-section').style.display = 'flex';
+                    emailInput.value = '';
+                } else {
+                    throw new Error(confirmData.message || 'Failed to reset password');
+                }
             } else {
                 throw new Error(data.message || 'Failed to send reset code');
             }
         } catch (error) {
+            console.error('Password reset error:', error);
             showError(error.message || 'Password reset failed. Please try again.');
         } finally {
             setLoading(forgotPasswordForm, false);
@@ -357,15 +309,30 @@ function checkPasswordMatch() {
         }
     }
 
-    function validatePassword(password) {
-        const requirements = {
-            length: password.length >= 8,
-            uppercase: /[A-Z]/.test(password),
-            lowercase: /[a-z]/.test(password),
-            number: /[0-9]/.test(password),
-            special: /[!@#$%^&*(),.?":{}|<>]/.test(password)
-        };
-
-        return Object.values(requirements).every(requirement => requirement === true);
+    async function forgotPassword() {
+        const email = document.getElementById('email').value;
+        try {
+            const response = await fetch('/forgot-password', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ email }),
+            });
+            const data = await response.json();
+            if (data.success) {
+                alert('Password reset code sent to your email.');
+            } else {
+                alert('Error: ' + data.message);
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('An error occurred. Please try again.');
+        }
     }
+
+    document.getElementById('forgot-password-form').addEventListener('submit', function (event) {
+        event.preventDefault();
+        forgotPassword();
+    });
 });
