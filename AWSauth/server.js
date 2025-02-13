@@ -11,7 +11,13 @@ const AWS = require('aws-sdk');
 
 const app = express();
 app.use(express.json());
-app.use(cors());
+
+// Configure CORS
+app.use(cors({
+    origin: '*', // Allow all origins for simplicity, you can restrict this to your frontend URL
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    allowedHeaders: ['Content-Type', 'Authorization']
+}));
 
 const cognito = new AWS.CognitoIdentityServiceProvider({
   region: process.env.COGNITO_REGION,
@@ -44,49 +50,40 @@ app.post('/auth/login', (req, res) => {
         return res.status(400).json({ success: false, message: 'Email and password are required' });
     }
 
-    // Check cache
-    const cacheKey = `${email}:${password}`;
-    const cachedResult = loginCache.get(cacheKey);
-    if (cachedResult && Date.now() - cachedResult.timestamp < LOGIN_CACHE_TTL) {
-        return res.json(cachedResult.data);
-    }
-
     const cognitoUser = new CognitoUser({ Username: email, Pool: userPool });
     const authenticationDetails = new AuthenticationDetails({ Username: email, Password: password });
 
-    // Set a timeout for the Cognito authentication
-    const authTimeout = setTimeout(() => {
-        cognitoUser.signOut();
-        res.status(504).json({ success: false, message: 'Authentication timeout' });
-    }, 8000);
+    // Set request timeout
+    const requestTimeout = new Promise((_, reject) => {
+        setTimeout(() => {
+            reject(new Error('Authentication timeout'));
+        }, 8000);
+    });
 
-    cognitoUser.authenticateUser(authenticationDetails, {
-        onSuccess: (result) => {
-            clearTimeout(authTimeout);
+    // Authentication promise
+    const authenticationPromise = new Promise((resolve, reject) => {
+        cognitoUser.authenticateUser(authenticationDetails, {
+            onSuccess: (result) => resolve(result),
+            onFailure: (err) => reject(err),
+            newPasswordRequired: () => reject(new Error('New password required'))
+        });
+    });
+
+    // Race between timeout and authentication
+    Promise.race([authenticationPromise, requestTimeout])
+        .then(result => {
             const response = {
                 success: true,
                 token: result.getIdToken().getJwtToken(),
                 message: 'Login successful'
             };
-            
-            // Cache the successful result
-            loginCache.set(cacheKey, {
-                timestamp: Date.now(),
-                data: response
-            });
-            
             res.json(response);
-        },
-        onFailure: (err) => {
-            clearTimeout(authTimeout);
+        })
+        .catch(err => {
             console.error('Login error:', err);
-            res.status(401).json({ success: false, message: err.message || 'Login failed' });
-        },
-        newPasswordRequired: () => {
-            clearTimeout(authTimeout);
-            res.status(403).json({ success: false, message: 'New password required' });
-        }
-    });
+            res.status(err.message === 'Authentication timeout' ? 504 : 401)
+               .json({ success: false, message: err.message || 'Login failed' });
+        });
 });
 
 // Clean up expired cache entries periodically
@@ -103,7 +100,6 @@ setInterval(() => {
 app.get('/health', (req, res) => {
     res.status(200).json({ status: 'OK' });
 });
-
 
 // 🔹 Sign up endpoint
 app.post('/auth/signup', (req, res) => {
@@ -163,43 +159,42 @@ app.post('/auth/resend-code', (req, res) => {
     cognitoUser.resendConfirmationCode((err, result) => {
         if (err) {
             console.error('Resend code error:', err);
-            return res.status(400).json({ success: false, message: err.message || 'Failed to resend code' });
+            return res.status(400).json({ success: false, message: err.message || 'Resend code failed' });
         }
         res.json({ success: true, message: 'Verification code resent successfully' });
     });
 });
 
-// Add forgot password endpoint
-app.post('/auth/forgot-password', async (req, res) => {
+// Update the forgot password endpoint
+app.post('/auth/forgot-password', (req, res) => {
     const { email } = req.body;
     if (!email) {
         return res.status(400).json({ success: false, message: 'Email is required' });
     }
 
-    try {
-        const cognitoUser = new CognitoUser({
-            Username: email,
-            Pool: userPool
-        });
+    const cognitoUser = new CognitoUser({
+        Username: email,
+        Pool: userPool
+    });
 
-        await new Promise((resolve, reject) => {
-            cognitoUser.forgotPassword({
-                onSuccess: () => resolve(),
-                onFailure: err => reject(err)
+    cognitoUser.forgotPassword({
+        onSuccess: () => {
+            res.json({ 
+                success: true, 
+                message: 'Password reset code sent successfully' 
             });
-        });
-
-        res.json({ success: true, message: 'Password reset code sent successfully' });
-    } catch (err) {
-        console.error('Forgot password error:', err);
-        res.status(400).json({ 
-            success: false, 
-            message: err.message || 'Failed to initiate password reset' 
-        });
-    }
+        },
+        onFailure: (err) => {
+            console.error('Forgot password error:', err);
+            res.status(400).json({ 
+                success: false, 
+                message: err.message || 'Failed to initiate password reset' 
+            });
+        }
+    });
 });
 
-// Add confirm new password endpoint
+// Update the confirm password endpoint
 app.post('/auth/confirm-password', async (req, res) => {
     const { email, code, newPassword } = req.body;
     if (!email || !code || !newPassword) {
@@ -209,19 +204,15 @@ app.post('/auth/confirm-password', async (req, res) => {
         });
     }
 
+    const params = {
+        ClientId: COGNITO_USER_POOL_WEB_CLIENT_ID,
+        Username: email,
+        ConfirmationCode: code,
+        Password: newPassword
+    };
+
     try {
-        const cognitoUser = new CognitoUser({
-            Username: email,
-            Pool: userPool
-        });
-
-        await new Promise((resolve, reject) => {
-            cognitoUser.confirmPassword(code, newPassword, {
-                onSuccess: () => resolve(),
-                onFailure: err => reject(err)
-            });
-        });
-
+        await cognito.confirmForgotPassword(params).promise();
         res.json({ success: true, message: 'Password reset successful' });
     } catch (err) {
         console.error('Confirm password error:', err);

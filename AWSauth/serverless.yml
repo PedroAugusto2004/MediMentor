@@ -32,12 +32,18 @@ functions:
           path: auth/resend-code
           method: post
           cors: true
-  forgotPassword:
-    handler: handler.forgotPassword
-    events:
       - http:
-          path: forgot-password
+          path: auth/forgot-password
           method: post
+          cors: true
+      - http:
+          path: auth/confirm-password
+          method: post
+          cors: true
+      - http:
+          path: auth/validate-token
+          method: get
+          cors: true
 
 plugins:
   - serverless-dotenv-plugin
