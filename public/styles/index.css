@@ -259,7 +259,7 @@ body {
 
 /* Add these styles at the end of your existing CSS file */
 #password-strength-meter {
-    background: rgba(0, 0, 0, 0.7);
+    background: rgba(0, 28, 80, 0.822);
     border-radius: 5px;
     padding: 10px;
     margin-top: 10px;
@@ -492,4 +492,69 @@ body {
     .background-video {
         object-fit: cover; /* Ensure video fits the whole screen on mobile */
     }
+}
+
+/* Loading Spinner */
+.spinner {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    border: 2px solid rgba(0, 36, 112, 0.3);
+    border-radius: 50%;
+    border-top-color: #0031b9;
+    animation: spin 0.8s linear infinite;
+    margin-right: 8px;
+    vertical-align: middle;
+    position: relative;
+    top: -1px;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.loading-text {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+button .spinner {
+    margin: 0 8px 0 0;
+}
+
+button.loading {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Error Message */
+.error-message {
+    background-color: #ff4444;
+    color: white;
+    padding: 10px;
+    border-radius: 4px;
+    margin-bottom: 15px;
+    text-align: center;
+    animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateY(-20px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+/* Disable button styles */
+button:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
 }

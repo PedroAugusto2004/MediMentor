@@ -9,45 +9,89 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const apiUrl = 'https://o3jowgm41d.execute-api.us-east-1.amazonaws.com/dev'; // Update with your deployed API endpoint
 
-    // Update login form submission to handle tokens
+    // Add loading state management
+    const setLoading = (form, isLoading) => {
+        const submitBtn = form.querySelector('button[type="submit"]');
+        const originalText = submitBtn.dataset.originalText || submitBtn.textContent;
+        
+        if (isLoading) {
+            submitBtn.dataset.originalText = originalText;
+            submitBtn.disabled = true;
+            submitBtn.classList.add('loading');
+            submitBtn.innerHTML = '<div class="loading-text"><span class="spinner"></span>Processing...</div>';
+        } else {
+            submitBtn.disabled = false;
+            submitBtn.classList.remove('loading');
+            submitBtn.textContent = originalText;
+        }
+    };
+
+    // Improved login form submission
     loginForm.addEventListener('submit', async (event) => {
         event.preventDefault();
+        setLoading(loginForm, true);
+
         const email = event.target.querySelector('input[type="email"]').value;
         const password = event.target.querySelector('input[type="password"]').value;
-        const submitButton = event.target.querySelector('button[type="submit"]');
 
-        // Disable submit button and show loading state
-        submitButton.disabled = true;
-        submitButton.textContent = 'Logging in...';
         try {
-            const response = await fetch(`${apiUrl}/auth/login`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ email, password })
-            });
+            const response = await Promise.race([
+                fetch(`${apiUrl}/auth/login`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ email, password })
+                }),
+                new Promise((_, reject) => 
+                    setTimeout(() => reject(new Error('Request timeout')), 10000)
+                )
+            ]);
 
             const data = await response.json();
+            
             if (response.ok && data.token) {
                 localStorage.setItem('authToken', data.token);
-                window.location.href = 'main.html';
+                // Preload main.html
+                const preloadLink = document.createElement('link');
+                preloadLink.rel = 'preload';
+                preloadLink.as = 'document';
+                preloadLink.href = 'main.html';
+                document.head.appendChild(preloadLink);
+                
+                // Redirect after a brief delay to ensure token is stored
+                setTimeout(() => {
+                    window.location.href = 'main.html';
+                }, 100);
             } else if (data.message === 'User is not confirmed.') {
-                alert('Please verify your email first');
                 await handleSignupConfirmation(email);
             } else {
                 throw new Error(data.message || 'Login failed');
             }
         } catch (error) {
             console.error('Login error:', error);
-            alert(error.message || 'Login failed. Please try again.');
+            showError(error.message || 'Login failed. Please try again.');
         } finally {
-            // Re-enable submit button and restore original text
-            submitButton.disabled = false;
-            submitButton.textContent = 'Login Now';
+            setLoading(loginForm, false);
         }
     });
 
+    // Add error message display
+    const showError = (message) => {
+        const errorDiv = document.createElement('div');
+        errorDiv.className = 'error-message';
+        errorDiv.textContent = message;
+        
+        const existingError = document.querySelector('.error-message');
+        if (existingError) {
+            existingError.remove();
+        }
+        
+        const form = document.querySelector('form:not([style*="display: none"])');
+        form.insertBefore(errorDiv, form.firstChild);
+        
+        setTimeout(() => errorDiv.remove(), 5000);
+    };
 
     // Sign-up form submission
     signupForm.addEventListener('submit', async (event) => {
@@ -132,12 +176,19 @@ function checkPasswordMatch() {
         document.querySelector('.login-section').style.display = 'flex';
     });
 
-    // Handle forgot password form submission
+    // Update the forgot password form submission handler
     forgotPasswordForm.addEventListener('submit', async (event) => {
         event.preventDefault();
-        const email = event.target.querySelector('input[type="email"]').value;
+        console.log('Form submitted'); // Debug log
+
+        const emailInput = document.getElementById('forgot-password-email');
+        const email = emailInput.value;
+        console.log('Email:', email); // Debug log
+
+        setLoading(forgotPasswordForm, true);
 
         try {
+            console.log('Sending request...'); // Debug log
             const response = await fetch(`${apiUrl}/auth/forgot-password`, {
                 method: 'POST',
                 headers: {
@@ -147,17 +198,48 @@ function checkPasswordMatch() {
             });
 
             const data = await response.json();
+            console.log('Response:', data); // Debug log
+            
             if (response.ok) {
-                alert('Password reset instructions have been sent to your email');
-                // Return to login screen
-                document.querySelector('.forgot-password-section').style.display = 'none';
-                document.querySelector('.login-section').style.display = 'flex';
+                alert('Please check your email for the password reset code.');
+                
+                const code = prompt('Enter the verification code from your email:');
+                if (!code) {
+                    throw new Error('Verification code is required');
+                }
+
+                const newPassword = prompt('Enter your new password:');
+                if (!newPassword) {
+                    throw new Error('New password is required');
+                }
+
+                const confirmResponse = await fetch(`${apiUrl}/auth/confirm-password`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ email, code, newPassword })
+                });
+
+                const confirmData = await confirmResponse.json();
+                console.log('Confirm response:', confirmData); // Debug log
+                
+                if (confirmResponse.ok) {
+                    alert('Password has been reset successfully! You can now login with your new password.');
+                    document.querySelector('.forgot-password-section').style.display = 'none';
+                    document.querySelector('.login-section').style.display = 'flex';
+                    emailInput.value = '';
+                } else {
+                    throw new Error(confirmData.message || 'Failed to reset password');
+                }
             } else {
-                alert(data.message || 'Password reset failed');
+                throw new Error(data.message || 'Failed to send reset code');
             }
         } catch (error) {
             console.error('Password reset error:', error);
-            alert('Password reset failed. Please try again.');
+            showError(error.message || 'Password reset failed. Please try again.');
+        } finally {
+            setLoading(forgotPasswordForm, false);
         }
     });
 
