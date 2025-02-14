@@ -20,8 +20,33 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentStep = 0;
 
     const userName = localStorage.getItem('userName') || 'User';
+    
+    // Update welcome message function
+    const displayWelcomeMessage = () => {
+        const userName = localStorage.getItem('userName');
+        const messageElement = document.createElement('div');
+        messageElement.classList.add('message', 'bot-message');
+        
+        const currentHour = new Date().getHours();
+        let greeting = '';
+        
+        if (currentHour < 12) greeting = 'Good morning';
+        else if (currentHour < 18) greeting = 'Good afternoon';
+        else greeting = 'Good evening';
+        
+        // Enhanced name display with fallback
+        const displayName = userName && userName !== 'User' ? userName : '';
+        messageElement.innerHTML = displayName 
+            ? `${greeting} ${displayName}! I am MediMentor. What symptoms are you experiencing?`
+            : `${greeting}! I am MediMentor. What symptoms are you experiencing?`;
+        
+        chatOutput.appendChild(messageElement);
+        messageElement.scrollIntoView({ behavior: 'smooth', block: 'end' });
+    };
+
+    // Update steps array with personalized greeting
     const steps = [
-        `Hello ${userName}! I am MediMentor. What symptoms are you experiencing?`,
+        `I am MediMentor. What symptoms are you experiencing?`,
         'Thank you for sharing your symptoms. Could you tell me when they started?',
         'Please select your gender (male/female).',
         'Please enter your date of birth (YYYY-MM-DD).',
@@ -299,12 +324,6 @@ document.addEventListener('DOMContentLoaded', () => {
         addMessage(diagnosisHtml, 'bot');
     }
 
-    function displayWelcomeMessage(userName) {
-        const chatWindow = document.getElementById('chat-window');
-        const welcomeMessage = `Hello ${userName}! I am MediMentor. What symptoms are you experiencing?`;
-        chatWindow.innerHTML += `<div class="chat-message">${welcomeMessage}</div>`;
-    }
-
     const resetConversation = () => {
         // Reset user inputs
         userInputs = {
@@ -332,8 +351,8 @@ document.addEventListener('DOMContentLoaded', () => {
         chatInput.value = '';
         dateInput.value = '';
 
-        // Start new conversation
-        addMessage(steps[currentStep], 'bot');
+        // Display welcome message with user name
+        displayWelcomeMessage();
     };
 
     sendButton.addEventListener('click', () => {
@@ -410,6 +429,6 @@ document.addEventListener('DOMContentLoaded', () => {
     // Event listener for restart button
     restartButton.addEventListener('click', resetConversation);
 
-    // Start the conversation
-    addMessage(steps[currentStep], 'bot');
+    // Call displayWelcomeMessage instead of first step message
+    displayWelcomeMessage();
 });

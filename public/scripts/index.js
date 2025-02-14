@@ -52,6 +52,21 @@ document.addEventListener('DOMContentLoaded', () => {
             
             if (response.ok && data.token) {
                 localStorage.setItem('authToken', data.token);
+                
+                // Enhanced name handling
+                if (data.fullName && data.fullName.trim()) {
+                    localStorage.setItem('userName', data.fullName);
+                } else {
+                    const tempName = localStorage.getItem('tempUserName');
+                    if (tempName) {
+                        localStorage.setItem('userName', tempName);
+                        localStorage.removeItem('tempUserName'); // Clean up
+                    } else {
+                        console.warn("No name available from server or temporary storage");
+                        localStorage.setItem('userName', 'User');
+                    }
+                }
+                
                 // Preload main.html
                 const preloadLink = document.createElement('link');
                 preloadLink.rel = 'preload';
@@ -93,14 +108,25 @@ document.addEventListener('DOMContentLoaded', () => {
         setTimeout(() => errorDiv.remove(), 5000);
     };
 
-    // Sign-up form submission
+    // Update within the signup form submission handler
     signupForm.addEventListener('submit', async (event) => {
         event.preventDefault();
+        setLoading(signupForm, true);
+
         const email = event.target.querySelector('input[type="email"]').value;
         const password = event.target.querySelector('input[type="password"]').value;
-        const fullName = event.target.querySelector('input[type="text"]').value;
+        const fullName = event.target.querySelector('input[type="text"]').value.trim();
+
+        if (!fullName) {
+            showError('Full name is required');
+            setLoading(signupForm, false);
+            return;
+        }
 
         try {
+            // Store full name temporarily before API call
+            localStorage.setItem('tempUserName', fullName);
+
             const response = await fetch(`${apiUrl}/auth/signup`, {
                 method: 'POST',
                 headers: {
@@ -112,14 +138,16 @@ document.addEventListener('DOMContentLoaded', () => {
             const data = await response.json();
             if (response.ok) {
                 alert('Sign up successful! Please check your email for verification code.');
-                // Handle confirmation flow
                 await handleSignupConfirmation(email);
             } else {
-                alert(data.message || 'Sign up failed');
+                throw new Error(data.message || 'Sign up failed');
             }
         } catch (error) {
             console.error('Sign up error:', error);
-            alert('Sign up failed. Please try again.');
+            showError(error.message || 'Sign up failed. Please try again.');
+            localStorage.removeItem('tempUserName'); // Clean up on error
+        } finally {
+            setLoading(signupForm, false);
         }
     });
 

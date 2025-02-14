@@ -1055,3 +1055,42 @@ main {
 .popup-content button#cancel-logout:hover {
     background: var(--input-border);
 }
+
+/* User info display styles */
+.user-info {
+    display: flex;
+    align-items: center;
+    padding: 0.5rem 1rem;
+    margin-right: 1rem;
+    border-radius: 20px;
+    background: rgba(0, 0, 0, 0.1);
+}
+
+#userNameDisplay {
+    color: var(--secondary-color);
+    font-size: 1rem;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+#userNameDisplay i {
+    font-size: 0.9rem;
+    opacity: 0.8;
+}
+
+[data-theme="dark"] .user-info {
+    background: rgba(0, 0, 0, 0.2);
+}
+
+.user-info {
+    margin-left: 20px;
+    font-size: 0.9rem;
+    color: var(--text-color);
+    opacity: 0.8;
+}
+
+#userNameDisplay {
+    font-weight: 500;
+}

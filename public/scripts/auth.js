@@ -10,6 +10,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     confirmLogoutBtn.addEventListener('click', () => {
         localStorage.removeItem('authToken');
+        localStorage.removeItem('userName'); // Clear user name on logout
         window.location.href = 'index.html';
     });
 
@@ -43,5 +44,16 @@ document.addEventListener('DOMContentLoaded', () => {
         redirectLoginBtn.addEventListener('click', () => {
             window.location.href = 'index.html';
         });
+    }
+
+    // Update the username display logic
+    const userNameDisplay = document.getElementById('userNameDisplay');
+    if (userNameDisplay) {
+        const userName = localStorage.getItem('userName');
+        if (userName && userName !== 'User') {
+            userNameDisplay.textContent = `Welcome, ${userName}`;
+        } else {
+            userNameDisplay.textContent = 'Welcome';
+        }
     }
 });
