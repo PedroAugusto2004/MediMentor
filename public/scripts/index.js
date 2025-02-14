@@ -53,33 +53,54 @@ document.addEventListener('DOMContentLoaded', () => {
             if (response.ok && data.token) {
                 localStorage.setItem('authToken', data.token);
                 
-                // Enhanced name handling
+                // Enhanced name handling with API retry
                 if (data.fullName && data.fullName.trim()) {
                     localStorage.setItem('userName', data.fullName);
                 } else {
-                    const tempName = localStorage.getItem('tempUserName');
-                    if (tempName) {
-                        localStorage.setItem('userName', tempName);
-                        localStorage.removeItem('tempUserName'); // Clean up
-                    } else {
-                        console.warn("No name available from server or temporary storage");
-                        localStorage.setItem('userName', 'User');
+                    // If fullName is not in initial response, fetch user profile
+                    try {
+                        const profileResponse = await fetch(`${apiUrl}/auth/profile`, {
+                            headers: {
+                                'Authorization': `Bearer ${data.token}`,
+                                'Content-Type': 'application/json'
+                            }
+                        });
+                        const profileData = await profileResponse.json();
+                        
+                        if (profileData.fullName && profileData.fullName.trim()) {
+                            localStorage.setItem('userName', profileData.fullName);
+                        } else {
+                            // Final fallback to temporary storage
+                            const tempName = localStorage.getItem('tempUserName');
+                            if (tempName) {
+                                localStorage.setItem('userName', tempName);
+                                localStorage.removeItem('tempUserName');
+                            } else {
+                                console.warn("No name available from any source");
+                                localStorage.setItem('userName', 'User');
+                            }
+                        }
+                    } catch (profileError) {
+                        console.error('Failed to fetch user profile:', profileError);
+                        // Use temporary storage as fallback
+                        const tempName = localStorage.getItem('tempUserName');
+                        if (tempName) {
+                            localStorage.setItem('userName', tempName);
+                            localStorage.removeItem('tempUserName');
+                        }
                     }
                 }
-                
-                // Preload main.html
+
+                // Preload main page
                 const preloadLink = document.createElement('link');
                 preloadLink.rel = 'preload';
                 preloadLink.as = 'document';
                 preloadLink.href = 'main.html';
                 document.head.appendChild(preloadLink);
-                
-                // Redirect after a brief delay to ensure token is stored
+
                 setTimeout(() => {
                     window.location.href = 'main.html';
                 }, 100);
-            } else if (data.message === 'User is not confirmed.') {
-                await handleSignupConfirmation(email);
             } else {
                 throw new Error(data.message || 'Login failed');
             }

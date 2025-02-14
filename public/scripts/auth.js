@@ -9,8 +9,10 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     confirmLogoutBtn.addEventListener('click', () => {
+        // Clear all auth-related data
         localStorage.removeItem('authToken');
-        localStorage.removeItem('userName'); // Clear user name on logout
+        localStorage.removeItem('userName');
+        localStorage.removeItem('tempUserName'); // Also clear any temporary data
         window.location.href = 'index.html';
     });
 
@@ -45,15 +47,41 @@ document.addEventListener('DOMContentLoaded', () => {
             window.location.href = 'index.html';
         });
     }
+});
 
-    // Update the username display logic
+// Update the username display logic with retry mechanism
+const updateUserDisplay = async () => {
     const userNameDisplay = document.getElementById('userNameDisplay');
-    if (userNameDisplay) {
-        const userName = localStorage.getItem('userName');
-        if (userName && userName !== 'User') {
-            userNameDisplay.textContent = `Welcome, ${userName}`;
-        } else {
-            userNameDisplay.textContent = 'Welcome';
+    if (!userNameDisplay) return;
+
+    let userName = localStorage.getItem('userName');
+    
+    // If no name is found, try to fetch it from the API
+    if (!userName || userName === 'User') {
+        const token = localStorage.getItem('authToken');
+        if (token) {
+            try {
+                const response = await fetch(`${apiUrl}/auth/profile`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+                const data = await response.json();
+                if (data.fullName && data.fullName.trim()) {
+                    userName = data.fullName;
+                    localStorage.setItem('userName', userName);
+                }
+            } catch (error) {
+                console.error('Failed to fetch user profile:', error);
+            }
         }
     }
-});
+
+    userNameDisplay.textContent = userName && userName !== 'User' 
+        ? `Welcome, ${userName}` 
+        : 'Welcome';
+};
+
+// Call this when the page loads
+document.addEventListener('DOMContentLoaded', updateUserDisplay);

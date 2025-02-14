@@ -22,19 +22,39 @@ document.addEventListener('DOMContentLoaded', () => {
     const userName = localStorage.getItem('userName') || 'User';
     
     // Update welcome message function
-    const displayWelcomeMessage = () => {
-        const userName = localStorage.getItem('userName');
+    const displayWelcomeMessage = async () => {
+        let userName = localStorage.getItem('userName');
+        
+        // If no valid name is found, try to fetch from API
+        if (!userName || userName === 'User') {
+            const token = localStorage.getItem('authToken');
+            if (token) {
+                try {
+                    const response = await fetch(`${apiUrl}/auth/profile`, {
+                        headers: {
+                            'Authorization': `Bearer ${token}`,
+                            'Content-Type': 'application/json'
+                        }
+                    });
+                    const data = await response.json();
+                    if (data.fullName && data.fullName.trim()) {
+                        userName = data.fullName;
+                        localStorage.setItem('userName', userName);
+                    }
+                } catch (error) {
+                    console.error('Failed to fetch user profile:', error);
+                }
+            }
+        }
+
         const messageElement = document.createElement('div');
         messageElement.classList.add('message', 'bot-message');
         
         const currentHour = new Date().getHours();
-        let greeting = '';
+        let greeting = currentHour < 12 ? 'Good morning' : 
+                       currentHour < 18 ? 'Good afternoon' : 
+                       'Good evening';
         
-        if (currentHour < 12) greeting = 'Good morning';
-        else if (currentHour < 18) greeting = 'Good afternoon';
-        else greeting = 'Good evening';
-        
-        // Enhanced name display with fallback
         const displayName = userName && userName !== 'User' ? userName : '';
         messageElement.innerHTML = displayName 
             ? `${greeting} ${displayName}! I am MediMentor. What symptoms are you experiencing?`
