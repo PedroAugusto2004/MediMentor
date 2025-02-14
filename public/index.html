@@ -20,6 +20,22 @@
         <div class="welcome-section">
             <h1>Welcome to MediMentor!</h1>
             <p>Your personal guide to better health and well-being. Skip the confusion and get personalized recommendations, powered by advanced AI technology.</p>
+
+<!-- Get started button -->
+        <div id="get-started-container" class="get-started-link">
+            <a href="main.html">
+                <button class="cssbuttons-io-button">
+                    Get started
+                    <div class="icon">
+                        <svg height="24" width="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M0 0h24v24H0z" fill="none"></path>
+                            <path d="M16.172 11l-5.364-5.364 1.414-1.414L20 12l-7.778 7.778-1.414-1.414L16.172 13H4v-2z" fill="currentColor"></path>
+                        </svg>
+                    </div>
+                </button>
+            </a>
+        </div>
+
             <div class="powered-by">
                 <span>Powered by</span>
                 <a href="https://aws.amazon.com" target="_blank">
@@ -27,6 +43,7 @@
                 </a>
             </div>
         </div>
+        
         <!-- Login section -->
         <div class="login-section">
             <h2>Welcome!</h2>
@@ -98,15 +115,48 @@
     </div>
     <script type="module" src="scripts/index.js"></script>
     <script>
-        document.getElementById('signup-btn').addEventListener('click', function() {
-            document.querySelector('.login-section').style.display = 'none';
-            document.querySelector('.signup-section').style.display = 'flex';
+        const getStartedContainer = document.getElementById('get-started-container');
+        const loginSection = document.querySelector('.login-section');
+        const signupSection = document.querySelector('.signup-section');
+        const forgotPasswordSection = document.querySelector('.forgot-password-section');
+
+        function updateGetStartedVisibility() {
+            if (loginSection.style.display !== 'none' || loginSection.style.display === '') {
+                getStartedContainer.style.display = 'flex';
+            } else {
+                getStartedContainer.style.display = 'none';
+            }
+        }
+
+        // Initial visibility check
+        updateGetStartedVisibility();
+
+        // Add event listeners to buttons that switch sections
+        document.getElementById('signup-btn').addEventListener('click', () => {
+            loginSection.style.display = 'none';
+            signupSection.style.display = 'block';
+            updateGetStartedVisibility();
         });
 
-        document.getElementById('back-to-login-btn').addEventListener('click', function() {
-            document.querySelector('.signup-section').style.display = 'none';
-            document.querySelector('.login-section').style.display = 'flex';
+        document.getElementById('back-to-login-btn').addEventListener('click', () => {
+            signupSection.style.display = 'none';
+            loginSection.style.display = 'block';
+            updateGetStartedVisibility();
+        });
+
+        document.getElementById('forgot-password-link').addEventListener('click', () => {
+            loginSection.style.display = 'none';
+            forgotPasswordSection.style.display = 'block';
+            updateGetStartedVisibility();
+        });
+
+        document.getElementById('back-to-login-from-forgot').addEventListener('click', () => {
+            forgotPasswordSection.style.display = 'none';
+            loginSection.style.display = 'block';
+            updateGetStartedVisibility();
         });
     </script>
+
+
 </body>
 </html>

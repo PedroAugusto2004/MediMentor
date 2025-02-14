@@ -61,6 +61,71 @@ body {
     line-height: 1.6;
 }
 
+/* Get started button styles */
+.get-started-link {
+    display: flex; /* Change this from 'none' to 'flex' */
+    justify-content: center;
+    margin-top: 20px;
+    text-decoration: none;
+}
+
+
+
+.cssbuttons-io-button {
+    background: rgb(0, 95, 184);
+    color: white;
+    font-family: inherit;
+    padding: 0.25em;
+    padding-left: 0.9em;
+    font-size: 18px;
+    font-weight: 500;
+    border-radius: 0.7em;
+    border: none;
+    letter-spacing: 0.05em;
+    display: inline-flex;
+    align-items: center;
+    overflow: hidden;
+    position: relative;
+    height: 2.4em;
+    padding-right: 2.8em;
+    cursor: pointer;
+    margin: 0 auto; /* Center the button horizontally */
+}
+
+
+.cssbuttons-io-button .icon {
+    background: white;
+    margin-left: 0.8em;
+    position: absolute;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 1.8em;
+    width: 1.8em;
+    border-radius: 0.5em;
+    box-shadow: 0.1em 0.1em 0.4em 0.1em #001d5a;
+    right: 0.3em;
+    transition: all 0.3s;
+}
+
+.cssbuttons-io-button:hover .icon {
+    width: calc(100% - 0.5em);
+}
+
+.cssbuttons-io-button .icon svg {
+    width: 0.9em;
+    transition: transform 0.3s;
+    color: #04068a;
+}
+
+.cssbuttons-io-button:hover .icon svg {
+    transform: translateX(0.1em);
+}
+
+.cssbuttons-io-button:active .icon {
+    transform: scale(0.95);
+}
+  
 /* Login section styles */
 .login-section {
     flex: 1;
