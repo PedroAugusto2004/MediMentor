@@ -655,3 +655,55 @@ button:disabled {
 .forgot-password-form button:hover {
   background-color: #0056b3;
 }
+
+/* Terms and conditions checkbox styles */
+.terms-checkbox {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 10px 0;
+    width: 100%;
+}
+
+.terms-checkbox .check-container {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    color: #333;
+}
+
+.terms-checkbox .check-container input {
+    display: none;
+}
+
+.terms-checkbox .check-container svg {
+    overflow: visible;
+}
+
+.terms-checkbox .check-container .path {
+    fill: none;
+    stroke: #3a80ff;
+    stroke-width: 6;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    transition: stroke-dasharray 0.5s ease, stroke-dashoffset 0.5s ease;
+    stroke-dasharray: 241 9999999;
+    stroke-dashoffset: 0;
+}
+
+.terms-checkbox .check-container input:checked ~ svg .path {
+    stroke-dasharray: 70.5096664428711 9999999;
+    stroke-dashoffset: -262.2723388671875;
+}
+
+.terms-checkbox a {
+    color: #3a80ff;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.terms-checkbox a:hover {
+    text-decoration: underline;
+}

@@ -132,6 +132,13 @@ document.addEventListener('DOMContentLoaded', () => {
     // Update within the signup form submission handler
     signupForm.addEventListener('submit', async (event) => {
         event.preventDefault();
+        const termsCheckbox = document.getElementById('terms-checkbox');
+        
+        if (!termsCheckbox.checked) {
+            showError('Please agree to the Terms and Conditions');
+            return;
+        }
+        
         setLoading(signupForm, true);
 
         const email = event.target.querySelector('input[type="email"]').value;
