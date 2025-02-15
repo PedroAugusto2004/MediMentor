@@ -112,30 +112,62 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Add error message display
+    // Replace the existing showError function with this enhanced version
     const showError = (message) => {
-        const errorDiv = document.createElement('div');
-        errorDiv.className = 'error-message';
-        errorDiv.textContent = message;
-        
-        const existingError = document.querySelector('.error-message');
-        if (existingError) {
-            existingError.remove();
+        // Remove any existing alerts
+        const existingAlert = document.querySelector('.alert-message');
+        if (existingAlert) {
+            existingAlert.remove();
         }
-        
-        const form = document.querySelector('form:not([style*="display: none"])');
-        form.insertBefore(errorDiv, form.firstChild);
-        
-        setTimeout(() => errorDiv.remove(), 5000);
+
+        // Create new alert
+        const alertDiv = document.createElement('div');
+        alertDiv.className = 'alert-message';
+        alertDiv.textContent = message;
+        document.body.appendChild(alertDiv);
+
+        // Trigger reflow for animation
+        alertDiv.offsetHeight;
+
+        // Show the alert with animation
+        requestAnimationFrame(() => {
+            alertDiv.classList.add('show');
+        });
+
+        // Remove alert after 4 seconds with fade out
+        setTimeout(() => {
+            alertDiv.classList.remove('show');
+            setTimeout(() => alertDiv.remove(), 300);
+        }, 4000);
     };
+
+    // Add these CSS animations to the document
+    const style = document.createElement('style');
+    style.textContent = `
+        @keyframes slideDown {
+            from { transform: translate(-50%, -100%); }
+            to { transform: translate(-50%, 0); }
+        }
+        @keyframes slideUp {
+            from { transform: translate(-50%, 0); }
+            to { transform: translate(-50%, -100%); }
+        }
+    `;
+    document.head.appendChild(style);
 
     // Update within the signup form submission handler
     signupForm.addEventListener('submit', async (event) => {
         event.preventDefault();
+        
+        // Add console.log for debugging
+        console.log('Form submitted');
+        
         const termsCheckbox = document.getElementById('terms-checkbox');
+        console.log('Terms checked:', termsCheckbox.checked);  // Debug log
         
         if (!termsCheckbox.checked) {
-            showError('Please agree to the Terms and Conditions');
+            console.log('Terms not checked, showing error');  // Debug log
+            showError('You must agree to the terms and conditions to sign up');
             return;
         }
         
@@ -168,7 +200,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 alert('Sign up successful! Please check your email for verification code.');
                 await handleSignupConfirmation(email);
             } else {
-                throw new Error(data.message || 'Sign up failed');
+                if (data.message.includes('User already exists')) {
+                    showError('User already exists!');
+                } else {
+                    throw new Error(data.message || 'Sign up failed');
+                }
             }
         } catch (error) {
             console.error('Sign up error:', error);

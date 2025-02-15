@@ -313,12 +313,12 @@ body {
 }
 
 .signup-now {
-    background: #622aff;
+    background: #3a80ff;
     color: white;
 }
 
 .signup-now:hover {
-    background: #301086;
+    background: #08317c;
 }
 
 
@@ -706,4 +706,53 @@ button:disabled {
 
 .terms-checkbox a:hover {
     text-decoration: underline;
+}
+
+/* Update alert message styles */
+.alert-message {
+    position: fixed !important;
+    top: 30px !important;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    background-color: rgba(255, 68, 68, 0.95) !important;
+    color: white !important;
+    padding: 12px 24px !important;
+    border-radius: 8px !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+    z-index: 9999 !important;
+    text-align: center !important;
+    font-size: 14px !important;
+    min-width: 280px !important;
+    font-weight: 500 !important;
+    backdrop-filter: blur(8px) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    opacity: 0;
+    transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out !important;
+}
+
+.alert-message.show {
+    opacity: 1;
+    transform: translate(-50%, 0) !important;
+}
+
+@keyframes slideDown {
+    from { 
+        transform: translate(-50%, -20px);
+        opacity: 0;
+    }
+    to { 
+        transform: translate(-50%, 0);
+        opacity: 1;
+    }
+}
+
+@keyframes slideUp {
+    from { 
+        transform: translate(-50%, 0);
+        opacity: 1;
+    }
+    to { 
+        transform: translate(-50%, -20px);
+        opacity: 0;
+    }
 }

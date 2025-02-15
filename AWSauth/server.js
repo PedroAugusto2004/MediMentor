@@ -101,7 +101,7 @@ app.get('/health', (req, res) => {
     res.status(200).json({ status: 'OK' });
 });
 
-// 🔹 Sign up endpoint
+// 🔹 Sign up endpoint with better error handling
 app.post('/auth/signup', (req, res) => {
     const { email, password, fullName } = req.body;
     if (!email || !password || !fullName) {
@@ -116,7 +116,16 @@ app.post('/auth/signup', (req, res) => {
         (err, result) => {
             if (err) {
                 console.error('Sign up error:', err);
-                return res.status(400).json({ success: false, message: err.message || 'Sign up failed' });
+                if (err.code === 'UsernameExistsException') {
+                    return res.status(400).json({ 
+                        success: false, 
+                        message: 'User already exists' 
+                    });
+                }
+                return res.status(400).json({ 
+                    success: false, 
+                    message: err.message || 'Sign up failed' 
+                });
             }
             res.json({ success: true, message: 'Sign up successful' });
         }
