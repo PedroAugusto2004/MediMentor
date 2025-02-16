@@ -1,0 +1,42 @@
+service: medimentor
+
+provider:
+  name: aws
+  runtime: nodejs18.x
+  region: ${opt:region, 'us-east-1'}
+  iam:
+    role:
+      statements:
+        - Effect: Allow
+          Action:
+            - ssm:GetParameter
+          Resource: 
+            - arn:aws:ssm:${aws:region}:${aws:accountId}:parameter/medimentor/isabel/api-key
+
+functions:
+  api:
+    handler: lambda.handler
+    events:
+      - http:
+          path: /analyze-symptoms
+          method: post
+          cors:
+            origins:
+              - '*'  # Replace with your actual frontend domain in production
+            headers:
+              - Content-Type
+              - X-Amz-Date
+              - Authorization
+              - X-Api-Key
+              - X-Amz-Security-Token
+              - X-Amz-User-Agent
+            allowCredentials: false
+    environment:
+      NODE_ENV: production
+
+plugins:
+  - serverless-offline
+
+custom:
+  serverless-offline:
+    httpPort: 3000

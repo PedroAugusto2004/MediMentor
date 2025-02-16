@@ -1,0 +1,132 @@
+{
+  "C:\\MediMentor\\backend\\serverless.yml": {
+    "versionFramework": "4.6.2",
+    "servicePath": "C:\\MediMentor\\backend\\serverless.yml",
+    "serviceConfigFileName": "serverless.yml",
+    "service": {
+      "service": "medimentor",
+      "provider": {
+        "name": "aws",
+        "runtime": "nodejs18.x",
+        "region": "us-east-1",
+        "iam": {
+          "role": {
+            "statements": [
+              {
+                "Effect": "Allow",
+                "Action": [
+                  "ssm:GetParameter"
+                ],
+                "Resource": "arn:aws:ssm:us-east-1:808117419296:parameter/medimentor/isabel/api-key"
+              }
+            ]
+          }
+        },
+        "stage": "dev",
+        "versionFunctions": true
+      },
+      "functions": {
+        "api": {
+          "handler": "lambda.handler",
+          "events": [
+            {
+              "http": {
+                "path": "/analyze-symptoms",
+                "method": "post",
+                "cors": {
+                  "origins": [
+                    "*"
+                  ],
+                  "headers": [
+                    "Content-Type",
+                    "X-Amz-Date",
+                    "Authorization",
+                    "X-Api-Key",
+                    "X-Amz-Security-Token",
+                    "X-Amz-User-Agent"
+                  ],
+                  "allowCredentials": "<REDACTED>"
+                }
+              }
+            }
+          ],
+          "environment": {
+            "NODE_ENV": "production"
+          },
+          "name": "medimentor-dev-api"
+        }
+      },
+      "plugins": [
+        "serverless-offline"
+      ],
+      "custom": {
+        "serverless-offline": {
+          "httpPort": 3000
+        }
+      }
+    },
+    "provider": {
+      "name": "aws",
+      "runtime": "nodejs18.x",
+      "region": "us-east-1",
+      "iam": {
+        "role": {
+          "statements": [
+            {
+              "Effect": "Allow",
+              "Action": [
+                "ssm:GetParameter"
+              ],
+              "Resource": "arn:aws:ssm:us-east-1:808117419296:parameter/medimentor/isabel/api-key"
+            }
+          ]
+        }
+      },
+      "stage": "dev",
+      "versionFunctions": true
+    },
+    "dashboard": {
+      "isEnabledForService": false,
+      "requiredAuthentication": false,
+      "orgFeaturesInUse": null,
+      "orgObservabilityIntegrations": null,
+      "serviceAppId": null,
+      "serviceProvider": null,
+      "instanceParameters": null
+    },
+    "serviceRawFile": "service: medimentor\r\n\r\nprovider:\r\n  name: aws\r\n  runtime: nodejs18.x\r\n  region: ${opt:region, 'us-east-1'}\r\n  iam:\r\n    role:\r\n      statements:\r\n        - Effect: Allow\r\n          Action:\r\n            - ssm:GetParameter\r\n          Resource: \r\n            - arn:aws:ssm:${aws:region}:${aws:accountId}:parameter/medimentor/isabel/api-key\r\n\r\nfunctions:\r\n  api:\r\n    handler: lambda.handler\r\n    events:\r\n      - http:\r\n          path: /analyze-symptoms\r\n          method: post\r\n          cors:\r\n            origins:\r\n              - '*'  # Replace with your actual frontend domain in production\r\n            headers:\r\n              - Content-Type\r\n              - X-Amz-Date\r\n              - Authorization\r\n              - X-Api-Key\r\n              - X-Amz-Security-Token\r\n              - X-Amz-User-Agent\r\n            allowCredentials: false\r\n    environment:\r\n      NODE_ENV: production\r\n\r\nplugins:\r\n  - serverless-offline\r\n\r\ncustom:\r\n  serverless-offline:\r\n    httpPort: 3000",
+    "command": [
+      "info"
+    ],
+    "options": {},
+    "orgId": "c0213de0-316e-45e1-9e9e-50edeea30bd6",
+    "orgName": "medimentor",
+    "userId": "Zl3qVwSBwxHwPF8rZ5",
+    "userName": "medimentor",
+    "serviceProviderAwsAccountId": "808117419296",
+    "serviceProviderAwsCfStackName": "medimentor-dev",
+    "serviceProviderAwsCfStackId": "arn:aws:cloudformation:us-east-1:808117419296:stack/medimentor-dev/cd3c1240-ec11-11ef-ae6d-0affcbb2710f",
+    "serviceProviderAwsCfStackCreated": "2025-02-16T02:57:47.481Z",
+    "serviceProviderAwsCfStackUpdated": "2025-02-16T03:06:52.574Z",
+    "serviceProviderAwsCfStackStatus": "UPDATE_COMPLETE",
+    "serviceProviderAwsCfStackOutputs": [
+      {
+        "OutputKey": "ApiLambdaFunctionQualifiedArn",
+        "OutputValue": "arn:aws:lambda:us-east-1:808117419296:function:medimentor-dev-api:2",
+        "Description": "Current Lambda function version",
+        "ExportName": "sls-medimentor-dev-ApiLambdaFunctionQualifiedArn"
+      },
+      {
+        "OutputKey": "ServiceEndpoint",
+        "OutputValue": "https://fut93ag59f.execute-api.us-east-1.amazonaws.com/dev",
+        "Description": "URL of the service endpoint",
+        "ExportName": "sls-medimentor-dev-ServiceEndpoint"
+      },
+      {
+        "OutputKey": "ServerlessDeploymentBucketName",
+        "OutputValue": "serverless-framework-deployments-us-east-1-0dc208ae-8d7a",
+        "ExportName": "sls-medimentor-dev-ServerlessDeploymentBucketName"
+      }
+    ]
+  }
+}

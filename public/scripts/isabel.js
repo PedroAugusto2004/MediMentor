@@ -14,8 +14,35 @@ document.addEventListener('DOMContentLoaded', () => {
     const symptomMap = {
         'fever': 10,
         'headache': 15,
-        // Add more symptoms and their IDs here
+        'nausea': 20,
+        'cough': 25,
+        'fatigue': 30,
+        'sore throat': 35,
+        'shortness of breath': 40,
+        'body ache': 45,
+        'dizziness': 50,
+        'chest pain': 55
     };
+
+    async function fetchWithRetry(url, options, maxRetries = 3) {
+        for (let i = 0; i < maxRetries; i++) {
+            try {
+                const response = await fetch(url, options);
+                if (response.ok) return response;
+                
+                if (response.status === 429) {
+                    const retryAfter = response.headers.get('Retry-After') || 1;
+                    await new Promise(resolve => setTimeout(resolve, retryAfter * 1000));
+                    continue;
+                }
+                
+                throw new Error(`HTTP error! status: ${response.status}`);
+            } catch (error) {
+                if (i === maxRetries - 1) throw error;
+                await new Promise(resolve => setTimeout(resolve, 1000 * Math.pow(2, i)));
+            }
+        }
+    }
 
     // Event listener for form submission
     symptomForm.addEventListener('submit', async (event) => {
@@ -39,15 +66,29 @@ document.addEventListener('DOMContentLoaded', () => {
 
         console.log('Submitting symptom IDs:', symptomIds); // Log the symptom IDs being submitted
 
+        const API_URL = 'https://fut93ag59f.execute-api.us-east-1.amazonaws.com/dev';
+
         try {
             // Send a POST request to the backend server with the symptom IDs, gender, date of birth, and region
-            const response = await fetch('http://localhost:3000/analyze-symptoms', {
+            const response = await fetchWithRetry(`${API_URL}/analyze-symptoms`, {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
                 },
-                body: JSON.stringify({ symptoms: symptomIds, gender, yearOfBirth, region })
+                mode: 'cors', // Ensure CORS is enabled
+                body: JSON.stringify({
+                    symptoms: symptomIds,
+                    gender,
+                    yearOfBirth,
+                    region,
+                    temporalContext: 'acute' // Add default temporal context
+                })
             });
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
 
             const data = await response.json();
 
@@ -78,8 +119,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 resultsSection.style.display = 'block'; // Ensure the results section is displayed
             }
         } catch (error) {
+            console.error('API Error:', error);
             // Display the error message if there is an error in the request
-            analysisOutput.innerHTML = `<h3>Error:</h3><p>${error.message}</p>`;
+            analysisOutput.innerHTML = `
+                <div class="error-message">
+                    <h3>Error</h3>
+                    <p>Unable to analyze symptoms: ${error.message}</p>
+                </div>`;
             recommendationOutput.innerHTML = '';
             resultsSection.classList.remove('hidden');
             resultsSection.style.display = 'block'; // Ensure the results section is displayed
