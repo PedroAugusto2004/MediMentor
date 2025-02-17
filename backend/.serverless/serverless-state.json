@@ -8,19 +8,6 @@
       "name": "aws",
       "runtime": "nodejs18.x",
       "region": "us-east-1",
-      "iam": {
-        "role": {
-          "statements": [
-            {
-              "Effect": "Allow",
-              "Action": [
-                "ssm:GetParameter"
-              ],
-              "Resource": "arn:aws:ssm:us-east-1:808117419296:parameter/medimentor/isabel/api-key"
-            }
-          ]
-        }
-      },
       "stage": "dev",
       "versionFunctions": true,
       "compiledCloudFormationTemplate": {
@@ -90,9 +77,6 @@
                             "Fn::Sub": "arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/medimentor-dev*:*:*"
                           }
                         ]
-                      },
-                      {
-                        "$ref": "$[\"service\"][\"provider\"][\"iam\"][\"role\"][\"statements\"][0]"
                       }
                     ]
                   }
@@ -119,9 +103,9 @@
             "Properties": {
               "Code": {
                 "S3Bucket": "serverless-framework-deployments-us-east-1-0dc208ae-8d7a",
-                "S3Key": "serverless/medimentor/dev/1739675202958-2025-02-16T03:06:42.958Z/medimentor.zip"
+                "S3Key": "serverless/medimentor/dev/1739742693818-2025-02-16T21:51:33.818Z/medimentor.zip"
               },
-              "Handler": "lambda.handler",
+              "Handler": "server.handler",
               "Runtime": "nodejs18.x",
               "FunctionName": "medimentor-dev-api",
               "MemorySize": 1024,
@@ -142,14 +126,14 @@
               "ApiLogGroup"
             ]
           },
-          "ApiLambdaVersion3xCg8oFxCKQLDBlzkIwlg6rd6lqLuOCfxY4aisx1E": {
+          "ApiLambdaVersion75sSC7oFzfPilaOWw9ImeaiKJDDzlsALjKyqNF2o68": {
             "Type": "AWS::Lambda::Version",
             "DeletionPolicy": "Retain",
             "Properties": {
               "FunctionName": {
                 "Ref": "ApiLambdaFunction"
               },
-              "CodeSha256": "IB6eg0bfhNczr46LswAFKiUVxlm8HPJwkbAVIHTYrbI="
+              "CodeSha256": "vtfcqZiCGKwnC1mhxx3DFtiWznnsjtlEUH/EG4zluSU="
             }
           },
           "ApiGatewayRestApi": {
@@ -208,7 +192,7 @@
                     "ResponseParameters": {
                       "method.response.header.Access-Control-Allow-Origin": "'*'",
                       "method.response.header.Access-Control-Allow-Headers": "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token,X-Amz-User-Agent'",
-                      "method.response.header.Access-Control-Allow-Methods": "'OPTIONS,POST'"
+                      "method.response.header.Access-Control-Allow-Methods": "'OPTIONS,GET'"
                     },
                     "ResponseTemplates": {
                       "application/json": "#set($origin = $input.params(\"Origin\"))\n#if($origin == \"\") #set($origin = $input.params(\"origin\")) #end\n#if($origin.matches(\".+\")) #set($context.responseOverride.header.Access-Control-Allow-Origin = $origin) #end"
@@ -270,7 +254,53 @@
               "ApiLambdaPermissionApiGateway"
             ]
           },
-          "ApiGatewayDeployment1739675181015": {
+          "ApiGatewayMethodAnalyzeDashsymptomsGet": {
+            "Type": "AWS::ApiGateway::Method",
+            "Properties": {
+              "HttpMethod": "GET",
+              "RequestParameters": {},
+              "ResourceId": {
+                "Ref": "ApiGatewayResourceAnalyzeDashsymptoms"
+              },
+              "RestApiId": {
+                "Ref": "ApiGatewayRestApi"
+              },
+              "ApiKeyRequired": false,
+              "AuthorizationType": "NONE",
+              "Integration": {
+                "IntegrationHttpMethod": "POST",
+                "Type": "AWS_PROXY",
+                "Uri": {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "arn:",
+                      {
+                        "Ref": "AWS::Partition"
+                      },
+                      ":apigateway:",
+                      {
+                        "Ref": "AWS::Region"
+                      },
+                      ":lambda:path/2015-03-31/functions/",
+                      {
+                        "Fn::GetAtt": [
+                          "ApiLambdaFunction",
+                          "Arn"
+                        ]
+                      },
+                      "/invocations"
+                    ]
+                  ]
+                }
+              },
+              "MethodResponses": []
+            },
+            "DependsOn": [
+              "ApiLambdaPermissionApiGateway"
+            ]
+          },
+          "ApiGatewayDeployment1739742678042": {
             "Type": "AWS::ApiGateway::Deployment",
             "Properties": {
               "RestApiId": {
@@ -280,7 +310,8 @@
             },
             "DependsOn": [
               "ApiGatewayMethodAnalyzeDashsymptomsOptions",
-              "ApiGatewayMethodAnalyzeDashsymptomsPost"
+              "ApiGatewayMethodAnalyzeDashsymptomsPost",
+              "ApiGatewayMethodAnalyzeDashsymptomsGet"
             ]
           },
           "ApiLambdaPermissionApiGateway": {
@@ -331,7 +362,7 @@
           "ApiLambdaFunctionQualifiedArn": {
             "Description": "Current Lambda function version",
             "Value": {
-              "Ref": "ApiLambdaVersion3xCg8oFxCKQLDBlzkIwlg6rd6lqLuOCfxY4aisx1E"
+              "Ref": "ApiLambdaVersion75sSC7oFzfPilaOWw9ImeaiKJDDzlsALjKyqNF2o68"
             },
             "Export": {
               "Name": "sls-medimentor-dev-ApiLambdaFunctionQualifiedArn"
@@ -378,16 +409,23 @@
     "pluginsData": {},
     "functions": {
       "api": {
-        "handler": "lambda.handler",
+        "handler": "server.handler",
         "events": [
           {
             "http": {
               "path": "analyze-symptoms",
               "method": "post",
+              "integration": "AWS_PROXY"
+            }
+          },
+          {
+            "http": {
+              "path": "analyze-symptoms",
+              "method": "get",
               "cors": {
                 "methods": [
                   "OPTIONS",
-                  "POST"
+                  "GET"
                 ],
                 "headers": [
                   "Content-Type",
@@ -415,7 +453,7 @@
         "timeout": 6,
         "runtime": "nodejs18.x",
         "vpc": {},
-        "versionLogicalId": "ApiLambdaVersion3xCg8oFxCKQLDBlzkIwlg6rd6lqLuOCfxY4aisx1E"
+        "versionLogicalId": "ApiLambdaVersion75sSC7oFzfPilaOWw9ImeaiKJDDzlsALjKyqNF2o68"
       }
     },
     "configValidationMode": "warn",
@@ -441,7 +479,7 @@
     "artifact": "C:\\MediMentor\\backend\\.serverless\\medimentor.zip"
   },
   "package": {
-    "artifactDirectoryName": "serverless/medimentor/dev/1739675202958-2025-02-16T03:06:42.958Z",
+    "artifactDirectoryName": "serverless/medimentor/dev/1739742693818-2025-02-16T21:51:33.818Z",
     "artifact": "medimentor.zip"
   }
 }

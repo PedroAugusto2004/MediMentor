@@ -4,22 +4,17 @@ provider:
   name: aws
   runtime: nodejs18.x
   region: ${opt:region, 'us-east-1'}
-  iam:
-    role:
-      statements:
-        - Effect: Allow
-          Action:
-            - ssm:GetParameter
-          Resource: 
-            - arn:aws:ssm:${aws:region}:${aws:accountId}:parameter/medimentor/isabel/api-key
 
 functions:
   api:
-    handler: lambda.handler
+    handler: server.handler  # Points to `server.js`
     events:
       - http:
-          path: /analyze-symptoms
+          path: analyze-symptoms
           method: post
+      - http:
+          path: analyze-symptoms
+          method: get
           cors:
             origins:
               - '*'  # Replace with your actual frontend domain in production
