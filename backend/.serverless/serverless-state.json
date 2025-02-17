@@ -103,7 +103,7 @@
             "Properties": {
               "Code": {
                 "S3Bucket": "serverless-framework-deployments-us-east-1-0dc208ae-8d7a",
-                "S3Key": "serverless/medimentor/dev/1739742693818-2025-02-16T21:51:33.818Z/medimentor.zip"
+                "S3Key": "serverless/medimentor/dev/1739766340191-2025-02-17T04:25:40.191Z/medimentor.zip"
               },
               "Handler": "server.handler",
               "Runtime": "nodejs18.x",
@@ -126,14 +126,14 @@
               "ApiLogGroup"
             ]
           },
-          "ApiLambdaVersion75sSC7oFzfPilaOWw9ImeaiKJDDzlsALjKyqNF2o68": {
+          "ApiLambdaVersionbk6zlsYEpWpUC3iSAgqL8GGyM3k0r27frYetRLyGtsM": {
             "Type": "AWS::Lambda::Version",
             "DeletionPolicy": "Retain",
             "Properties": {
               "FunctionName": {
                 "Ref": "ApiLambdaFunction"
               },
-              "CodeSha256": "vtfcqZiCGKwnC1mhxx3DFtiWznnsjtlEUH/EG4zluSU="
+              "CodeSha256": "Dn7uwesNi9LUsHQhkWu1Z+BNFgtpfW0mXGZWvDsZL9U="
             }
           },
           "ApiGatewayRestApi": {
@@ -158,51 +158,6 @@
                 ]
               },
               "PathPart": "analyze-symptoms",
-              "RestApiId": {
-                "Ref": "ApiGatewayRestApi"
-              }
-            }
-          },
-          "ApiGatewayMethodAnalyzeDashsymptomsOptions": {
-            "Type": "AWS::ApiGateway::Method",
-            "Properties": {
-              "AuthorizationType": "NONE",
-              "HttpMethod": "OPTIONS",
-              "MethodResponses": [
-                {
-                  "StatusCode": "200",
-                  "ResponseParameters": {
-                    "method.response.header.Access-Control-Allow-Origin": true,
-                    "method.response.header.Access-Control-Allow-Headers": true,
-                    "method.response.header.Access-Control-Allow-Methods": true
-                  },
-                  "ResponseModels": {}
-                }
-              ],
-              "RequestParameters": {},
-              "Integration": {
-                "Type": "MOCK",
-                "RequestTemplates": {
-                  "application/json": "{statusCode:200}"
-                },
-                "ContentHandling": "CONVERT_TO_TEXT",
-                "IntegrationResponses": [
-                  {
-                    "StatusCode": "200",
-                    "ResponseParameters": {
-                      "method.response.header.Access-Control-Allow-Origin": "'*'",
-                      "method.response.header.Access-Control-Allow-Headers": "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token,X-Amz-User-Agent'",
-                      "method.response.header.Access-Control-Allow-Methods": "'OPTIONS,GET'"
-                    },
-                    "ResponseTemplates": {
-                      "application/json": "#set($origin = $input.params(\"Origin\"))\n#if($origin == \"\") #set($origin = $input.params(\"origin\")) #end\n#if($origin.matches(\".+\")) #set($context.responseOverride.header.Access-Control-Allow-Origin = $origin) #end"
-                    }
-                  }
-                ]
-              },
-              "ResourceId": {
-                "Ref": "ApiGatewayResourceAnalyzeDashsymptoms"
-              },
               "RestApiId": {
                 "Ref": "ApiGatewayRestApi"
               }
@@ -300,7 +255,7 @@
               "ApiLambdaPermissionApiGateway"
             ]
           },
-          "ApiGatewayDeployment1739742678042": {
+          "ApiGatewayDeployment1739766317767": {
             "Type": "AWS::ApiGateway::Deployment",
             "Properties": {
               "RestApiId": {
@@ -309,7 +264,6 @@
               "StageName": "dev"
             },
             "DependsOn": [
-              "ApiGatewayMethodAnalyzeDashsymptomsOptions",
               "ApiGatewayMethodAnalyzeDashsymptomsPost",
               "ApiGatewayMethodAnalyzeDashsymptomsGet"
             ]
@@ -362,7 +316,7 @@
           "ApiLambdaFunctionQualifiedArn": {
             "Description": "Current Lambda function version",
             "Value": {
-              "Ref": "ApiLambdaVersion75sSC7oFzfPilaOWw9ImeaiKJDDzlsALjKyqNF2o68"
+              "Ref": "ApiLambdaVersionbk6zlsYEpWpUC3iSAgqL8GGyM3k0r27frYetRLyGtsM"
             },
             "Export": {
               "Name": "sls-medimentor-dev-ApiLambdaFunctionQualifiedArn"
@@ -422,24 +376,6 @@
             "http": {
               "path": "analyze-symptoms",
               "method": "get",
-              "cors": {
-                "methods": [
-                  "OPTIONS",
-                  "GET"
-                ],
-                "headers": [
-                  "Content-Type",
-                  "X-Amz-Date",
-                  "Authorization",
-                  "X-Api-Key",
-                  "X-Amz-Security-Token",
-                  "X-Amz-User-Agent"
-                ],
-                "allowCredentials": false,
-                "origins": [
-                  "*"
-                ]
-              },
               "integration": "AWS_PROXY"
             }
           }
@@ -453,7 +389,7 @@
         "timeout": 6,
         "runtime": "nodejs18.x",
         "vpc": {},
-        "versionLogicalId": "ApiLambdaVersion75sSC7oFzfPilaOWw9ImeaiKJDDzlsALjKyqNF2o68"
+        "versionLogicalId": "ApiLambdaVersionbk6zlsYEpWpUC3iSAgqL8GGyM3k0r27frYetRLyGtsM"
       }
     },
     "configValidationMode": "warn",
@@ -479,7 +415,7 @@
     "artifact": "C:\\MediMentor\\backend\\.serverless\\medimentor.zip"
   },
   "package": {
-    "artifactDirectoryName": "serverless/medimentor/dev/1739742693818-2025-02-16T21:51:33.818Z",
+    "artifactDirectoryName": "serverless/medimentor/dev/1739766340191-2025-02-17T04:25:40.191Z",
     "artifact": "medimentor.zip"
   }
 }

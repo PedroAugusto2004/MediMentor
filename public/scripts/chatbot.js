@@ -282,14 +282,17 @@ document.addEventListener('DOMContentLoaded', () => {
                 temporalContext: userInputs.symptomDuration || 'unspecified'
             };
 
-            const response = await fetch('http://localhost:3000/analyze-symptoms', {
+            const API_URL = 'https://cd5sajsc77.execute-api.us-east-1.amazonaws.com/dev/analyze-symptoms';
+
+            const response = await fetch(API_URL, {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
                 },
                 body: JSON.stringify(payload)
             });
-
+            
             const data = await response.json();
 
             if (response.ok) {

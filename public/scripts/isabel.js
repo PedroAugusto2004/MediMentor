@@ -66,7 +66,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         console.log('Submitting symptom IDs:', symptomIds); // Log the symptom IDs being submitted
 
-        const API_URL = 'https://fut93ag59f.execute-api.us-east-1.amazonaws.com/dev';
+        const API_URL = 'https://cd5sajsc77.execute-api.us-east-1.amazonaws.com/dev';
 
         try {
             // Send a POST request to the backend server with the symptom IDs, gender, date of birth, and region
