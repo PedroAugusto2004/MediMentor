@@ -14,10 +14,25 @@ document.addEventListener('DOMContentLoaded', () => {
         gender: '',
         yearOfBirth: '',
         region: '',
-        symptomStart: ''
+        symptomStart: '',
+        pregnant: 'n'
     };
 
+
     let currentStep = 0;
+    let triageStep = 0;
+    // Add triage questions flow
+    const triageQuestions = [
+        "How quickly did your symptoms develop? (1=minutes/hours, 2=days, 3=weeks)",
+        "How severe are your symptoms? (1=mild, 2=moderate, 3=severe)",
+        "Are you experiencing any chest pain? (1=yes, 2=no)",
+        "Are you having difficulty breathing? (1=yes, 2=no)",
+        "Have you experienced any loss of consciousness? (1=yes, 2=no)",
+        "Is there any bleeding that won't stop? (1=yes, 2=no)",
+        "Have you experienced any sudden weakness or numbness? (1=yes, 2=no)"
+    ];
+
+
 
     const userName = localStorage.getItem('userName') || 'User';
     
@@ -241,9 +256,22 @@ document.addEventListener('DOMContentLoaded', () => {
                 break;
             case 2:
                 userInputs.gender = input.toLowerCase();
+                // Check if female between 13-64
+                const birthYear = parseInt(userInputs.yearOfBirth);
+                const currentYear = new Date().getFullYear();
+                const age = currentYear - birthYear;
+                if (userInputs.gender === 'female' && age >= 13 && age <= 64) {
+                    addMessage('Are you pregnant? (yes/no)', 'bot');
+                    currentStep = 'pregnancy';
+                    return;
+                }
+                break;
+            case 'pregnancy':
+                userInputs.pregnant = input.toLowerCase() === 'yes' ? 'y' : 'n';
                 break;
             case 3:
                 userInputs.yearOfBirth = input;
+
                 chatInput.classList.remove('hidden');
                 dateInput.classList.add('hidden');
                 break;
@@ -298,9 +326,15 @@ document.addEventListener('DOMContentLoaded', () => {
             if (response.ok) {
                 const topDiagnosis = data.diagnoses[0];
                 addDiagnosisToChat(topDiagnosis);
-                if (!topDiagnosis.redFlag) {
+                
+                if (data.triageUrl) {
+                    currentStep = 'triage';
+                    triageStep = 0;
+                    addMessage(triageQuestions[triageStep], 'bot');
+                } else if (!topDiagnosis.redFlag) {
                     addMessage('It seems like your symptoms are mild. Here are some friendly recommendations:\n- Stay hydrated\n- Get plenty of rest\n- Monitor your symptoms\n- Consult a healthcare professional if symptoms persist or worsen.', 'bot');
                 }
+
             } else {
                 addMessage(`Error: ${data.error}`, 'bot');
             }
@@ -348,23 +382,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     const resetConversation = () => {
-        // Reset user inputs
-        userInputs = {
-            symptoms: [],
-            gender: '',
-            yearOfBirth: '',
-            region: '',
-            symptomStart: ''
-        };
-
-        // Reset current step
-        currentStep = 0;
-
-        // Clear chat output
-        chatOutput.innerHTML = '';
-
-        // Reset UI elements
-        chatInput.classList.remove('hidden');
         dateInput.classList.add('hidden');
         genderSelection.classList.add('hidden');
         regionSelection.classList.add('hidden');
@@ -374,9 +391,12 @@ document.addEventListener('DOMContentLoaded', () => {
         chatInput.value = '';
         dateInput.value = '';
 
-        // Display welcome message with user name
-        displayWelcomeMessage();
+        // Clear all chat messages except the first one
+        while (chatOutput.childNodes.length > 1) {
+            chatOutput.removeChild(chatOutput.lastChild);
+        }
     };
+
 
     sendButton.addEventListener('click', () => {
         const userInput = currentStep === 3 ? dateInput.value : chatInput.value.trim();

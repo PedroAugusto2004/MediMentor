@@ -1,4 +1,4 @@
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
     // Get references to the form and input elements
     const symptomForm = document.getElementById('symptomForm');
     const symptomsInput = document.getElementById('symptomsInput');
@@ -12,17 +12,35 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Predefined list of symptoms with their IDs
     const symptomMap = {
-        'fever': 10,
-        'headache': 15,
-        'nausea': 20,
-        'cough': 25,
-        'fatigue': 30,
-        'sore throat': 35,
-        'shortness of breath': 40,
-        'body ache': 45,
-        'dizziness': 50,
-        'chest pain': 55
+        'fever': 714,
+        'headache': 215,
+        'nausea': 312,
+        'cough': 418,
+        'fatigue': 523,
+        'sore throat': 627,
+        'shortness of breath': 731,
+        'body ache': 835,
+        'dizziness': 942,
+        'chest pain': 1056
     };
+
+    async function fetchSymptomIDs() {
+        try {
+            const response = await fetch('https://apiscsandbox.isabelhealthcare.com/v3/symptoms', {
+                headers: {
+                    'Authorization': 'Bearer YOUR_API_KEY'
+                }
+            });
+            const data = await response.json();
+            
+            // Update symptom map with actual IDs from API
+            data.symptoms.forEach(symptom => {
+                symptomMap[symptom.name.toLowerCase()] = symptom.id;
+            });
+        } catch (error) {
+            console.error('Error fetching symptom IDs:', error);
+        }
+    }
 
     async function fetchWithRetry(url, options, maxRetries = 3) {
         for (let i = 0; i < maxRetries; i++) {
@@ -138,4 +156,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
         document.documentElement.setAttribute('data-theme', newTheme);
     });
+
+    // Fetch symptom IDs on page load
+    await fetchSymptomIDs();
 });

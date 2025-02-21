@@ -103,7 +103,7 @@
             "Properties": {
               "Code": {
                 "S3Bucket": "serverless-framework-deployments-us-east-1-0dc208ae-8d7a",
-                "S3Key": "serverless/medimentor/dev/1739766340191-2025-02-17T04:25:40.191Z/medimentor.zip"
+                "S3Key": "serverless/medimentor/dev/1740162214961-2025-02-21T18:23:34.961Z/medimentor.zip"
               },
               "Handler": "server.handler",
               "Runtime": "nodejs18.x",
@@ -126,14 +126,14 @@
               "ApiLogGroup"
             ]
           },
-          "ApiLambdaVersionbk6zlsYEpWpUC3iSAgqL8GGyM3k0r27frYetRLyGtsM": {
+          "ApiLambdaVersionzJiCbMPayXsmMQCnNaDNVdMUnjEVSfSgfav5hfayc": {
             "Type": "AWS::Lambda::Version",
             "DeletionPolicy": "Retain",
             "Properties": {
               "FunctionName": {
                 "Ref": "ApiLambdaFunction"
               },
-              "CodeSha256": "Dn7uwesNi9LUsHQhkWu1Z+BNFgtpfW0mXGZWvDsZL9U="
+              "CodeSha256": "AzWZKW0CbvPoNWXMlpESMh1Qgl2J2S2og1vq6HIumiQ="
             }
           },
           "ApiGatewayRestApi": {
@@ -255,7 +255,7 @@
               "ApiLambdaPermissionApiGateway"
             ]
           },
-          "ApiGatewayDeployment1739766317767": {
+          "ApiGatewayDeployment1740162196567": {
             "Type": "AWS::ApiGateway::Deployment",
             "Properties": {
               "RestApiId": {
@@ -316,7 +316,7 @@
           "ApiLambdaFunctionQualifiedArn": {
             "Description": "Current Lambda function version",
             "Value": {
-              "Ref": "ApiLambdaVersionbk6zlsYEpWpUC3iSAgqL8GGyM3k0r27frYetRLyGtsM"
+              "Ref": "ApiLambdaVersionzJiCbMPayXsmMQCnNaDNVdMUnjEVSfSgfav5hfayc"
             },
             "Export": {
               "Name": "sls-medimentor-dev-ApiLambdaFunctionQualifiedArn"
@@ -389,7 +389,7 @@
         "timeout": 6,
         "runtime": "nodejs18.x",
         "vpc": {},
-        "versionLogicalId": "ApiLambdaVersionbk6zlsYEpWpUC3iSAgqL8GGyM3k0r27frYetRLyGtsM"
+        "versionLogicalId": "ApiLambdaVersionzJiCbMPayXsmMQCnNaDNVdMUnjEVSfSgfav5hfayc"
       }
     },
     "configValidationMode": "warn",
@@ -415,7 +415,7 @@
     "artifact": "C:\\MediMentor\\backend\\.serverless\\medimentor.zip"
   },
   "package": {
-    "artifactDirectoryName": "serverless/medimentor/dev/1739766340191-2025-02-17T04:25:40.191Z",
+    "artifactDirectoryName": "serverless/medimentor/dev/1740162214961-2025-02-21T18:23:34.961Z",
     "artifact": "medimentor.zip"
   }
 }
