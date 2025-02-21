@@ -153,7 +153,7 @@ function generateDoctorReport(data) {
 - Symptoms: ${data.symptoms.join(', ')}
 - Pregnant: ${data.pregnant === 'y' ? 'Yes' : 'No'}
 - History: ${data.history || 'None reported'}
-- Possible Diagnoses: ${data.diagnosis.diagnoses.map(d => `${d.name} (${d.probability}%)`).join(', ')}`;
+- Possible Diagnoses: ${data.diagnosis.diagnoses.map(d => `${d.name} (${d.probability || 'N/A'}%)`).join(', ')}`;
 }
 
 // Chat endpoint
@@ -220,7 +220,7 @@ app.post('/chat', async (req, res) => {
                     session.data.pregnantConfirmed = true;
                 } else {
                     session.state = states.CONFIRM;
-                    responseText = `Summary: Symptoms: ${session.data.symptoms.join(', ')}, Gender: ${session.data.gender}, Born: ${session.data.yearOfBirth}, Region: ${session.data.region}, Pregnant: ${session.data.pregnant}. Correct? (yes/no)`;
+                    responseText = `Summary: Symptoms: ${session.data.symptoms.join(', ')}, Gender: ${data.gender === 'm' ? 'Male' : 'Female'}, Born: ${session.data.yearOfBirth}, Region: ${session.data.region}, Pregnant: ${session.data.pregnant}. Correct? (yes/no)`;
                 }
                 break;
 
@@ -253,7 +253,7 @@ app.post('/chat', async (req, res) => {
         if (session.state === states.HISTORY && session.data.gender === 'f' && message.toLowerCase().startsWith('y')) {
             session.data.pregnant = 'y';
             session.state = states.CONFIRM;
-            responseText = `Summary: Symptoms: ${session.data.symptoms.join(', ')}, Gender: ${session.data.gender}, Born: ${session.data.yearOfBirth}, Region: ${session.data.region}, Pregnant: Yes. Correct? (yes/no)`;
+            responseText = `Summary: Symptoms: ${session.data.symptoms.join(', ')}, Gender: ${data.gender === 'm' ? 'Male' : 'Female'}, Born: ${session.data.yearOfBirth}, Region: ${session.data.region}, Pregnant: Yes. Correct? (yes/no)`;
         }
 
         await saveSession(sessionId, session);
@@ -287,7 +287,9 @@ app.post('/analyze-symptoms', async (req, res) => {
             return res.status(400).json({ error: 'Missing required fields' });
         }
         const diagnosis = await analyzeSymptoms({ symptoms, gender, yearOfBirth, region });
-        res.json(diagnosis);
+        // Pretty-print JSON response
+        res.setHeader('Content-Type', 'application/json');
+        res.send(JSON.stringify(diagnosis, null, 2));
     } catch (error) {
         console.error('Analyze Symptoms Endpoint Error:', error);
         res.status(500).json({ 
