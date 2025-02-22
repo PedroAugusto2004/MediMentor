@@ -33,7 +33,6 @@ document.addEventListener('DOMContentLoaded', () => {
     ];
 
 
-
     const userName = localStorage.getItem('userName') || 'User';
     
     // Update welcome message function
@@ -238,12 +237,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
         switch (currentStep) {
             case 0:
-                // Convert symptoms to their IDs
-                const symptoms = input.split(',')
+                // Store the actual symptom names
+                userInputs.symptoms = input.split(',')
                     .map(symptom => symptom.trim().toLowerCase())
-                    .map(symptom => symptomMap[symptom])
-                    .filter(id => id); // Remove any undefined values
-                userInputs.symptoms = symptoms;
+                    .filter(Boolean); // Remove empty strings
                 break;
             case 1:
                 const parsedDate = parseRelativeDate(input);
@@ -303,14 +300,21 @@ document.addEventListener('DOMContentLoaded', () => {
     const analyzeSymptoms = async () => {
         addMessage('Analyzing your symptoms...', 'bot');
         try {
+            // Convert symptoms array to string array of actual symptom names
+            const symptomNames = userInputs.symptoms
+                .map(symptom => symptom.trim().toLowerCase())
+                .filter(Boolean); // Remove empty strings
+
             const payload = {
-                ...userInputs,
-                // Add formatted dates if available
-                symptomStart: userInputs.symptomStartFormatted || userInputs.symptomStart,
-                temporalContext: userInputs.symptomDuration || 'unspecified'
+                symptoms: symptomNames,  // Send array of symptom names
+                gender: userInputs.gender.toLowerCase(),
+                yearOfBirth: userInputs.yearOfBirth.split('-')[0], // Extract year from YYYY-MM-DD
+                region: userInputs.region.toLowerCase().replace('-', ' ') // Convert north-america to north america
             };
 
-            const API_URL = 'https://cd5sajsc77.execute-api.us-east-1.amazonaws.com/dev/analyze-symptoms';
+            console.log('Request payload:', payload);
+
+            const API_URL = 'https://1n6ajiuic7.execute-api.us-east-1.amazonaws.com/dev/analyze-symptoms';
 
             const response = await fetch(API_URL, {
                 method: 'POST',
@@ -318,28 +322,55 @@ document.addEventListener('DOMContentLoaded', () => {
                     'Content-Type': 'application/json',
                     'Accept': 'application/json'
                 },
+                mode: 'cors',
                 body: JSON.stringify(payload)
             });
-            
+
+            console.log('Response status:', response.status);
+
             const data = await response.json();
+            console.log('Response data:', data);
 
-            if (response.ok) {
-                const topDiagnosis = data.diagnoses[0];
-                addDiagnosisToChat(topDiagnosis);
-                
-                if (data.triageUrl) {
-                    currentStep = 'triage';
-                    triageStep = 0;
-                    addMessage(triageQuestions[triageStep], 'bot');
-                } else if (!topDiagnosis.redFlag) {
-                    addMessage('It seems like your symptoms are mild. Here are some friendly recommendations:\n- Stay hydrated\n- Get plenty of rest\n- Monitor your symptoms\n- Consult a healthcare professional if symptoms persist or worsen.', 'bot');
-                }
+            if (!response.ok) {
+                throw new Error(`Server returned ${response.status}: ${data.error || 'Unknown error'}`);
+            }
 
-            } else {
-                addMessage(`Error: ${data.error}`, 'bot');
+            const loadingSpinner = document.getElementById('loadingSpinner');
+            loadingSpinner.classList.remove('hidden');
+
+            if (!data.diagnoses || !Array.isArray(data.diagnoses)) {
+                throw new Error('Invalid response format: missing diagnoses array');
+            }
+
+            // Process and display diagnoses
+            const topDiagnoses = data.diagnoses.slice(0, 3);
+            topDiagnoses.forEach(diagnosis => {
+                addDiagnosisToChat({
+                    name: diagnosis.diagnosis_name,
+                    specialty: diagnosis.specialty,
+                    redFlag: diagnosis.red_flag === "true",
+                    common: diagnosis.common_diagnosis === "true",
+                    explanation: `This condition is ${diagnosis.common_diagnosis === "true" ? "common" : "less common"} and ${diagnosis.red_flag === "true" ? "requires immediate medical attention" : "may be managed with appropriate care"}.`,
+                    description: `This is a ${diagnosis.specialty.toLowerCase()} related condition.`,
+                    knowledgeUrl: diagnosis.knowledge_window_api_url,
+                    recommendation: diagnosis.red_flag === "true" ? 
+                        "Seek immediate medical attention" : 
+                        "Consult with a healthcare provider for proper evaluation"
+                });
+            });
+
+            loadingSpinner.classList.add('hidden');
+
+            if (data.triageUrl) {
+                currentStep = 'triage';
+                triageStep = 0;
+                addMessage(triageQuestions[triageStep], 'bot');
             }
         } catch (error) {
-            addMessage(`Error: ${error.message}`, 'bot');
+            console.error('API Error:', error);
+            addMessage(`Error: ${error.message}. Please try again.`, 'bot');
+            const loadingSpinner = document.getElementById('loadingSpinner');
+            loadingSpinner.classList.add('hidden');
         }
     };
 
