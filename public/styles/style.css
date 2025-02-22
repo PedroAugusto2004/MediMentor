@@ -334,6 +334,24 @@ header .logo {
     box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
 }
 
+.diagnosis.animate-in {
+    animation: slideIn 0.5s ease-out;
+    border-radius: 12px;
+    margin: 10px 0;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
 /* Diagnosis Header */
 .diagnosis-header {
     display: flex;
@@ -412,6 +430,28 @@ header .logo {
     transform: translateX(3px);
 }
 
+.diagnosis-link {
+    display: inline-flex;
+    align-items: center;
+    margin-top: 10px;
+    color: #007bff;
+    text-decoration: none;
+    transition: all 0.2s ease;
+}
+
+.diagnosis-link:hover {
+    color: #0056b3;
+}
+
+.diagnosis-link .arrow {
+    margin-left: 5px;
+    transition: transform 0.2s ease;
+}
+
+.diagnosis-link:hover .arrow {
+    transform: translateX(5px);
+}
+
 /* Recommendation Section */
 .diagnosis-recommendation {
     margin-top: 1.5rem;
@@ -469,6 +509,25 @@ header .logo {
 .status-red-flag {
     background: rgba(244, 67, 54, 0.1);
     color: #F44336;
+}
+
+.status-badge {
+    display: inline-block;
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 0.8em;
+    margin-right: 8px;
+    background-color: #f0f0f0;
+}
+
+.status-badge.status-red-flag {
+    background-color: #ff4444;
+    color: white;
+}
+
+.status-badge.status-common {
+    background-color: #4CAF50;
+    color: white;
 }
 
 /* Chatbot section styles */

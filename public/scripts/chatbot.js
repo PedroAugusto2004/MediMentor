@@ -298,7 +298,9 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     const analyzeSymptoms = async () => {
-        addMessage('Analyzing your symptoms...', 'bot');
+        const loadingSpinner = document.getElementById('loadingSpinner');
+        loadingSpinner.classList.remove('hidden');
+        addMessage('Analyzing your symptoms... Please wait.', 'bot');
         try {
             // Convert symptoms array to string array of actual symptom names
             const symptomNames = userInputs.symptoms
@@ -360,6 +362,7 @@ document.addEventListener('DOMContentLoaded', () => {
             });
 
             loadingSpinner.classList.add('hidden');
+            addMessage('Based on your symptoms, here are the most likely conditions:', 'bot');
 
             if (data.triageUrl) {
                 currentStep = 'triage';
@@ -380,31 +383,37 @@ document.addEventListener('DOMContentLoaded', () => {
                              'recommendation-moderate';
         
         const diagnosisHtml = `
-            <div class="diagnosis">
+            <div class="diagnosis animate-in">
                 <div class="diagnosis-header">
-                    <h3 class="diagnosis-name">${diagnosis.name}</h3>
+                    <h3 class="diagnosis-name">
+                        ${diagnosis.redFlag ? '⚠️ ' : ''}${diagnosis.name}
+                    </h3>
                     <span class="diagnosis-specialty">${diagnosis.specialty}</span>
                 </div>
                 
                 <div class="diagnosis-content">
                     <div class="diagnosis-status">
-                        ${diagnosis.common ? '<span class="status-badge status-common">Common Condition</span>' : ''}
-                        ${diagnosis.redFlag ? '<span class="status-badge status-red-flag">Requires Attention</span>' : ''}
+                        ${diagnosis.common ? 
+                            '<span class="status-badge status-common">Common Condition</span>' : 
+                            '<span class="status-badge">Less Common</span>'}
+                        ${diagnosis.redFlag ? 
+                            '<span class="status-badge status-red-flag">Urgent Attention Required</span>' : ''}
                     </div>
                     
                     <p class="diagnosis-explanation">${diagnosis.explanation}</p>
                     <p class="diagnosis-description">${diagnosis.description}</p>
                     
-                    <a href="${diagnosis.knowledgeUrl}" target="_blank" class="diagnosis-link">
-                        Learn More About This Condition
-                    </a>
-                    
                     <div class="diagnosis-recommendation ${severityClass}">
                         <span class="recommendation-icon">
-                            ${diagnosis.redFlag ? '⚠️' : diagnosis.common ? 'ℹ️' : '🏥'}
+                            ${diagnosis.redFlag ? '🚨' : diagnosis.common ? 'ℹ️' : '🏥'}
                         </span>
                         <span class="recommendation-text">${diagnosis.recommendation}</span>
                     </div>
+
+                    <a href="${diagnosis.knowledgeUrl}" target="_blank" class="diagnosis-link">
+                        Learn More About This Condition
+                        <span class="arrow"></span>
+                    </a>
                 </div>
             </div>
         `;
