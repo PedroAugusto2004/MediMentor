@@ -49,29 +49,15 @@ async function getIsabelApiKey() {
     }
 }
 
-// Fetch and cache regions dynamically
-let cachedRegions = null;
-async function getRegions() {
-    if (!cachedRegions) {
-        try {
-            const apiKey = await getIsabelApiKey();
-            const response = await axios.get('https://apiscsandbox.isabelhealthcare.com/v3/regions', {
-                params: { language: 'en', web_service: 'json' },
-                headers: { Authorization: apiKey }
-            });
-            console.log('Regions API Response:', response.data);
-            cachedRegions = response.data.travel_history.region.reduce((map, region) => {
-                map[region.region_name.toLowerCase()] = region.region_id;
-                return map;
-            }, {});
-            console.log('Cached Regions:', cachedRegions);
-        } catch (error) {
-            console.error('Error fetching regions:', error.response?.data || error.message);
-            throw new Error('Failed to retrieve regions');
-        }
-    }
-    return cachedRegions;
-}
+// Update the region mapping to match user input with Isabel API regions
+const regionMap = {
+    'europe': '1',
+    'north-america': '12',
+    'asia': '9',
+    'africa': '4',
+    'south-america': '14',
+    'australia': '16'
+};
 
 // Chatbot states
 const states = {
@@ -104,15 +90,16 @@ async function saveSession(sessionId, sessionData) {
 // Analyze symptoms
 async function analyzeSymptoms({ symptoms, gender, yearOfBirth, region, pregnant }) {
     try {
-        const regions = await getRegions();
-        const normalizedRegion = region.toLowerCase();
-        const regionId = regions[normalizedRegion];
+        // Normalize region: convert spaces to hyphens and make lowercase
+        const normalizedRegion = region.toLowerCase().replace(/\s+/g, '-');
+        const regionId = regionMap[normalizedRegion];
+        
         if (!regionId) {
-            const validRegions = Object.keys(regions).join(', ');
+            const validRegions = Object.keys(regionMap).join(', ');
             throw new Error(`Invalid region: "${region}". Valid options are: ${validRegions}`);
         }
 
-        // Format DOB as YYYYMMDD
+        // Format DOB as YYYYMMDD for Isabel API
         const dob = `${yearOfBirth}0101`; // Default to Jan 1
         const apiKey = await getIsabelApiKey();
 
@@ -138,7 +125,13 @@ async function analyzeSymptoms({ symptoms, gender, yearOfBirth, region, pregnant
 
         console.log('Diagnosis API Response:', response.data);
         return {
-            diagnoses: response.data?.diagnoses_checklist?.diagnoses || [],
+            diagnoses: response.data?.diagnoses_checklist?.diagnoses.map(d => ({
+                diagnosis_name: d.diagnosis_name,
+                specialty: d.specialty,
+                red_flag: d.red_flag === 'true',  // Convert string to boolean
+                common_diagnosis: d.common_diagnosis === 'true',  // Convert string to boolean
+                knowledge_window_api_url: d.knowledge_window_api_url
+            })) || [],
             triageUrl: response.data?.diagnoses_checklist?.triage_api_url,
         };
     } catch (error) {
@@ -146,6 +139,7 @@ async function analyzeSymptoms({ symptoms, gender, yearOfBirth, region, pregnant
             message: error.message,
             response: error.response?.data,
             status: error.response?.status,
+            requestData: { symptoms, gender, yearOfBirth, region, pregnant }  // Add request data to debug
         });
         throw new Error(error.response?.data?.error || error.message);
     }
@@ -159,7 +153,7 @@ function generateDoctorReport(data) {
 - Symptoms: ${data.symptoms.join(', ')}
 - Pregnant: ${data.pregnant === 'y' ? 'Yes' : 'No'}
 - History: ${data.history || 'None reported'}
-- Possible Diagnoses: ${data.diagnosis.diagnoses.map(d => `${d.name} (${d.probability || 'N/A'}%)`).join(', ')}`;
+- Possible Diagnoses: ${data.diagnosis.diagnoses.map(d => `${d.diagnosis_name}`).join(', ')}`;  // No probability in sandbox
 }
 
 // Chat endpoint
@@ -170,7 +164,7 @@ app.post('/chat', async (req, res) => {
 
         let session = await getSession(sessionId) || {
             state: states.INIT,
-            data: { symptoms: [], gender: '', yearOfBirth: '', region: '', pregnant: 'n', history: '' },
+            data: { symptoms: [], gender: '', yearOfBirth: '', region: '', pregnant: 'n', history: '', pregnantConfirmed: false },
         };
 
         let responseText = '';
@@ -197,8 +191,12 @@ app.post('/chat', async (req, res) => {
 
             case states.DEMOGRAPHICS:
                 if (!session.data.gender) {
-                    session.data.gender = message.toLowerCase().startsWith('m') ? 'm' : 'f';
-                    responseText = 'Thanks! What’s your year of birth? (e.g., 1990)';
+                    if (!['male', 'female'].includes(message.toLowerCase())) {
+                        responseText = 'Please enter "male" or "female".';
+                    } else {
+                        session.data.gender = message.toLowerCase().startsWith('m') ? 'm' : 'f';
+                        responseText = 'Thanks! What’s your year of birth? (e.g., 1990)';
+                    }
                 } else if (!session.data.yearOfBirth) {
                     if (!/^\d{4}$/.test(message)) {
                         responseText = 'Please enter a valid year (e.g., 1990).';
@@ -208,9 +206,8 @@ app.post('/chat', async (req, res) => {
                     }
                 } else if (!session.data.region) {
                     const regionKey = message.toLowerCase();
-                    const regions = await getRegions();
-                    if (!regions[regionKey]) {
-                        responseText = `Invalid region. Try one of: ${Object.keys(regions).join(', ')}`;
+                    if (!regionMap[regionKey]) {
+                        responseText = `Invalid region. Try one of: ${Object.keys(regionMap).join(', ')}`;
                     } else {
                         session.data.region = regionKey;
                         session.state = states.HISTORY;
@@ -220,13 +217,19 @@ app.post('/chat', async (req, res) => {
                 break;
 
             case states.HISTORY:
-                session.data.history = message;
                 if (session.data.gender === 'f' && !session.data.pregnantConfirmed) {
-                    responseText = 'Are you pregnant? (yes/no)';
-                    session.data.pregnantConfirmed = true;
+                    if (!['yes', 'no'].includes(message.toLowerCase())) {
+                        responseText = 'Please answer "yes" or "no" to the pregnancy question.';
+                    } else {
+                        session.data.pregnant = message.toLowerCase() === 'yes' ? 'y' : 'n';
+                        session.data.pregnantConfirmed = true;
+                        session.state = states.CONFIRM;
+                        responseText = `Summary: Symptoms: ${session.data.symptoms.join(', ')}, Gender: ${session.data.gender === 'm' ? 'Male' : 'Female'}, Born: ${session.data.yearOfBirth}, Region: ${session.data.region}, Pregnant: ${session.data.pregnant === 'y' ? 'Yes' : 'No'}, History: ${session.data.history || 'None reported'}. Correct? (yes/no)`;
+                    }
                 } else {
+                    session.data.history = message;
                     session.state = states.CONFIRM;
-                    responseText = `Summary: Symptoms: ${session.data.symptoms.join(', ')}, Gender: ${data.gender === 'm' ? 'Male' : 'Female'}, Born: ${session.data.yearOfBirth}, Region: ${session.data.region}, Pregnant: ${session.data.pregnant}. Correct? (yes/no)`;
+                    responseText = `Summary: Symptoms: ${session.data.symptoms.join(', ')}, Gender: ${session.data.gender === 'm' ? 'Male' : 'Female'}, Born: ${session.data.yearOfBirth}, Region: ${session.data.region}, Pregnant: ${session.data.pregnant === 'y' ? 'Yes' : 'No'}, History: ${session.data.history || 'None reported'}. Correct? (yes/no)`;
                 }
                 break;
 
@@ -234,36 +237,35 @@ app.post('/chat', async (req, res) => {
                 if (message.toLowerCase() === 'yes') {
                     session.state = states.DIAGNOSE;
                     const diagnosis = await analyzeSymptoms(session.data);
-                    responseText = `Possible conditions: ${diagnosis.diagnoses.map(d => d.name).join(', ')}. Discuss with a doctor. Want a detailed report?`;
                     session.data.diagnosis = diagnosis;
-                } else {
+                    responseText = `Possible conditions: ${diagnosis.diagnoses.map(d => d.diagnosis_name).join(', ')}. Discuss with a doctor. Want a detailed report? (yes/no)`;
+                } else if (message.toLowerCase() === 'no') {
                     responseText = 'Let’s fix that. What’s your main issue today?';
                     session.state = states.SYMPTOMS;
-                    session.data = { symptoms: [], gender: '', yearOfBirth: '', region: '', pregnant: 'n', history: '' };
+                    session.data = { symptoms: [], gender: '', yearOfBirth: '', region: '', pregnant: 'n', history: '', pregnantConfirmed: false };
+                } else {
+                    responseText = 'Please answer "yes" or "no".';
                 }
                 break;
 
             case states.DIAGNOSE:
                 if (message.toLowerCase() === 'yes') {
                     responseText = generateDoctorReport(session.data);
-                } else {
+                } else if (message.toLowerCase() === 'no') {
                     responseText = 'Okay, let me know if you need more help!';
+                } else {
+                    responseText = 'Please answer "yes" or "no" to get a detailed report.';
                 }
                 break;
 
             default:
                 responseText = 'Something went wrong. Let’s start over. What’s your main issue?';
                 session.state = states.SYMPTOMS;
-        }
-
-        if (session.state === states.HISTORY && session.data.gender === 'f' && message.toLowerCase().startsWith('y')) {
-            session.data.pregnant = 'y';
-            session.state = states.CONFIRM;
-            responseText = `Summary: Symptoms: ${session.data.symptoms.join(', ')}, Gender: ${data.gender === 'm' ? 'Male' : 'Female'}, Born: ${session.data.yearOfBirth}, Region: ${session.data.region}, Pregnant: Yes. Correct? (yes/no)`;
+                session.data = { symptoms: [], gender: '', yearOfBirth: '', region: '', pregnant: 'n', history: '', pregnantConfirmed: false };
         }
 
         await saveSession(sessionId, session);
-        res.json({ message: responseText, state: session.state });
+        res.json({ message: responseText, state: session.state, diagnoses: session.data.diagnosis?.diagnoses });
     } catch (error) {
         console.error('Chat Error:', error);
         res.status(500).json({ error: 'Something went wrong. Try again later.' });
@@ -293,7 +295,6 @@ app.post('/analyze-symptoms', async (req, res) => {
             return res.status(400).json({ error: 'Missing required fields' });
         }
         const diagnosis = await analyzeSymptoms({ symptoms, gender, yearOfBirth, region });
-        // Pretty-print JSON response
         res.setHeader('Content-Type', 'application/json');
         res.send(JSON.stringify(diagnosis, null, 2));
     } catch (error) {
