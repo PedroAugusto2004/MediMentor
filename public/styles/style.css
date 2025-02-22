@@ -1296,6 +1296,45 @@ main {
     #chatOutput {
         padding-bottom: 70px;
     }
+
+    /* Adjust theme toggle position for mobile */
+    .theme-toggle {
+        transform: scale(0.75);
+        bottom: 85px; /* Move up to avoid input container */
+        right: 10px;
+        padding: 0.25rem;
+        gap: 0.3rem;
+        z-index: 99; /* Below the input container */
+    }
+
+    /* Adjust disclaimer for mobile */
+    .disclaimer {
+        position: fixed;
+        bottom: 60px; /* Position above the input container */
+        padding: 3px;
+        font-size: 10px;
+        background: rgba(255, 255, 255, 0.95);
+        box-shadow: 0 -1px 5px rgba(0, 0, 0, 0.1);
+        z-index: 99; /* Below the input container */
+    }
+
+    [data-theme="dark"] .disclaimer {
+        background: rgba(0, 0, 0, 0.95);
+    }
+
+    /* Ensure chat container doesn't get hidden */
+    #chatWindow {
+        margin-bottom: 100px; /* Add space for fixed elements */
+    }
+
+    #chatOutput {
+        padding-bottom: 100px;
+    }
+
+    /* Make input container highest z-index */
+    #chatInputContainer {
+        z-index: 100;
+    }
 }
 
 /* iPhone SE and smaller devices */
@@ -1315,6 +1354,17 @@ main {
     #restartButton {
         width: 36px;
         height: 36px;
+    }
+
+    .theme-toggle {
+        bottom: 80px; /* Slightly adjust for smaller screens */
+        right: 5px;
+        transform: scale(0.7);
+    }
+
+    .disclaimer {
+        font-size: 9px;
+        padding: 2px;
     }
 }
 
