@@ -21,17 +21,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let currentStep = 0;
     let triageStep = 0;
-    // Add triage questions flow
-    const triageQuestions = [
-        "How quickly did your symptoms develop? (1=minutes/hours, 2=days, 3=weeks)",
-        "How severe are your symptoms? (1=mild, 2=moderate, 3=severe)",
-        "Are you experiencing any chest pain? (1=yes, 2=no)",
-        "Are you having difficulty breathing? (1=yes, 2=no)",
-        "Have you experienced any loss of consciousness? (1=yes, 2=no)",
-        "Is there any bleeding that won't stop? (1=yes, 2=no)",
-        "Have you experienced any sudden weakness or numbness? (1=yes, 2=no)"
-    ];
-
 
     const userName = localStorage.getItem('userName') || 'User';
     
@@ -301,6 +290,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const loadingSpinner = document.getElementById('loadingSpinner');
         loadingSpinner.classList.remove('hidden');
         addMessage('Analyzing your symptoms... Please wait.', 'bot');
+        addMessage('Based on your symptoms, here are the most likely conditions:', 'bot');
         try {
             // Convert symptoms array to string array of actual symptom names
             const symptomNames = userInputs.symptoms
@@ -362,13 +352,6 @@ document.addEventListener('DOMContentLoaded', () => {
             });
 
             loadingSpinner.classList.add('hidden');
-            addMessage('Based on your symptoms, here are the most likely conditions:', 'bot');
-
-            if (data.triageUrl) {
-                currentStep = 'triage';
-                triageStep = 0;
-                addMessage(triageQuestions[triageStep], 'bot');
-            }
         } catch (error) {
             console.error('API Error:', error);
             addMessage(`Error: ${error.message}. Please try again.`, 'bot');
@@ -410,8 +393,8 @@ document.addEventListener('DOMContentLoaded', () => {
                         <span class="recommendation-text">${diagnosis.recommendation}</span>
                     </div>
 
-                    <a href="${diagnosis.knowledgeUrl}" target="_blank" class="diagnosis-link">
-                        Learn More About This Condition
+                    <a href="https://www.isabelhealthcare.com/" target="_blank" class="diagnosis-link">
+                        Learn More About it
                         <span class="arrow"></span>
                     </a>
                 </div>
@@ -422,21 +405,35 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     const resetConversation = () => {
+        // Reset UI elements
         dateInput.classList.add('hidden');
         genderSelection.classList.add('hidden');
         regionSelection.classList.add('hidden');
         chatInputContainer.classList.remove('hidden');
+        chatInput.classList.remove('hidden');
 
         // Clear input fields
         chatInput.value = '';
         dateInput.value = '';
 
-        // Clear all chat messages except the first one
-        while (chatOutput.childNodes.length > 1) {
-            chatOutput.removeChild(chatOutput.lastChild);
-        }
-    };
+        // Reset conversation state
+        currentStep = 0;
+        triageStep = 0;
+        userInputs = {
+            symptoms: [],
+            gender: '',
+            yearOfBirth: '',
+            region: '',
+            symptomStart: '',
+            pregnant: 'n'
+        };
 
+        // Clear chat history
+        chatOutput.innerHTML = '';
+
+        // Restart conversation with welcome message
+        displayWelcomeMessage();
+    };
 
     sendButton.addEventListener('click', () => {
         const userInput = currentStep === 3 ? dateInput.value : chatInput.value.trim();

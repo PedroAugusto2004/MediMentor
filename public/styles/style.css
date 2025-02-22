@@ -517,7 +517,7 @@ header .logo {
     border-radius: 12px;
     font-size: 0.8em;
     margin-right: 8px;
-    background-color: #f0f0f0;
+    background-color: #0543b6;
 }
 
 .status-badge.status-red-flag {
@@ -607,7 +607,7 @@ header .logo {
 
 [data-theme="dark"] .bot-message {
     background: linear-gradient(135deg, #00607e, #003342);
-    color: #fff;
+    color: #e4e4e4;
 }
 
 .message:hover {
