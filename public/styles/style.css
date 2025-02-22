@@ -1310,16 +1310,23 @@ main {
     /* Adjust disclaimer for mobile */
     .disclaimer {
         position: fixed;
-        bottom: 60px; /* Position above the input container */
-        padding: 3px;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        text-align: center;
+        padding: 2px;
         font-size: 10px;
-        background: rgba(255, 255, 255, 0.95);
-        box-shadow: 0 -1px 5px rgba(0, 0, 0, 0.1);
+        background: var(--background-color);
+        color: #666;
+        transform: translateY(-100%);
+        border-top: 1px solid rgba(0, 0, 0, 0.1);
         z-index: 99; /* Below the input container */
     }
 
     [data-theme="dark"] .disclaimer {
-        background: rgba(0, 0, 0, 0.95);
+        background: var(--background-color);
+        color: #999;
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
     }
 
     /* Ensure chat container doesn't get hidden */
@@ -1364,7 +1371,7 @@ main {
 
     .disclaimer {
         font-size: 9px;
-        padding: 2px;
+        padding: 1px;
     }
 }
 
