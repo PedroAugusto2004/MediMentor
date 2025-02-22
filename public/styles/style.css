@@ -777,6 +777,24 @@ header .logo {
     transform: rotate(180deg);
 }
 
+/* Add this media query for mobile devices */
+@media (max-width: 768px) {
+    .disclaimer {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        background-color: rgba(0, 0, 0, 0.7); /* Optional: Add a background color for better visibility */
+        color: white; /* Optional: Change text color for contrast */
+        text-align: center;
+        padding: 10px 0;
+        z-index: 1000; /* Ensure it appears above other elements */
+    }
+
+    #chatInputContainer {
+        margin-bottom: 50px; /* Add margin to prevent overlap with the disclaimer */
+    }
+}
 /* Dark Mode Toggle */
 #themeToggle {
     position: absolute;
