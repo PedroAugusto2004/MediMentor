@@ -1020,6 +1020,15 @@ header .logo {
     transform: translateY(-2px);
 }
 
+/* Mobile optimization for Option Button */
+@media (max-width: 768px) {
+    .optionButton {
+        padding: 0.5rem 1rem;
+        font-size: 0.9rem;
+        margin: 0.3rem;
+    }
+}
+
 /* Theme Toggle styles */
 .theme-toggle {
     display: flex;
