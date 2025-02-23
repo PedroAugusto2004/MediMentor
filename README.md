@@ -15,11 +15,11 @@ MediMentor is designed to assist both **patients** and **healthcare professional
 - Integration with medical APIs such as Isabel Healthcare
 
 ## Screenshots
-![Home Page](assets/images/home.png)
-![Symptom Analysis](assets/images/symptons.png)
+![Home Page](./assets/images/home.png)
+![Symptom Analysis](./assets/images/symptons.png)
 
 ## Demo Video
-[![Watch the Demo](assets/images/tutorial.png)](assets/videos/tutorial.mp4)
+[![Watch the Demo](./assets/images/tutorial.png)](./assets/videos/tutorial.mp4)
 
 ## Deployment
 MediMentor is deployed using AWS services:
