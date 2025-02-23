@@ -1319,7 +1319,7 @@ main {
     /* Adjust theme toggle position for mobile */
     .theme-toggle {
         transform: scale(0.75);
-        top: 70px; /* Move to top instead of bottom */
+        bottom: 70px; /* Move to top instead of bottom */
         right: 10px;
         padding: 0.25rem;
         gap: 0.3rem;
