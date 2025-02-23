@@ -55,8 +55,8 @@ The idea for MediMentor was born from the need to make **reliable medical insigh
 ## What it does
 MediMentor **analyzes symptoms in real time**, using advanced AI and Isabel Healthcare’s trusted database to generate potential conditions and recommendations. It provides **patients** with valuable insights into their symptoms and helps **doctors** by offering AI-assisted differential diagnosis support, ultimately improving decision-making and patient outcomes.
 
-## How we built it
-We built MediMentor using a **full-stack architecture**, leveraging:
+## How i built it
+I built MediMentor using a **full-stack architecture**, leveraging:
 - **Frontend**: Developed using HTML, CSS, and JavaScript, hosted on AWS Amplify.
 - **Backend**: Built with Node.js and AWS Lambda, ensuring secure and scalable performance.
 - **Authentication**: Integrated AWS Cognito for secure user management.
@@ -66,17 +66,17 @@ We built MediMentor using a **full-stack architecture**, leveraging:
 - **CloudFront**: Optimized content delivery for faster load times.
 - **Medical Data**: Powered by **Isabel Healthcare’s API** to deliver accurate health insights.
 
-## Challenges we ran into
+## Challenges i ran into
 - **API Integration**: Ensuring smooth and efficient communication between MediMentor and Isabel Healthcare's API required fine-tuning request handling and data processing.
 - **User Experience**: Designing an intuitive UI that presents complex medical information in an easy-to-understand format.
 - **Scalability**: Optimizing the backend to handle increasing traffic without performance issues.
 
-## Accomplishments that we're proud of
+## Accomplishments that i'm proud of
 - Successfully integrating **Isabel Healthcare’s API** to provide **accurate, AI-powered symptom analysis**.
 - Deploying a **secure and scalable** infrastructure using AWS services.
 - Designing a **user-friendly interface** that simplifies complex medical insights for both patients and doctors.
 
-## What we learned
+## What i learned
 - The importance of **reliable data sources** when dealing with health-related AI applications.
 - Best practices for integrating **AWS services** like Cognito, Lambda, Amplify, API Gateway, CloudWatch, IAM, and CloudFront.
 - The impact of **user-centered design** in making medical AI solutions accessible and easy to use.
