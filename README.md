@@ -15,24 +15,11 @@ MediMentor is designed to assist both **patients** and **healthcare professional
 - Integration with medical APIs such as Isabel Healthcare
 
 ## Screenshots
-![Home Page](path/to/homepage-screenshot.png)
-![Symptom Analysis](path/to/symptom-analysis.png)
+![Home Page](assets/images/home.png)
+![Symptom Analysis](assets/images/symptons.png)
 
 ## Demo Video
-[![Watch the Demo](path/to/video-thumbnail.png)](assets/videos/tutorial.mp4)
-
-## Installation
-```sh
-# Clone the repository
-git clone https://github.com/your-username/MediMentor.git
-cd MediMentor
-
-# Install dependencies
-npm install
-
-# Start the development server
-npm start
-```
+[![Watch the Demo](assets/images/tutorial.png)](assets/videos/tutorial.mp4)
 
 ## Deployment
 MediMentor is deployed using AWS services:
