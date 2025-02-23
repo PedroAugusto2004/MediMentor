@@ -19,12 +19,29 @@ MediMentor is designed to assist both **patients** and **healthcare professional
 ![Symptom Analysis](path/to/symptom-analysis.png)
 
 ## Demo Video
-[![Watch the Demo](path/to/video-thumbnail.png)](path/to/demo-video.mp4)
+[![Watch the Demo](path/to/video-thumbnail.png)](assets/videos/tutorial.mp4)
+
+## Installation
+```sh
+# Clone the repository
+git clone https://github.com/your-username/MediMentor.git
+cd MediMentor
+
+# Install dependencies
+npm install
+
+# Start the development server
+npm start
+```
 
 ## Deployment
 MediMentor is deployed using AWS services:
 - **Frontend**: AWS Amplify
 - **Backend**: AWS Lambda with API Gateway
+- **Monitoring & Logging**: AWS CloudWatch
+- **Authentication**: AWS Cognito
+- **Security & Permissions**: AWS IAM
+- **Content Delivery**: AWS CloudFront
 
 To deploy the project:
 ```sh
@@ -39,7 +56,10 @@ serverless deploy
 - **Frontend**: HTML, CSS, JavaScript
 - **Backend**: Node.js, AWS Lambda
 - **Authentication**: AWS Cognito
-- **Hosting**: AWS Amplify
+- **Hosting & Deployment**: AWS Amplify, AWS CloudFront
+- **API Management**: AWS API Gateway
+- **Logging & Monitoring**: AWS CloudWatch
+- **Security & Access Management**: AWS IAM
 - **Medical API**: [Isabel Healthcare](https://www.isabelhealthcare.com)
 
 ## Inspiration
@@ -48,26 +68,30 @@ The idea for MediMentor was born from the need to make **reliable medical insigh
 ## What it does
 MediMentor **analyzes symptoms in real time**, using advanced AI and Isabel Healthcare’s trusted database to generate potential conditions and recommendations. It provides **patients** with valuable insights into their symptoms and helps **doctors** by offering AI-assisted differential diagnosis support, ultimately improving decision-making and patient outcomes.
 
-## How i built it
+## How we built it
 We built MediMentor using a **full-stack architecture**, leveraging:
 - **Frontend**: Developed using HTML, CSS, and JavaScript, hosted on AWS Amplify.
 - **Backend**: Built with Node.js and AWS Lambda, ensuring secure and scalable performance.
 - **Authentication**: Integrated AWS Cognito for secure user management.
+- **API Gateway**: Managed API requests efficiently between frontend and backend.
+- **CloudWatch**: Monitored logs and performance for debugging and optimization.
+- **IAM**: Managed secure access and permissions for AWS services.
+- **CloudFront**: Optimized content delivery for faster load times.
 - **Medical Data**: Powered by **Isabel Healthcare’s API** to deliver accurate health insights.
 
-## Challenges i ran into
+## Challenges we ran into
 - **API Integration**: Ensuring smooth and efficient communication between MediMentor and Isabel Healthcare's API required fine-tuning request handling and data processing.
 - **User Experience**: Designing an intuitive UI that presents complex medical information in an easy-to-understand format.
 - **Scalability**: Optimizing the backend to handle increasing traffic without performance issues.
 
-## Accomplishments that i'm proud of
+## Accomplishments that we're proud of
 - Successfully integrating **Isabel Healthcare’s API** to provide **accurate, AI-powered symptom analysis**.
 - Deploying a **secure and scalable** infrastructure using AWS services.
 - Designing a **user-friendly interface** that simplifies complex medical insights for both patients and doctors.
 
-## What i learned
+## What we learned
 - The importance of **reliable data sources** when dealing with health-related AI applications.
-- Best practices for integrating **AWS services** like Cognito, Lambda, and Amplify.
+- Best practices for integrating **AWS services** like Cognito, Lambda, Amplify, API Gateway, CloudWatch, IAM, and CloudFront.
 - The impact of **user-centered design** in making medical AI solutions accessible and easy to use.
 
 ## What's next for MediMentor

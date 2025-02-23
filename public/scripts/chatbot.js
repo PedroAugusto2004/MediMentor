@@ -433,7 +433,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         </span>
                     </div>
 
-                    <a href="${diagnosis.knowledgeUrl || 'https://www.isabelhealthcare.com/'}" 
+                    <a href="https://www.isabelhealthcare.com" 
                        target="_blank" 
                        class="diagnosis-link">
                         Learn More About ${diagnosis.name}
