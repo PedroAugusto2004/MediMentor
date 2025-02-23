@@ -365,11 +365,17 @@ document.addEventListener('DOMContentLoaded', () => {
                              diagnosis.common ? 'recommendation-mild' : 
                              'recommendation-moderate';
         
+        const statusIcons = {
+            severe: '🚨',
+            moderate: '⚠️',
+            mild: 'ℹ️'
+        };
+
         const diagnosisHtml = `
             <div class="diagnosis animate-in">
                 <div class="diagnosis-header">
                     <h3 class="diagnosis-name">
-                        ${diagnosis.redFlag ? '⚠️ ' : ''}${diagnosis.name}
+                        ${diagnosis.redFlag ? '🚨 ' : ''}${diagnosis.name}
                     </h3>
                     <span class="diagnosis-specialty">${diagnosis.specialty}</span>
                 </div>
@@ -383,19 +389,23 @@ document.addEventListener('DOMContentLoaded', () => {
                             '<span class="status-badge status-red-flag">Urgent Attention Required</span>' : ''}
                     </div>
                     
-                    <p class="diagnosis-explanation">${diagnosis.explanation}</p>
-                    <p class="diagnosis-description">${diagnosis.description}</p>
-                    
                     <div class="diagnosis-recommendation ${severityClass}">
                         <span class="recommendation-icon">
-                            ${diagnosis.redFlag ? '🚨' : diagnosis.common ? 'ℹ️' : '🏥'}
+                            ${diagnosis.redFlag ? statusIcons.severe : 
+                              diagnosis.common ? statusIcons.mild : 
+                              statusIcons.moderate}
                         </span>
-                        <span class="recommendation-text">${diagnosis.recommendation}</span>
+                        <span class="recommendation-text">
+                            ${diagnosis.explanation}<br>
+                            <strong>${diagnosis.recommendation}</strong>
+                        </span>
                     </div>
 
-                    <a href="https://www.isabelhealthcare.com/" target="_blank" class="diagnosis-link">
-                        Learn More About it
-                        <span class="arrow"></span>
+                    <a href="${diagnosis.knowledgeUrl || 'https://www.isabelhealthcare.com/'}" 
+                       target="_blank" 
+                       class="diagnosis-link">
+                        Learn More About ${diagnosis.name}
+                        <span aria-hidden="true">→</span>
                     </a>
                 </div>
             </div>
