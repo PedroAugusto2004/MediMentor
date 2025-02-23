@@ -19,7 +19,7 @@ MediMentor is designed to assist both **patients** and **healthcare professional
 ![Symptom Analysis](public/assets/images/symptons.png)
 
 ## Demo Video
-[![Watch the Demo](public/assets/images/tutorial.png)](./assets/videos/tutorial.mp4)
+[![Watch the Demo](public/assets/images/tutorial.png)](public/assets/videos/tutorial.mp4)
 
 ## Deployment
 MediMentor is deployed using AWS services:
