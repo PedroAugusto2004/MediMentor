@@ -115,7 +115,12 @@ document.addEventListener('DOMContentLoaded', () => {
         'shortness of breath': '40',
         'body ache': '45',
         'dizziness': '50',
-        'chest pain': '55'
+        'chest pain': '55',
+        'vomiting': '60',
+        'diarrhea': '65',
+        'stomach pain': '70',
+        'rash': '75',
+        'joint pain': '80'
     };
 
     // Add these utility functions at the top level
@@ -174,9 +179,25 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Check for symptoms
         if (step === 0) {
-            const userSymptoms = message.split(',').map(s => s.trim());
-            const validSymptoms = userSymptoms.every(symptom => symptomMap[symptom]);
-            if (validSymptoms) return null;
+            // Split the message by common separators and clean up each symptom
+            const userSymptoms = message
+                .split(/,|and|\+/g) // Split by comma, 'and', or plus sign
+                .map(s => s.trim().toLowerCase())
+                .filter(s => s.length > 0); // Remove empty strings
+
+            // Check if any of the symptoms are valid
+            const validSymptoms = userSymptoms.some(symptom => 
+                Object.keys(symptomMap).some(validSymptom => 
+                    symptom.includes(validSymptom)
+                )
+            );
+
+            if (validSymptoms) {
+                return null; // Valid symptoms found, proceed
+            }
+
+            // If no valid symptoms found, provide guidance
+            return "I couldn't identify those symptoms. Please describe your symptoms using common terms like 'fever', 'headache', 'cough', etc. You can list multiple symptoms separated by commas.";
         }
 
         // Enhanced date understanding for step 1
@@ -226,11 +247,22 @@ document.addEventListener('DOMContentLoaded', () => {
 
         switch (currentStep) {
             case 0:
-                // Store the actual symptom names
-                userInputs.symptoms = input.split(',')
-                    .map(symptom => symptom.trim().toLowerCase())
-                    .filter(Boolean); // Remove empty strings
-                break;
+                // Process multiple symptoms
+                userInputs.symptoms = input
+                    .toLowerCase()
+                    .split(/,|and|\+/g)
+                    .map(symptom => symptom.trim())
+                    .filter(symptom => 
+                        Object.keys(symptomMap).some(validSymptom => 
+                            symptom.includes(validSymptom)
+                        )
+                    );
+
+                // Confirm symptoms with user
+                const symptomConfirmation = `I understand you're experiencing: ${userInputs.symptoms.join(', ')}. When did these symptoms start?`;
+                addMessage(symptomConfirmation, 'bot');
+                currentStep++;
+                return;
             case 1:
                 const parsedDate = parseRelativeDate(input);
                 if (parsedDate) {
