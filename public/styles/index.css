@@ -43,7 +43,7 @@ body {
 .welcome-section {
     flex: 1;
     background: linear-gradient(135deg, #3a7fffb0, #632affa9);
-    color: white;
+    color: rgb(12, 12, 12);
     padding: 40px;
     display: flex;
     flex-direction: column;
@@ -54,6 +54,20 @@ body {
 .welcome-section h1 {
     font-size: 2.5rem;
     margin-bottom: 20px;
+    overflow: hidden;
+    white-space: nowrap;
+    border-right: 0.15em solid white;
+    animation: typing 4s steps(40, end), blink-caret 0.75s step-end infinite;
+}
+
+@keyframes typing {
+    from { width: 0; }
+    to { width: 100%; }
+}
+
+@keyframes blink-caret {
+    from, to { border-color: transparent; }
+    50% { border-color: rgba(77, 77, 77, 0.637); }
 }
 
 .welcome-section p {

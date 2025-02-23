@@ -936,7 +936,7 @@ header .logo {
         margin: 0.3rem;
         position: relative;
         z-index: 101; /* Ensure it stays above the input container */
-        top: -50px; /* Move the button higher */
+        top: -70px; /* Move the button higher */
     }
 }
 
