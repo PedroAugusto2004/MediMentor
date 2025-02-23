@@ -927,6 +927,18 @@ header .logo {
         margin-bottom: 50px; /* Add margin to prevent overlap with the disclaimer */
     }
 }
+
+/* Mobile optimization for Option Button */
+@media (max-width: 768px) {
+    .optionButton {
+        padding: 0.5rem 1rem;
+        font-size: 0.9rem;
+        margin: 0.3rem;
+        position: relative;
+        z-index: 101; /* Ensure it stays above the input container */
+    }
+}
+
 /* Dark Mode Toggle */
 #themeToggle {
     position: absolute;
@@ -1026,6 +1038,8 @@ header .logo {
         padding: 0.5rem 1rem;
         font-size: 0.9rem;
         margin: 0.3rem;
+        position: relative;
+        z-index: 101; /* Ensure it stays above the input container */
     }
 }
 
