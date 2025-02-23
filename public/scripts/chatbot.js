@@ -383,6 +383,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
             });
 
+            // After displaying all diagnoses
+            setTimeout(() => {
+                endChat();
+            }, 1000);
+
             loadingSpinner.classList.add('hidden');
         } catch (error) {
             console.error('API Error:', error);
@@ -446,6 +451,32 @@ document.addEventListener('DOMContentLoaded', () => {
         addMessage(diagnosisHtml, 'bot');
     }
 
+    // Add this function after addDiagnosisToChat
+    function endChat() {
+        // Disable input and send button
+        const chatInput = document.getElementById('chatInput');
+        const sendButton = document.getElementById('sendButton');
+        const dateInput = document.getElementById('dateInput');
+        const chatInputContainer = document.getElementById('chatInputContainer');
+
+        chatInput.disabled = true;
+        sendButton.disabled = true;
+        dateInput.disabled = true;
+
+        // Add end chat message
+        const endMessage = `
+            <div class="end-chat-message">
+                <p>Chat session completed. Please click the restart button to start a new consultation.</p>
+                <p class="disclaimer">Remember: This is not a substitute for professional medical advice. 
+                If you're experiencing severe symptoms, please seek immediate medical attention.</p>
+            </div>
+        `;
+        addMessage(endMessage, 'bot');
+
+        // Hide input container
+        chatInputContainer.classList.add('hidden');
+    }
+
     const resetConversation = () => {
         // Reset UI elements
         dateInput.classList.add('hidden');
@@ -453,6 +484,11 @@ document.addEventListener('DOMContentLoaded', () => {
         regionSelection.classList.add('hidden');
         chatInputContainer.classList.remove('hidden');
         chatInput.classList.remove('hidden');
+
+        // Enable input fields and buttons
+        chatInput.disabled = false;
+        sendButton.disabled = false;
+        dateInput.disabled = false;
 
         // Clear input fields
         chatInput.value = '';
@@ -472,6 +508,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Clear chat history
         chatOutput.innerHTML = '';
+
+        // Show chat input container if it was hidden
+        chatInputContainer.style.display = 'flex';
 
         // Restart conversation with welcome message
         displayWelcomeMessage();
