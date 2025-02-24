@@ -1603,7 +1603,8 @@ main {
     align-items: center;
     justify-content: center;
     gap: 10px;
-    margin-top: 30px;
+    margin-top: 15px; /* Reduced from 30px */
+    margin-bottom: 15px; /* Added margin-bottom for spacing */
     padding: 12px 24px;
     background: var(--primary-color);
     color: white;
@@ -1614,6 +1615,14 @@ main {
     font-weight: 500;
     transition: all 0.3s ease;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Update mobile styles to ensure proper spacing */
+@media (max-width: 768px) {
+    .export-pdf-button {
+        margin-top: 10px; /* Even smaller margin on mobile */
+        margin-bottom: 20px; /* Increased bottom margin on mobile */
+    }
 }
 
 .export-pdf-button:hover {
