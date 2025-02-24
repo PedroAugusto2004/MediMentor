@@ -1597,3 +1597,40 @@ main {
         font-size: 10px;
     }
 }
+
+.export-pdf-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 30px;
+    padding: 12px 24px;
+    background: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: 25px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.export-pdf-button:hover {
+    background: var(--button-hover-bg);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.export-pdf-button:active {
+    transform: translateY(0);
+}
+
+.button-icon {
+    font-size: 18px;
+}
+
+[data-theme="dark"] .export-pdf-button {
+    background: var(--primary-color);
+    color: white;
+}
