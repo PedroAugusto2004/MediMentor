@@ -483,6 +483,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Add this after the endChat function
     function exportToPDF() {
+        // Get user name from localStorage
+        const userName = localStorage.getItem('userName') || 'Patient';
+
         // Create a new container for PDF content
         const pdfContent = document.createElement('div');
         pdfContent.className = 'pdf-container';
@@ -495,11 +498,12 @@ document.addEventListener('DOMContentLoaded', () => {
             </div>
         `;
 
-        // Add user information
+        // Add user information with name
         const userInfo = document.createElement('div');
         userInfo.innerHTML = `
             <div style="margin-bottom: 20px;">
                 <h2 style="color: #333;">Patient Information</h2>
+                <p><strong>Name:</strong> ${userName}</p>
                 <p><strong>Gender:</strong> ${userInputs.gender}</p>
                 <p><strong>Year of Birth:</strong> ${userInputs.yearOfBirth}</p>
                 <p><strong>Region:</strong> ${userInputs.region}</p>
