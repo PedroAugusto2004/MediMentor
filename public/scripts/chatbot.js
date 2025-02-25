@@ -73,7 +73,7 @@ document.addEventListener('DOMContentLoaded', () => {
         'Thank you for sharing your symptoms. Could you tell me when they started?',
         'Please select your gender using the options below:',
         'Please enter your date of birth (YYYY-MM-DD).',
-        'Please select your region (north-america, europe, asia, africa, south-america, australia).',
+        'Please click one of the region options below:', // Updated message
         'I\'m here to help with symptoms and diagnoses. Could you describe how you\'re feeling?'
     ];
 
@@ -454,6 +454,7 @@ document.addEventListener('DOMContentLoaded', () => {
             dateInput.classList.remove('hidden');
         } else if (currentStep === 4) {
             regionSelection.classList.remove('hidden');
+            chatInput.disabled = true; // Disable chat input
             chatInputContainer.classList.add('hidden');
         } else {
             chatInputContainer.classList.remove('hidden');
