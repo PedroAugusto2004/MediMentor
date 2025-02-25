@@ -71,7 +71,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const steps = [
         `I am MediMentor. What symptoms are you experiencing?`,
         'Thank you for sharing your symptoms. Could you tell me when they started?',
-        'Please select your gender (male/female).',
+        'Please select your gender using the options below:',
         'Please enter your date of birth (YYYY-MM-DD).',
         'Please select your region (north-america, europe, asia, africa, south-america, australia).',
         'I\'m here to help with symptoms and diagnoses. Could you describe how you\'re feeling?'
@@ -446,8 +446,10 @@ document.addEventListener('DOMContentLoaded', () => {
         addMessage(steps[currentStep], 'bot');
         if (currentStep === 2) {
             genderSelection.classList.remove('hidden');
+            chatInput.disabled = true; // Disable chat input
             chatInputContainer.classList.add('hidden');
         } else if (currentStep === 3) {
+            chatInput.disabled = false; // Re-enable chat input
             chatInput.classList.add('hidden');
             dateInput.classList.remove('hidden');
         } else if (currentStep === 4) {
@@ -459,6 +461,7 @@ document.addEventListener('DOMContentLoaded', () => {
             regionSelection.classList.add('hidden');
             chatInput.classList.remove('hidden');
             dateInput.classList.add('hidden');
+            chatInput.disabled = false; // Ensure chat input is enabled
         }
     };
 
