@@ -556,6 +556,9 @@ document.addEventListener('DOMContentLoaded', () => {
             mild: 'ℹ️'
         };
 
+        // Format disease name for Wikipedia URL
+        const wikipediaUrl = `https://en.wikipedia.org/wiki/${encodeURIComponent(diagnosis.name.replace(/ /g, '_'))}`;
+
         const diagnosisHtml = `
             <div class="diagnosis animate-in">
                 <div class="diagnosis-header">
@@ -586,12 +589,20 @@ document.addEventListener('DOMContentLoaded', () => {
                         </span>
                     </div>
 
-                    <a href="https://www.isabelhealthcare.com" 
-                       target="_blank" 
-                       class="diagnosis-link">
-                        Learn More About ${diagnosis.name}
-                        <span aria-hidden="true">→</span>
-                    </a>
+                    <div class="diagnosis-links">
+                        <a href="${wikipediaUrl}" 
+                           target="_blank" 
+                           class="diagnosis-link wiki-link">
+                            Learn More About ${diagnosis.name} on Wikipedia
+                            <span aria-hidden="true">📖</span>
+                        </a>
+                        <a href="https://www.isabelhealthcare.com" 
+                           target="_blank" 
+                           class="diagnosis-link">
+                            Professional Medical Reference
+                            <span aria-hidden="true">👨‍⚕️</span>
+                        </a>
+                    </div>
                 </div>
             </div>
         `;
