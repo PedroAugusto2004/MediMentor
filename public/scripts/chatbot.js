@@ -466,11 +466,12 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
+    // Update the loading spinner visibility handling in the analyzeSymptoms function
     const analyzeSymptoms = async () => {
         const loadingSpinner = document.getElementById('loadingSpinner');
-        loadingSpinner.classList.remove('hidden');
-        addMessage('Analyzing your symptoms... Please wait.', 'bot');
-        addMessage('Based on your symptoms, here are the most likely conditions:', 'bot');
+        // Show loading overlay with animation
+        loadingSpinner.classList.add('visible');
+        
         try {
             // Convert symptoms array to string array of actual symptom names
             const symptomNames = userInputs.symptoms
@@ -536,12 +537,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 endChat();
             }, 1000);
 
-            loadingSpinner.classList.add('hidden');
+            loadingSpinner.classList.remove('visible');
         } catch (error) {
             console.error('API Error:', error);
             addMessage(`Error: ${error.message}. Please try again.`, 'bot');
-            const loadingSpinner = document.getElementById('loadingSpinner');
-            loadingSpinner.classList.add('hidden');
+            loadingSpinner.classList.remove('visible');
         }
     };
 
