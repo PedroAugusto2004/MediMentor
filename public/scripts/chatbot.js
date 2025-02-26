@@ -593,7 +593,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         <a href="${wikipediaUrl}" 
                            target="_blank" 
                            class="diagnosis-link wiki-link">
-                            Learn More About ${diagnosis.name} on Wikipedia
+                            Learn More About ${diagnosis.name} 
                             <span aria-hidden="true">📖</span>
                         </a>
                         <a href="https://www.isabelhealthcare.com" 
@@ -642,117 +642,138 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Add this after the endChat function
     function exportToPDF() {
-        // Get user name and format date
         const userName = localStorage.getItem('userName') || 'Patient';
         const currentDate = new Date().toLocaleDateString();
         const currentTime = new Date().toLocaleTimeString();
-
-        // Format region and gender for display
-        const formattedRegion = userInputs.region
-            .split('-')
-            .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-            .join(' ');
-        
+        const formattedRegion = userInputs.region.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
         const formattedGender = userInputs.gender.charAt(0).toUpperCase() + userInputs.gender.slice(1);
 
-        // Calculate age from year of birth
-        const birthYear = userInputs.yearOfBirth.split('-')[0];
-        const age = new Date().getFullYear() - parseInt(birthYear);
-
-        // Create PDF content container
-        const pdfContent = document.createElement('div');
-        pdfContent.className = 'pdf-container';
-
-        // Add header with logo and title
-        pdfContent.innerHTML = `
-            <div style="text-align: center; margin-bottom: 20px;">
-                <img src="assets/images/logo1.png" alt="MediMentor Logo" style="width: 100px; height: 100px;">
-                <h1 style="color: #007acc; margin: 10px 0;">MediMentor Consultation Report</h1>
-                <p style="color: #666;">Generated on ${currentDate} at ${currentTime}</p>
-            </div>
-
-            <div style="margin-bottom: 30px;">
-                <h2 style="color: #333; border-bottom: 2px solid #007acc; padding-bottom: 5px;">Patient Information</h2>
-                <table style="width: 100%; border-collapse: collapse; margin-top: 10px;">
-                    <tr>
-                        <td style="padding: 8px; width: 30%;"><strong>Name:</strong></td>
-                        <td style="padding: 8px;">${userName}</td>
-                    </tr>
-                    <tr>
-                        <td style="padding: 8px;"><strong>Date of Birth:</strong></td>
-                        <td style="padding: 8px;">${userInputs.yearOfBirth}</td>
-                    </tr>
-                    <tr>
-                        <td style="padding: 8px;"><strong>Gender:</strong></td>
-                        <td style="padding: 8px;">${formattedGender}</td>
-                    </tr>
-                    <tr>
-                        <td style="padding: 8px;"><strong>Region:</strong></td>
-                        <td style="padding: 8px;">${formattedRegion}</td>
-                    </tr>
-                </table>
-            </div>
-
-            <div style="margin-bottom: 30px;">
-                <h2 style="color: #333; border-bottom: 2px solid #007acc; padding-bottom: 5px;">Symptom Information</h2>
-                <table style="width: 100%; border-collapse: collapse; margin-top: 10px;">
-                    <tr>
-                        <td style="padding: 8px; width: 30%;"><strong>Reported Symptoms:</strong></td>
-                        <td style="padding: 8px;">${userInputs.symptoms.join(', ')}</td>
-                    </tr>
-                    <tr>
-                        <td style="padding: 8px;"><strong>Onset:</strong></td>
-                        <td style="padding: 8px;">${userInputs.symptomStart}</td>
-                    </tr>
-                </table>
-            </div>
-        `;
-
-        // Add diagnoses section
-        const diagnosesContainer = document.createElement('div');
-        diagnosesContainer.innerHTML = `
-            <h2 style="color: #333; border-bottom: 2px solid #007acc; padding-bottom: 5px;">Diagnostic Assessment</h2>
-        `;
-
-        // Copy diagnosis elements
-        const diagnoses = document.querySelectorAll('.diagnosis');
-        diagnoses.forEach(diagnosis => {
-            const clone = diagnosis.cloneNode(true);
-            // Remove any interactive elements from the PDF version
-            const links = clone.querySelectorAll('a');
-            links.forEach(link => {
-                const span = document.createElement('span');
-                span.textContent = link.textContent;
-                link.parentNode.replaceChild(span, link);
-            });
-            diagnosesContainer.appendChild(clone);
-        });
-        pdfContent.appendChild(diagnosesContainer);
-
-        // Add disclaimer
-        pdfContent.innerHTML += `
-            <div style="margin-top: 30px; padding: 15px; border-top: 1px solid #ccc;">
-                <p style="font-style: italic; color: #666; font-size: 12px;">
-                    <strong>Disclaimer:</strong> This report is generated based on the symptoms provided and should not be considered as a definitive medical diagnosis. 
-                    Please consult with a healthcare professional for proper medical evaluation and treatment.
-                </p>
-                <p style="font-size: 12px; text-align: right;">
-                    Report ID: ${Date.now().toString(36).toUpperCase()}<br>
-                    Generated by MediMentor
-                </p>
-            </div>
-        `;
-
-        // Configure PDF options
-        const opt = {
-            margin: [0.5, 1, 0.5, 1], // [top, right, bottom, left]
-            filename: `MediMentor_Report_${userName.replace(/\s+/g, '_')}_${currentDate.replace(/\//g, '-')}.pdf`,
-            image: { type: 'jpeg', quality: 0.98 },
-            html2canvas: { scale: 2, logging: false },
-            jsPDF: { unit: 'cm', format: 'a4', orientation: 'portrait' }
+        // PDF Styles
+        const styles = {
+            header: 'color: #007acc; font-size: 24px; margin: 10px 0; font-weight: bold;',
+            subHeader: 'color: #333; font-size: 18px; border-bottom: 2px solid #007acc; padding-bottom: 5px; margin: 20px 0 10px 0;',
+            sectionBox: 'background: #f8f9fa; border: 1px solid #e9ecef; border-radius: 8px; padding: 15px; margin: 15px 0;',
+            table: 'width: 100%; border-collapse: collapse; margin: 10px 0;',
+            tableCell: 'padding: 8px; border-bottom: 1px solid #dee2e6;',
+            diagnosisBox: 'background: #fff; border: 1px solid #ddd; border-radius: 8px; padding: 15px; margin: 10px 0; page-break-inside: avoid;',
+            severityBadge: {
+                severe: 'background: #dc3545; color: white; padding: 3px 8px; border-radius: 4px; font-size: 12px;',
+                moderate: 'background: #ffc107; color: black; padding: 3px 8px; border-radius: 4px; font-size: 12px;',
+                mild: 'background: #28a745; color: white; padding: 3px 8px; border-radius: 4px; font-size: 12px;'
+            }
         };
 
-        // Generate PDF
+        const pdfContent = document.createElement('div');
+        pdfContent.innerHTML = `
+            <div style="padding: 20px; width: 210mm;">
+                <!-- Header Section -->
+                <div style="text-align: center; ${styles.sectionBox}">
+                    <img src="assets/images/logo1.png" alt="MediMentor Logo" style="width: 80px; height: 80px;">
+                    <h1 style="${styles.header}">Medical Consultation Report</h1>
+                    <p style="color: #666;">Generated on ${currentDate} at ${currentTime}</p>
+                </div>
+
+                <!-- Patient Information Section -->
+                <div style="${styles.sectionBox}">
+                    <h2 style="${styles.subHeader}">Patient Information</h2>
+                    <table style="${styles.table}">
+                        <tr>
+                            <td style="${styles.tableCell}"><strong>Patient Name:</strong></td>
+                            <td style="${styles.tableCell}">${userName}</td>
+                            <td style="${styles.tableCell}"><strong>Gender:</strong></td>
+                            <td style="${styles.tableCell}">${formattedGender}</td>
+                        </tr>
+                        <tr>
+                            <td style="${styles.tableCell}"><strong>Date of Birth:</strong></td>
+                            <td style="${styles.tableCell}">${userInputs.yearOfBirth}</td>
+                            <td style="${styles.tableCell}"><strong>Region:</strong></td>
+                            <td style="${styles.tableCell}">${formattedRegion}</td>
+                        </tr>
+                    </table>
+                </div>
+
+                <!-- Symptoms Summary -->
+                <div style="${styles.sectionBox}">
+                    <h2 style="${styles.subHeader}">Symptoms Assessment</h2>
+                    <table style="${styles.table}">
+                        <tr>
+                            <td style="${styles.tableCell}"><strong>Reported Symptoms:</strong></td>
+                            <td style="${styles.tableCell}">${userInputs.symptoms.join(', ')}</td>
+                        </tr>
+                        <tr>
+                            <td style="${styles.tableCell}"><strong>Onset Duration:</strong></td>
+                            <td style="${styles.tableCell}">${userInputs.symptomStart}</td>
+                        </tr>
+                    </table>
+                </div>
+
+                <!-- Diagnostic Assessment -->
+                <h2 style="${styles.subHeader}">Diagnostic Assessment</h2>
+        `;
+
+        // Add diagnoses with improved styling
+        const diagnoses = document.querySelectorAll('.diagnosis');
+        diagnoses.forEach((diagnosis, index) => {
+            const name = diagnosis.querySelector('.diagnosis-name').textContent.trim();
+            const specialty = diagnosis.querySelector('.diagnosis-specialty').textContent;
+            const isRedFlag = name.includes('🚨');
+            const isCommon = diagnosis.querySelector('.status-common') !== null;
+            const recommendation = diagnosis.querySelector('.recommendation-text').textContent;
+
+            const severityStyle = isRedFlag ? styles.severityBadge.severe :
+                                isCommon ? styles.severityBadge.mild :
+                                styles.severityBadge.moderate;
+
+            pdfContent.innerHTML += `
+                <div style="${styles.diagnosisBox}">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                        <h3 style="margin: 0; color: #2c3e50; font-size: 18px;">
+                            ${index + 1}. ${name.replace('🚨', '')}
+                        </h3>
+                        <span style="${severityStyle}">
+                            ${isRedFlag ? 'Urgent' : isCommon ? 'Common' : 'Moderate'}
+                        </span>
+                    </div>
+                    <div style="color: #666; margin: 5px 0;">Specialty: ${specialty}</div>
+                    <div style="margin: 10px 0; padding: 10px; background: #f8f9fa; border-radius: 4px;">
+                        ${recommendation}
+                    </div>
+                </div>
+            `;
+        });
+
+        // Add disclaimer and footer
+        pdfContent.innerHTML += `
+            <div style="margin-top: 30px; ${styles.sectionBox}">
+                <p style="color: #666; font-style: italic; font-size: 12px;">
+                    <strong>Important Notice:</strong> This report is generated based on the symptoms provided and should be used for informational purposes only. 
+                    It is not a substitute for professional medical diagnosis. Please consult with a qualified healthcare provider for proper medical evaluation and treatment.
+                </p>
+                <div style="text-align: right; margin-top: 15px; font-size: 12px; color: #666;">
+                    Report ID: ${Date.now().toString(36).toUpperCase()}<br>
+                    Generated by MediMentor Healthcare System
+                </div>
+            </div>
+        `;
+
+        const opt = {
+            margin: [1.5, 1, 1.5, 1],
+            filename: `MediMentor_Report_${userName.replace(/\s+/g, '_')}_${currentDate.replace(/\//g, '-')}.pdf`,
+            image: { type: 'jpeg', quality: 0.98 },
+            html2canvas: { 
+                scale: 2,
+                logging: false,
+                useCORS: true,
+                allowTaint: true
+            },
+            jsPDF: { 
+                unit: 'cm',
+                format: 'a4',
+                orientation: 'portrait'
+            },
+            pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
+        };
+
         html2pdf().set(opt).from(pdfContent).save();
     }
 
