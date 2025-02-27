@@ -1,6 +1,6 @@
 {
   "C:\\MediMentor\\backend\\serverless.yml": {
-    "versionFramework": "4.6.4",
+    "versionFramework": "4.7.0",
     "servicePath": "C:\\MediMentor\\backend\\serverless.yml",
     "serviceConfigFileName": "serverless.yml",
     "service": {
@@ -104,7 +104,7 @@
               "Properties": {
                 "Code": {
                   "S3Bucket": "serverless-framework-deployments-us-east-1-0dc208ae-8d7a",
-                  "S3Key": "serverless/medimentor/dev/1740251759994-2025-02-22T19:15:59.994Z/medimentor.zip"
+                  "S3Key": "serverless/medimentor/dev/1740681992410-2025-02-27T18:46:32.410Z/medimentor.zip"
                 },
                 "Handler": "server.handler",
                 "Runtime": "nodejs18.x",
@@ -127,14 +127,14 @@
                 "ApiLogGroup"
               ]
             },
-            "ApiLambdaVersioni2dIUx6fvQmJ7jeDocH6nlmDIbQ6ZZjN2oVJGRLBZA": {
+            "ApiLambdaVersionRSmYTpCBkc2U7OirBPaLXEU6XGkKkMODXsgyblT9HY": {
               "Type": "AWS::Lambda::Version",
               "DeletionPolicy": "Retain",
               "Properties": {
                 "FunctionName": {
                   "Ref": "ApiLambdaFunction"
                 },
-                "CodeSha256": "j1xG/dhKT9cr41Fzspl+hlhz2/qfB0QOu7Abrfk5wX0="
+                "CodeSha256": "KmsB/e42sNBoiheRr5OsN0T2ElFP34cOV0OqSZttXtI="
               }
             },
             "ApiGatewayRestApi": {
@@ -256,7 +256,7 @@
                 "ApiLambdaPermissionApiGateway"
               ]
             },
-            "ApiGatewayDeployment1740251734284": {
+            "ApiGatewayDeployment1740681968742": {
               "Type": "AWS::ApiGateway::Deployment",
               "Properties": {
                 "RestApiId": {
@@ -317,7 +317,7 @@
             "ApiLambdaFunctionQualifiedArn": {
               "Description": "Current Lambda function version",
               "Value": {
-                "Ref": "ApiLambdaVersioni2dIUx6fvQmJ7jeDocH6nlmDIbQ6ZZjN2oVJGRLBZA"
+                "Ref": "ApiLambdaVersionRSmYTpCBkc2U7OirBPaLXEU6XGkKkMODXsgyblT9HY"
               },
               "Export": {
                 "Name": "sls-medimentor-dev-ApiLambdaFunctionQualifiedArn"
@@ -381,7 +381,7 @@
           "timeout": 6,
           "runtime": "nodejs18.x",
           "vpc": {},
-          "versionLogicalId": "ApiLambdaVersioni2dIUx6fvQmJ7jeDocH6nlmDIbQ6ZZjN2oVJGRLBZA"
+          "versionLogicalId": "ApiLambdaVersionRSmYTpCBkc2U7OirBPaLXEU6XGkKkMODXsgyblT9HY"
         }
       },
       "plugins": [
@@ -492,7 +492,7 @@
             "Properties": {
               "Code": {
                 "S3Bucket": "serverless-framework-deployments-us-east-1-0dc208ae-8d7a",
-                "S3Key": "serverless/medimentor/dev/1740251759994-2025-02-22T19:15:59.994Z/medimentor.zip"
+                "S3Key": "serverless/medimentor/dev/1740681992410-2025-02-27T18:46:32.410Z/medimentor.zip"
               },
               "Handler": "server.handler",
               "Runtime": "nodejs18.x",
@@ -515,14 +515,14 @@
               "ApiLogGroup"
             ]
           },
-          "ApiLambdaVersioni2dIUx6fvQmJ7jeDocH6nlmDIbQ6ZZjN2oVJGRLBZA": {
+          "ApiLambdaVersionRSmYTpCBkc2U7OirBPaLXEU6XGkKkMODXsgyblT9HY": {
             "Type": "AWS::Lambda::Version",
             "DeletionPolicy": "Retain",
             "Properties": {
               "FunctionName": {
                 "Ref": "ApiLambdaFunction"
               },
-              "CodeSha256": "j1xG/dhKT9cr41Fzspl+hlhz2/qfB0QOu7Abrfk5wX0="
+              "CodeSha256": "KmsB/e42sNBoiheRr5OsN0T2ElFP34cOV0OqSZttXtI="
             }
           },
           "ApiGatewayRestApi": {
@@ -644,7 +644,7 @@
               "ApiLambdaPermissionApiGateway"
             ]
           },
-          "ApiGatewayDeployment1740251734284": {
+          "ApiGatewayDeployment1740681968742": {
             "Type": "AWS::ApiGateway::Deployment",
             "Properties": {
               "RestApiId": {
@@ -705,7 +705,7 @@
           "ApiLambdaFunctionQualifiedArn": {
             "Description": "Current Lambda function version",
             "Value": {
-              "Ref": "ApiLambdaVersioni2dIUx6fvQmJ7jeDocH6nlmDIbQ6ZZjN2oVJGRLBZA"
+              "Ref": "ApiLambdaVersionRSmYTpCBkc2U7OirBPaLXEU6XGkKkMODXsgyblT9HY"
             },
             "Export": {
               "Name": "sls-medimentor-dev-ApiLambdaFunctionQualifiedArn"
@@ -763,12 +763,12 @@
     "serviceProviderAwsCfStackName": "medimentor-dev",
     "serviceProviderAwsCfStackId": "arn:aws:cloudformation:us-east-1:808117419296:stack/medimentor-dev/edcc7710-efaf-11ef-bf2f-0e3c18f7ab13",
     "serviceProviderAwsCfStackCreated": "2025-02-20T17:27:16.077Z",
-    "serviceProviderAwsCfStackUpdated": "2025-02-22T19:12:48.305Z",
+    "serviceProviderAwsCfStackUpdated": "2025-02-22T19:16:09.427Z",
     "serviceProviderAwsCfStackStatus": "UPDATE_COMPLETE",
     "serviceProviderAwsCfStackOutputs": [
       {
         "OutputKey": "ApiLambdaFunctionQualifiedArn",
-        "OutputValue": "arn:aws:lambda:us-east-1:808117419296:function:medimentor-dev-api:28",
+        "OutputValue": "arn:aws:lambda:us-east-1:808117419296:function:medimentor-dev-api:29",
         "Description": "Current Lambda function version",
         "ExportName": "sls-medimentor-dev-ApiLambdaFunctionQualifiedArn"
       },
@@ -877,7 +877,7 @@
           "Properties": {
             "Code": {
               "S3Bucket": "serverless-framework-deployments-us-east-1-0dc208ae-8d7a",
-              "S3Key": "serverless/medimentor/dev/1740251759994-2025-02-22T19:15:59.994Z/medimentor.zip"
+              "S3Key": "serverless/medimentor/dev/1740681992410-2025-02-27T18:46:32.410Z/medimentor.zip"
             },
             "Handler": "server.handler",
             "Runtime": "nodejs18.x",
@@ -900,14 +900,14 @@
             "ApiLogGroup"
           ]
         },
-        "ApiLambdaVersioni2dIUx6fvQmJ7jeDocH6nlmDIbQ6ZZjN2oVJGRLBZA": {
+        "ApiLambdaVersionRSmYTpCBkc2U7OirBPaLXEU6XGkKkMODXsgyblT9HY": {
           "Type": "AWS::Lambda::Version",
           "DeletionPolicy": "Retain",
           "Properties": {
             "FunctionName": {
               "Ref": "ApiLambdaFunction"
             },
-            "CodeSha256": "j1xG/dhKT9cr41Fzspl+hlhz2/qfB0QOu7Abrfk5wX0="
+            "CodeSha256": "KmsB/e42sNBoiheRr5OsN0T2ElFP34cOV0OqSZttXtI="
           }
         },
         "ApiGatewayRestApi": {
@@ -1029,7 +1029,7 @@
             "ApiLambdaPermissionApiGateway"
           ]
         },
-        "ApiGatewayDeployment1740251734284": {
+        "ApiGatewayDeployment1740681968742": {
           "Type": "AWS::ApiGateway::Deployment",
           "Properties": {
             "RestApiId": {
@@ -1090,7 +1090,7 @@
         "ApiLambdaFunctionQualifiedArn": {
           "Description": "Current Lambda function version",
           "Value": {
-            "Ref": "ApiLambdaVersioni2dIUx6fvQmJ7jeDocH6nlmDIbQ6ZZjN2oVJGRLBZA"
+            "Ref": "ApiLambdaVersionRSmYTpCBkc2U7OirBPaLXEU6XGkKkMODXsgyblT9HY"
           },
           "Export": {
             "Name": "sls-medimentor-dev-ApiLambdaFunctionQualifiedArn"

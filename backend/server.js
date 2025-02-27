@@ -306,4 +306,28 @@ app.post('/analyze-symptoms', async (req, res) => {
     }
 });
 
+app.get('/predictive-text', async (req, res) => {
+    try {
+        const query = req.query.term || '';
+        const apiKey = await getIsabelApiKey();
+        
+        const response = await axios.get(
+            `https://apiscsandbox.isabelhealthcare.com/v3/predictive_text?` + 
+            new URLSearchParams({
+                language: 'en',
+                searchterm: query,
+                web_service: 'json'
+            }).toString(),
+            {
+                headers: { Authorization: apiKey }
+            }
+        );
+        
+        res.json(response.data.predictive_text || []);
+    } catch (error) {
+        console.error('Predictive Text Error:', error);
+        res.status(500).json({ error: 'Failed to fetch predictive text' });
+    }
+});
+
 export const handler = serverless(app);

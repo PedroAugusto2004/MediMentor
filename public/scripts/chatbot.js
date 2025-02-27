@@ -104,169 +104,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }, sender === 'bot' ? 1000 : 0); // Add delay for bot messages
     };
 
-    // Extended symptom map with more symptoms and their IDs
-    const symptomMap = {
-        'fever': '10',
-        'headache': '15',
-        'nausea': '20',
-        'cough': '25',
-        'fatigue': '30',
-        'sore throat': '35',
-        'shortness of breath': '40',
-        'body ache': '45',
-        'dizziness': '50',
-        'chest pain': '55',
-        'vomiting': '60',
-        'diarrhea': '65',
-        'stomach pain': '70',
-        'rash': '75',
-        'joint pain': '80',
-        'anxiety': '85',
-        'back pain': '90',
-        'blurred vision': '95',
-        'constipation': '100',
-        'depression': '105',
-        'ear pain': '110',
-        'eye pain': '115',
-        'frequent urination': '120',
-        'heartburn': '125',
-        'insomnia': '130',
-        'loss of appetite': '135',
-        'muscle weakness': '140',
-        'neck pain': '145',
-        'numbness': '150',
-        'palpitations': '155',
-        'runny nose': '160',
-        'seizures': '165',
-        'shoulder pain': '170',
-        'sinus congestion': '175',
-        'sweating': '180',
-        'swelling': '185',
-        'tingling': '190',
-        'tremors': '195',
-        'weakness': '200',
-        'weight loss': '205',
-        'wheezing': '210',
-        'allergies': '215',
-        'arm pain': '220',
-        'bad breath': '225',
-        'bruising': '230',
-        'chills': '235',
-        'confusion': '240',
-        'dehydration': '245',
-        'dry mouth': '250',
-        'facial pain': '255',
-        'hair loss': '260',
-        'hand pain': '265',
-        'hiccups': '270',
-        'itching': '275',
-        'knee pain': '280',
-        'leg pain': '285',
-        'memory problems': '290',
-        'mood swings': '295',
-        'nail problems': '300',
-        'nose bleeding': '305',
-        'skin problems': '310',
-        'sleep problems': '315',
-        'sneezing': '320',
-        'stress': '325',
-        'throat swelling': '330',
-        'tooth pain': '335',
-        'vision changes': '340',
-        'menstrual pain': '345',
-        'hot flashes': '350',
-        'night sweats': '355',
-        'jaundice': '360',
-        'light sensitivity': '365',
-        'limping': '370',
-        'loss of balance': '375',
-        'muscle cramps': '380',
-        'panic attacks': '385',
-        'paralysis': '390',
-        'poor concentration': '395',
-        'rapid breathing': '400',
-        'red eyes': '405',
-        'ringing in ears': '410',
-        'shaking': '415',
-        'stiff neck': '420',
-        'swollen joints': '425',
-        'taste changes': '430',
-        'thirst': '435',
-        'urinary urgency': '440',
-        'vertigo': '445',
-        'voice changes': '450',
-        'watery eyes': '455',
-        'weakness in limbs': '460',
-        'yellow eyes': '465',
-        'abdominal bloating': '470',
-        'acne': '475',
-        'appetite changes': '480',
-        'black stools': '485',
-        'bleeding gums': '490',
-        'bloody nose': '495',
-        'breast pain': '500',
-        'cold hands': '505',
-        'color blindness': '510',
-        'double vision': '515',
-        'dry eyes': '520',
-        'earache': '525',
-        'fainting': '530',
-        'foot pain': '535',
-        'genital pain': '540',
-        'groin pain': '545',
-        'hearing loss': '550',
-        'hoarseness': '555',
-        'irregular heartbeat': '560',
-        'jaw pain': '565',
-        'joint stiffness': '570',
-        'metallic taste': '575',
-        'mouth sores': '580',
-        'muscle twitching': '585',
-        'night blindness': '590',
-        'painful urination': '595',
-        'rib pain': '600',
-        'skin ulcers': '605',
-        'speech problems': '610',
-        'tongue pain': '615',
-        'unsteady gait': '620',
-        'urinary retention': '625',
-        'vaginal discharge': '630',
-        'vision loss': '635',
-        'wrist pain': '640',
-        'ankle swelling': '645',
-        'blood in urine': '650',
-        'burning sensation': '655',
-        'chest tightness': '660',
-        'cold feet': '665',
-        'decreased appetite': '670',
-        'dry skin': '675',
-        'early satiety': '680',
-        'excessive thirst': '685',
-        'finger pain': '690',
-        'flank pain': '695',
-        'foot swelling': '700',
-        'hallucinations': '705',
-        'heel pain': '710',
-        'hip pain': '715',
-        'increased appetite': '720',
-        'joint swelling': '725',
-        'lower back pain': '730',
-        'memory loss': '735',
-        'muscle pain': '740',
-        'nail discoloration': '745',
-        'nervousness': '750',
-        'pelvic pain': '755',
-        'rapid heart rate': '760',
-        'rectal bleeding': '765',
-        'skin redness': '770',
-        'slow heart rate': '775',
-        'stomach cramps': '780',
-        'testicular pain': '785',
-        'toe pain': '790',
-        'upper back pain': '795',
-        'urinary frequency': '800'
-    };
-
     // Add these utility functions at the top level
     const parseRelativeDate = (input) => {
         const text = input.toLowerCase().trim();
@@ -368,27 +205,17 @@ const processDateInput = () => {
     const getBotResponse = (userMessage, step) => {
         const message = userMessage.toLowerCase();
 
-        // Check for symptoms
         if (step === 0) {
-            // Split the message by common separators and clean up each symptom
             const userSymptoms = message
-                .split(/,|and|\+/g) // Split by comma, 'and', or plus sign
+                .split(/,|and|\+/g)
                 .map(s => s.trim().toLowerCase())
-                .filter(s => s.length > 0); // Remove empty strings
+                .filter(s => s.length > 0);
 
-            // Check if any of the symptoms are valid
-            const validSymptoms = userSymptoms.some(symptom => 
-                Object.keys(symptomMap).some(validSymptom => 
-                    symptom.includes(validSymptom)
-                )
-            );
-
-            if (validSymptoms) {
-                return null; // Valid symptoms found, proceed
+            if (userSymptoms.length > 0) {
+                return null; // Accept any non-empty symptoms since we're using the API
             }
 
-            // If no valid symptoms found, provide guidance
-            return "I couldn't identify those symptoms. Please describe your symptoms using common terms like 'fever', 'headache', 'cough', etc. You can list multiple symptoms separated by commas.";
+            return "Please describe your symptoms. You can type to see suggestions and list multiple symptoms separated by commas.";
         }
 
         // Enhanced date understanding for step 1
@@ -433,23 +260,17 @@ const processDateInput = () => {
         const botReply = getBotResponse(input, currentStep);
         if (botReply) {
             addMessage(botReply, 'bot');
-            return; // Pause the flow until a relevant response is received
+            return;
         }
 
         switch (currentStep) {
             case 0:
-                // Process multiple symptoms
                 userInputs.symptoms = input
                     .toLowerCase()
                     .split(/,|and|\+/g)
                     .map(symptom => symptom.trim())
-                    .filter(symptom => 
-                        Object.keys(symptomMap).some(validSymptom => 
-                            symptom.includes(validSymptom)
-                        )
-                    );
+                    .filter(Boolean);
 
-                // Confirm symptoms with user
                 const symptomConfirmation = `I understand you're experiencing: ${userInputs.symptoms.join(', ')}. When did these symptoms start?`;
                 addMessage(symptomConfirmation, 'bot');
                 currentStep++;
@@ -967,4 +788,134 @@ function exportToPDF() {
 
     // Call displayWelcomeMessage instead of first step message
     displayWelcomeMessage();
+
+    const createSuggestionsContainer = () => {
+        const container = document.createElement('div');
+        container.id = 'suggestionDropdown';
+        container.className = 'suggestion-dropdown hidden';
+        chatInputContainer.appendChild(container);
+        return container;
+    };
+
+    const suggestionsContainer = createSuggestionsContainer();
+    let currentSuggestions = [];
+    let selectedSuggestionIndex = -1;
+
+    // Add this function to handle predictive text
+    const fetchPredictiveText = async (searchTerm) => {
+        try {
+            const response = await fetch(
+                `https://1n6ajiuic7.execute-api.us-east-1.amazonaws.com/dev/predictive-text?term=${encodeURIComponent(searchTerm)}`
+            );
+            const data = await response.json();
+            return data;
+        } catch (error) {
+            console.error('Failed to fetch predictions:', error);
+            return [];
+        }
+    };
+
+    // Add debounce function
+    const debounce = (func, wait) => {
+        let timeout;
+        return function executedFunction(...args) {
+            const later = () => {
+                clearTimeout(timeout);
+                func(...args);
+            };
+            clearTimeout(timeout);
+            timeout = setTimeout(later, wait);
+        };
+    };
+
+    // Add suggestion handling
+    const handleSuggestions = debounce(async (input) => {
+        if (currentStep !== 0 || input.length < 2) {
+            suggestionsContainer.classList.add('hidden');
+            return;
+        }
+
+        const suggestions = await fetchPredictiveText(input);
+        currentSuggestions = suggestions;
+
+        if (suggestions.length > 0) {
+            suggestionsContainer.innerHTML = '';
+            suggestions.forEach((suggestion, index) => {
+                const div = document.createElement('div');
+                div.className = 'suggestion-item';
+                div.textContent = suggestion;
+                div.addEventListener('click', () => {
+                    const currentValue = chatInput.value;
+                    const lastCommaIndex = currentValue.lastIndexOf(',');
+                    const baseValue = lastCommaIndex !== -1 ? 
+                        currentValue.substring(0, lastCommaIndex + 1) + ' ' : '';
+                    chatInput.value = baseValue + suggestion;
+                    suggestionsContainer.classList.add('hidden');
+                    chatInput.focus();
+                });
+                div.addEventListener('mouseenter', () => {
+                    selectedSuggestionIndex = index;
+                    updateSelectedSuggestion();
+                });
+                suggestionsContainer.appendChild(div);
+            });
+            suggestionsContainer.classList.remove('hidden');
+        } else {
+            suggestionsContainer.classList.add('hidden');
+        }
+    }, 300);
+
+    chatInput.addEventListener('input', (event) => {
+        const input = event.target.value;
+        const lastComma = input.lastIndexOf(',');
+        const searchTerm = lastComma !== -1 ? 
+            input.substring(lastComma + 1).trim() : 
+            input.trim();
+        handleSuggestions(searchTerm);
+    });
+
+    // Add keyboard navigation
+    chatInput.addEventListener('keydown', (event) => {
+        if (suggestionsContainer.classList.contains('hidden')) return;
+
+        switch (event.key) {
+            case 'ArrowDown':
+                event.preventDefault();
+                selectedSuggestionIndex = Math.min(
+                    selectedSuggestionIndex + 1,
+                    currentSuggestions.length - 1
+                );
+                updateSelectedSuggestion();
+                break;
+            case 'ArrowUp':
+                event.preventDefault();
+                selectedSuggestionIndex = Math.max(selectedSuggestionIndex - 1, 0);
+                updateSelectedSuggestion();
+                break;
+            case 'Enter':
+                if (selectedSuggestionIndex >= 0) {
+                    event.preventDefault();
+                    const currentValue = chatInput.value;
+                    const lastCommaIndex = currentValue.lastIndexOf(',');
+                    const baseValue = lastCommaIndex !== -1 ? 
+                        currentValue.substring(0, lastCommaIndex + 1) + ' ' : '';
+                    chatInput.value = baseValue + currentSuggestions[selectedSuggestionIndex];
+                    suggestionsContainer.classList.add('hidden');
+                    selectedSuggestionIndex = -1;
+                }
+                break;
+            case 'Escape':
+                suggestionsContainer.classList.add('hidden');
+                selectedSuggestionIndex = -1;
+                break;
+        }
+    });
+
+    // Hide suggestions when clicking outside
+    document.addEventListener('click', (event) => {
+        if (!event.target.closest('#chatInputContainer')) {
+            suggestionsContainer.classList.add('hidden');
+            selectedSuggestionIndex = -1;
+        }
+    });
 });
