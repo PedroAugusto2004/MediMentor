@@ -316,6 +316,32 @@ document.addEventListener('DOMContentLoaded', () => {
 
         return null;
     };
+// Function to format date to MM/DD/YYYY
+const formatDateToAmerican = (date) => {
+    const [year, month, day] = date.split('-');
+    return `${month}/${day}/${year}`;
+};
+
+// Function to parse American date format to YYYY-MM-DD
+const parseAmericanDate = (date) => {
+    const [month, day, year] = date.split('/');
+    return `${year}-${month}-${day}`;
+};
+
+// Example usage when setting or getting the date
+dateInput.addEventListener('change', (event) => {
+    const americanDate = formatDateToAmerican(event.target.value);
+    console.log('American Date Format:', americanDate);
+    // Use americanDate as needed
+});
+
+// When submitting or processing the date
+const processDateInput = () => {
+    const americanDate = dateInput.value;
+    const isoDate = parseAmericanDate(americanDate);
+    console.log('ISO Date Format:', isoDate);
+    // Use isoDate for further processing
+};
 
     // Update the getBotResponse function
     const getBotResponse = (userMessage, step) => {
@@ -362,7 +388,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         // Check for date of birth
-        if (step === 3 && /^\d{4}-\d{2}-\d{2}$/.test(message)) {
+        if (step === 3 && /^(0[1-9]|1[0-2])\/(0[1-9]|[12][0-9]|3[01])\/\d{4}$/.test(message)) {
             return null; // No need for a special response, proceed with the flow
         }
 
@@ -432,7 +458,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 userInputs.pregnant = input.toLowerCase() === 'yes' ? 'y' : 'n';
                 break;
             case 3:
-                userInputs.yearOfBirth = input;
+                const formattedDate = input.split('/').map((part, index) => {
+                    // Convert MM/DD/YYYY to YYYY-MM-DD for storage
+                    if (index === 0) return part; // Month stays the same
+                    if (index === 1) return part; // Day stays the same
+                    if (index === 2) return part; // Year stays the same
+                }).join('-');
+                
+                userInputs.yearOfBirth = formattedDate;
 
                 chatInput.classList.remove('hidden');
                 dateInput.classList.add('hidden');
@@ -451,6 +484,8 @@ document.addEventListener('DOMContentLoaded', () => {
         } else if (currentStep === 3) {
             chatInput.disabled = false; // Re-enable chat input
             chatInput.classList.add('hidden');
+            dateInput.setAttribute('placeholder', 'MM/DD/YYYY');
+            dateInput.setAttribute('pattern', '(0[1-9]|1[0-2])/(0[1-9]|[12][0-9]|3[01])/[0-9]{4}');
             dateInput.classList.remove('hidden');
         } else if (currentStep === 4) {
             regionSelection.classList.remove('hidden');
@@ -654,13 +689,14 @@ document.addEventListener('DOMContentLoaded', () => {
             subHeader: 'color: #333; font-size: 18px; border-bottom: 2px solid #007acc; padding-bottom: 5px; margin: 20px 0 10px 0;',
             sectionBox: 'background: #f8f9fa; border: 1px solid #e9ecef; border-radius: 8px; padding: 15px; margin: 15px 0;',
             table: 'width: 100%; border-collapse: collapse; margin: 10px 0;',
-            tableCell: 'padding: 8px; border-bottom: 1px solid #dee2e6;',
+            tableCell: 'padding: 8px; border-bottom: 1px solid #dee2e6; color: #000;', // Added color: #000
             diagnosisBox: 'background: #fff; border: 1px solid #ddd; border-radius: 8px; padding: 15px; margin: 10px 0; page-break-inside: avoid;',
             severityBadge: {
                 severe: 'background: #dc3545; color: white; padding: 3px 8px; border-radius: 4px; font-size: 12px;',
                 moderate: 'background: #ffc107; color: black; padding: 3px 8px; border-radius: 4px; font-size: 12px;',
                 mild: 'background: #28a745; color: white; padding: 3px 8px; border-radius: 4px; font-size: 12px;'
-            }
+            },
+            text: 'color: #000;' // Added new style for regular text
         };
 
         const pdfContent = document.createElement('div');
@@ -670,7 +706,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 <div style="text-align: center; ${styles.sectionBox}">
                     <img src="assets/images/logo1.png" alt="MediMentor Logo" style="width: 80px; height: 80px;">
                     <h1 style="${styles.header}">Medical Consultation Report</h1>
-                    <p style="color: #666;">Generated on ${currentDate} at ${currentTime}</p>
+                    <p style="${styles.text}">Generated on ${currentDate} at ${currentTime}</p>
                 </div>
 
                 <!-- Patient Information Section -->
@@ -734,8 +770,8 @@ document.addEventListener('DOMContentLoaded', () => {
                             ${isRedFlag ? 'Urgent' : isCommon ? 'Common' : 'Moderate'}
                         </span>
                     </div>
-                    <div style="color: #666; margin: 5px 0;">Specialty: ${specialty}</div>
-                    <div style="margin: 10px 0; padding: 10px; background: #f8f9fa; border-radius: 4px;">
+                    <div style="color: #000; margin: 5px 0;">Specialty: ${specialty}</div>
+                    <div style="margin: 10px 0; padding: 10px; background: #f8f9fa; border-radius: 4px; color: #000;">
                         ${recommendation}
                     </div>
                 </div>
@@ -745,11 +781,11 @@ document.addEventListener('DOMContentLoaded', () => {
         // Add disclaimer and footer
         pdfContent.innerHTML += `
             <div style="margin-top: 30px; ${styles.sectionBox}">
-                <p style="color: #666; font-style: italic; font-size: 12px;">
+                <p style="color: #000; font-style: italic; font-size: 12px;">
                     <strong>Important Notice:</strong> This report is generated based on the symptoms provided and should be used for informational purposes only. 
                     It is not a substitute for professional medical diagnosis. Please consult with a qualified healthcare provider for proper medical evaluation and treatment.
                 </p>
-                <div style="text-align: right; margin-top: 15px; font-size: 12px; color: #666;">
+                <div style="text-align: right; margin-top: 15px; font-size: 12px; color: #000;">
                     Report ID: ${Date.now().toString(36).toUpperCase()}<br>
                     Generated by MediMentor Healthcare System
                 </div>
