@@ -320,15 +320,21 @@ header .logo {
 
 /* Updated Diagnosis Card Styles */
 .diagnosis {
-    background: var(--secondary-color);
+    background: linear-gradient(to bottom right, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.95));
     border-radius: 16px;
-    padding: 1.5rem;
-    margin-bottom: 1.5rem;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-    border-left: 4px solid var(--primary-color);
+    padding: 1.8rem;
+    margin-bottom: 1.8rem;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    transition: all 0.3s ease;
+    border: 1px solid rgba(0, 122, 204, 0.1);
     max-width: 100%;
     overflow: hidden;
+    backdrop-filter: blur(10px);
+}
+
+[data-theme="dark"] .diagnosis {
+    background: linear-gradient(to bottom right, rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.7));
+    border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .diagnosis.animate-in {
@@ -338,137 +344,217 @@ header .logo {
 .diagnosis-header {
     display: flex;
     flex-wrap: wrap;
-    gap: 0.8rem;
+    gap: 1rem;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 1rem;
-    padding-bottom: 0.8rem;
-    border-bottom: 1px solid rgba(0, 122, 204, 0.1);
+    margin-bottom: 1.2rem;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid rgba(0, 122, 204, 0.1);
 }
 
 .diagnosis-name {
-    font-size: 1.3rem;
+    font-size: 1.4rem;
     font-weight: 600;
-    color: var(--primary-color);
+    color: #2c3e50;
     flex: 1;
     min-width: 200px;
+    letter-spacing: -0.02em;
+}
+
+[data-theme="dark"] .diagnosis-name {
+    color: #e4e4e4;
 }
 
 .diagnosis-specialty {
     font-size: 0.9rem;
-    padding: 0.4rem 0.8rem;
+    padding: 0.5rem 1rem;
     background: rgba(0, 122, 204, 0.1);
-    border-radius: 20px;
-    color: var(--primary-color);
+    border-radius: 25px;
+    color: #0078d4;
     white-space: nowrap;
+    font-weight: 500;
+    letter-spacing: 0.02em;
 }
 
-.diagnosis-status {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.5rem;
-    margin: 0.8rem 0;
+[data-theme="dark"] .diagnosis-specialty {
+    background: rgba(255, 255, 255, 0.1);
+    color: #79c3ff;
 }
 
+/* Status badges */
 .status-badge {
-    padding: 0.4rem 0.8rem;
-    border-radius: 20px;
+    padding: 0.5rem 1rem;
+    border-radius: 25px;
     font-size: 0.85rem;
     font-weight: 500;
-    white-space: nowrap;
+    letter-spacing: 0.02em;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 }
 
-.diagnosis-content {
-    display: grid;
+.status-common {
+    background: #e8f5e9;
+    color: #2e7d32;
+    border: 1px solid rgba(46, 125, 50, 0.1);
+}
+
+.status-red-flag {
+    background: #ffebee;
+    color: #c62828;
+    border: 1px solid rgba(198, 40, 40, 0.1);
+}
+
+/* Recommendation sections */
+.diagnosis-recommendation {
+    padding: 1.5rem;
+    border-radius: 12px;
+    margin: 1.2rem 0;
+    display: flex;
+    align-items: flex-start;
     gap: 1rem;
 }
 
-.diagnosis-recommendation {
-    padding: 1rem;
-    border-radius: 12px;
-    margin-top: 1rem;
-    display: flex;
-    align-items: center;
-    gap: 0.8rem;
+.recommendation-severe {
+    background: linear-gradient(135deg, #fff5f5, #ffe5e5);
+    border: 1px solid #ffcdd2;
+}
+
+.recommendation-moderate {
+    background: linear-gradient(135deg, #fff8e1, #fff3e0);
+    border: 1px solid #ffe0b2;
+}
+
+.recommendation-mild {
+    background: linear-gradient(135deg, #f1f8e9, #e8f5e9);
+    border: 1px solid #c8e6c9;
+}
+
+[data-theme="dark"] .recommendation-severe {
+    background: linear-gradient(135deg, rgba(198, 40, 40, 0.15), rgba(198, 40, 40, 0.1));
+    border: 1px solid rgba(255, 82, 82, 0.2);
+}
+
+[data-theme="dark"] .recommendation-moderate {
+    background: linear-gradient(135deg, rgba(255, 152, 0, 0.15), rgba(255, 152, 0, 0.1));
+    border: 1px solid rgba(255, 167, 38, 0.2);
+}
+
+[data-theme="dark"] .recommendation-mild {
+    background: linear-gradient(135deg, rgba(76, 175, 80, 0.15), rgba(76, 175, 80, 0.1));
+    border: 1px solid rgba(129, 199, 132, 0.2);
 }
 
 .recommendation-icon {
-    font-size: 1.4rem;
+    font-size: 1.5rem;
+    flex-shrink: 0;
 }
 
 .recommendation-text {
-    font-size: 0.95rem;
-    line-height: 1.4;
+    font-size: 1rem;
+    line-height: 1.6;
+    color: #2c3e50;
+}
+
+[data-theme="dark"] .recommendation-text {
+    color: #e4e4e4;
+}
+
+/* Links section */
+.diagnosis-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-top: 1.5rem;
 }
 
 .diagnosis-link {
     display: inline-flex;
     align-items: center;
-    margin-top: 1rem;
-    padding: 0.8rem 1.2rem;
-    background: var(--primary-color);
+    padding: 0.8rem 1.5rem;
+    background: #0078d4;
     color: white !important;
     border-radius: 25px;
-    font-size: 0.9rem;
-    font-weight: 500;
     text-decoration: none;
+    font-weight: 500;
+    font-size: 0.95rem;
+    gap: 0.8rem;
     transition: all 0.3s ease;
-    gap: 0.5rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.diagnosis-link:hover {
+    background: #005a9e;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.wiki-link {
+    background: #ffffff;
+    color: #0078d4 !important;
+    border: 1px solid rgba(0, 120, 212, 0.2);
+}
+
+.wiki-link:hover {
+    background: #f8f9fa;
+    border-color: #0078d4;
+}
+
+[data-theme="dark"] .wiki-link {
+    background: rgba(255, 255, 255, 0.1);
+    color: #79c3ff !important;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+[data-theme="dark"] .wiki-link:hover {
+    background: rgba(255, 255, 255, 0.15);
+    border-color: #79c3ff;
 }
 
 /* Mobile optimizations for diagnosis cards */
 @media (max-width: 768px) {
     .diagnosis {
-        padding: 1rem;
+        padding: 1.2rem;
         margin-bottom: 1rem;
-        border-radius: 12px;
     }
 
     .diagnosis-header {
-        gap: 0.5rem;
-        margin-bottom: 0.8rem;
-        padding-bottom: 0.5rem;
+        gap: 0.8rem;
+        margin-bottom: 1rem;
     }
 
     .diagnosis-name {
-        font-size: 1.1rem;
-        min-width: 150px;
+        font-size: 1.2rem;
     }
 
     .diagnosis-specialty {
         font-size: 0.8rem;
-        padding: 0.3rem 0.6rem;
-    }
-
-    .diagnosis-status {
-        gap: 0.4rem;
-        margin: 0.6rem 0;
-    }
-
-    .status-badge {
-        padding: 0.3rem 0.6rem;
-        font-size: 0.8rem;
+        padding: 0.4rem 0.8rem;
     }
 
     .diagnosis-recommendation {
-        padding: 0.8rem;
-        margin-top: 0.8rem;
-        gap: 0.6rem;
+        padding: 1rem;
+        margin: 1rem 0;
+        gap: 0.8rem;
     }
 
     .recommendation-icon {
-        font-size: 1.2rem;
+        font-size: 1.3rem;
     }
 
     .recommendation-text {
         font-size: 0.9rem;
     }
 
+    .diagnosis-links {
+        flex-direction: column;
+    }
+
     .diagnosis-link {
         width: 100%;
         justify-content: center;
         padding: 0.7rem 1rem;
-        font-size: 0.85rem;
     }
 }
 
@@ -595,18 +681,33 @@ header .logo {
 
 /* Recommendation variants */
 .recommendation-severe {
-    background: linear-gradient(135deg, #ff616166, #ff181866);
-    border: 1px solid #ff6161;
+    background: linear-gradient(135deg, #fff5f5, #ffe5e5);
+    border: 1px solid #ffcdd2;
 }
 
 .recommendation-moderate {
-    background: linear-gradient(135deg, #ffd06166, #ffb52066);
-    border: 1px solid #ffd061;
+    background: linear-gradient(135deg, #fff8e1, #fff3e0);
+    border: 1px solid #ffe0b2;
 }
 
 .recommendation-mild {
-    background: linear-gradient(135deg, #4caf5066, #45a04966);
-    border: 1px solid #4caf50;
+    background: linear-gradient(135deg, #f1f8e9, #e8f5e9);
+    border: 1px solid #c8e6c9;
+}
+
+[data-theme="dark"] .recommendation-severe {
+    background: linear-gradient(135deg, rgba(198, 40, 40, 0.15), rgba(198, 40, 40, 0.1));
+    border: 1px solid rgba(255, 82, 82, 0.2);
+}
+
+[data-theme="dark"] .recommendation-moderate {
+    background: linear-gradient(135deg, rgba(255, 152, 0, 0.15), rgba(255, 152, 0, 0.1));
+    border: 1px solid rgba(255, 167, 38, 0.2);
+}
+
+[data-theme="dark"] .recommendation-mild {
+    background: linear-gradient(135deg, rgba(76, 175, 80, 0.15), rgba(76, 175, 80, 0.1));
+    border: 1px solid rgba(129, 199, 132, 0.2);
 }
 
 .recommendation-icon {
@@ -649,7 +750,7 @@ header .logo {
     border-radius: 12px;
     font-size: 0.8em;
     margin-right: 8px;
-    background-color: #0543b6;
+    background-color: #0543b657;
 }
 
 .status-badge.status-red-flag {
@@ -1772,4 +1873,150 @@ main {
 [data-theme="dark"] .loading-text,
 [data-theme="dark"] .loading-subtext {
     color: var(--text-color);
+}
+
+/* Optimized mobile diagnosis styles */
+@media (max-width: 768px) {
+    .diagnosis {
+        padding: 1rem;
+        margin: 0.8rem 0;
+        border-radius: 12px;
+    }
+
+    .diagnosis-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+        margin-bottom: 0.8rem;
+        padding-bottom: 0.8rem;
+    }
+
+    .diagnosis-name {
+        font-size: 1.1rem;
+        min-width: unset;
+        width: 100%;
+    }
+
+    .diagnosis-specialty {
+        font-size: 0.8rem;
+        padding: 0.3rem 0.8rem;
+        align-self: flex-start;
+    }
+
+    .status-badge {
+        padding: 0.3rem 0.8rem;
+        font-size: 0.75rem;
+        margin-right: 0.5rem;
+        margin-bottom: 0.3rem;
+    }
+
+    .diagnosis-recommendation {
+        padding: 0.8rem;
+        margin: 0.8rem 0;
+        gap: 0.5rem;
+    }
+
+    .recommendation-icon {
+        font-size: 1.1rem;
+    }
+
+    .recommendation-text {
+        font-size: 0.9rem;
+        line-height: 1.4;
+    }
+
+    .diagnosis-links {
+        flex-direction: column;
+        gap: 0.5rem;
+        margin-top: 1rem;
+    }
+
+    .diagnosis-link {
+        width: 100%;
+        padding: 0.6rem 1rem;
+        font-size: 0.9rem;
+        justify-content: center;
+    }
+
+    .diagnosis-description {
+        font-size: 0.95rem;
+        padding: 0.8rem;
+        margin: 0.8rem 0;
+    }
+
+    .diagnosis-explanation {
+        padding: 0.8rem;
+        font-size: 0.9rem;
+    }
+
+    /* Improve touch targets */
+    .diagnosis-link,
+    .status-badge,
+    .recommendation-icon {
+        min-height: 44px;
+        display: flex;
+        align-items: center;
+    }
+}
+
+/* Even smaller screens optimization */
+@media (max-width: 380px) {
+    .diagnosis {
+        padding: 0.8rem;
+        margin: 0.6rem 0;
+    }
+
+    .diagnosis-name {
+        font-size: 1rem;
+    }
+
+    .diagnosis-specialty {
+        font-size: 0.75rem;
+        padding: 0.25rem 0.6rem;
+    }
+
+    .status-badge {
+        padding: 0.25rem 0.6rem;
+        font-size: 0.7rem;
+    }
+
+    .diagnosis-recommendation {
+        padding: 0.6rem;
+    }
+
+    .recommendation-text {
+        font-size: 0.85rem;
+    }
+
+    .diagnosis-link {
+        padding: 0.5rem 0.8rem;
+        font-size: 0.85rem;
+    }
+
+    /* Ensure text remains readable */
+    .diagnosis-description,
+    .diagnosis-explanation {
+        font-size: 0.85rem;
+        padding: 0.6rem;
+    }
+}
+
+/* Add better tap feedback for mobile */
+@media (hover: none) {
+    .diagnosis-link:active {
+        transform: scale(0.98);
+        opacity: 0.9;
+    }
+
+    .status-badge:active {
+        opacity: 0.8;
+    }
+
+    .diagnosis {
+        transition: transform 0.2s ease;
+    }
+
+    .diagnosis:active {
+        transform: scale(0.99);
+    }
 }
