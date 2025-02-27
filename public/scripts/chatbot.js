@@ -72,8 +72,8 @@ document.addEventListener('DOMContentLoaded', () => {
         `I am MediMentor. What symptoms are you experiencing?`,
         'Thank you for sharing your symptoms. Could you tell me when they started?',
         'Please select your gender using the options below:',
-        'Please enter your date of birth (YYYY-MM-DD).',
-        'Please click one of the region options below:', // Updated message
+        'Please enter your date of birth (MM/DD/YYYY):',
+        'Please click one of the region options below:',
         'I\'m here to help with symptoms and diagnoses. Could you describe how you\'re feeling?'
     ];
 
@@ -328,8 +328,29 @@ const parseAmericanDate = (date) => {
     return `${year}-${month}-${day}`;
 };
 
+// Add this function after the date format functions
+const validateDate = (date) => {
+    const regex = /^(0[1-9]|1[0-2])\/(0[1-9]|[12][0-9]|3[01])\/\d{4}$/;
+    if (!regex.test(date)) return false;
+    
+    const [month, day, year] = date.split('/').map(Number);
+    const d = new Date(year, month - 1, day);
+    
+    return d.getMonth() === month - 1 && 
+           d.getDate() === day && 
+           d.getFullYear() === year &&
+           year >= 1900 && 
+           year <= new Date().getFullYear();
+};
+
 // Example usage when setting or getting the date
 dateInput.addEventListener('change', (event) => {
+    const value = event.target.value;
+    if (!validateDate(value)) {
+        event.target.setCustomValidity('Please enter a valid date in MM/DD/YYYY format');
+        return;
+    }
+    event.target.setCustomValidity('');
     const americanDate = formatDateToAmerican(event.target.value);
     console.log('American Date Format:', americanDate);
     // Use americanDate as needed
@@ -458,18 +479,14 @@ const processDateInput = () => {
                 userInputs.pregnant = input.toLowerCase() === 'yes' ? 'y' : 'n';
                 break;
             case 3:
-                const formattedDate = input.split('/').map((part, index) => {
-                    // Convert MM/DD/YYYY to YYYY-MM-DD for storage
-                    if (index === 0) return part; // Month stays the same
-                    if (index === 1) return part; // Day stays the same
-                    if (index === 2) return part; // Year stays the same
-                }).join('-');
-                
-                userInputs.yearOfBirth = formattedDate;
-
-                chatInput.classList.remove('hidden');
-                dateInput.classList.add('hidden');
-                break;
+                const dateValue = input;
+                if (validateDate(dateValue)) {
+                    userInputs.yearOfBirth = dateValue; // Store the full date MM/DD/YYYY
+                    chatInput.classList.remove('hidden');
+                    dateInput.classList.add('hidden');
+                    break;
+                }
+                return; // Invalid date, don't proceed
             case 4:
                 userInputs.region = input.toLowerCase();
                 await analyzeSymptoms();
@@ -484,8 +501,22 @@ const processDateInput = () => {
         } else if (currentStep === 3) {
             chatInput.disabled = false; // Re-enable chat input
             chatInput.classList.add('hidden');
+            
+            // Configure date input for US format
+            dateInput.type = 'text'; // Change to text type instead of date
             dateInput.setAttribute('placeholder', 'MM/DD/YYYY');
             dateInput.setAttribute('pattern', '(0[1-9]|1[0-2])/(0[1-9]|[12][0-9]|3[01])/[0-9]{4}');
+            dateInput.setAttribute('maxlength', '10');
+            
+            // Add input validation
+            dateInput.addEventListener('input', function(e) {
+                let value = e.target.value;
+                value = value.replace(/\D/g, ''); // Remove non-digits
+                if (value.length >= 2) value = value.slice(0,2) + '/' + value.slice(2);
+                if (value.length >= 5) value = value.slice(0,5) + '/' + value.slice(5);
+                e.target.value = value;
+            });
+
             dateInput.classList.remove('hidden');
         } else if (currentStep === 4) {
             regionSelection.classList.remove('hidden');
@@ -514,10 +545,10 @@ const processDateInput = () => {
                 .filter(Boolean); // Remove empty strings
 
             const payload = {
-                symptoms: symptomNames,  // Send array of symptom names
+                symptoms: symptomNames,
                 gender: userInputs.gender.toLowerCase(),
-                yearOfBirth: userInputs.yearOfBirth.split('-')[0], // Extract year from YYYY-MM-DD
-                region: userInputs.region.toLowerCase().replace('-', ' ') // Convert north-america to north america
+                yearOfBirth: userInputs.yearOfBirth.split('/')[2], // Extract just the year for the API
+                region: userInputs.region.toLowerCase().replace('-', ' ')
             };
 
             console.log('Request payload:', payload);
@@ -675,143 +706,144 @@ const processDateInput = () => {
         chatInputContainer.classList.add('hidden');
     }
 
-    // Add this after the endChat function
-    function exportToPDF() {
-        const userName = localStorage.getItem('userName') || 'Patient';
-        const currentDate = new Date().toLocaleDateString();
-        const currentTime = new Date().toLocaleTimeString();
-        const formattedRegion = userInputs.region.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
-        const formattedGender = userInputs.gender.charAt(0).toUpperCase() + userInputs.gender.slice(1);
+    // Update the PDF generation section in the exportToPDF function:
 
-        // PDF Styles
-        const styles = {
-            header: 'color: #007acc; font-size: 24px; margin: 10px 0; font-weight: bold;',
-            subHeader: 'color: #333; font-size: 18px; border-bottom: 2px solid #007acc; padding-bottom: 5px; margin: 20px 0 10px 0;',
-            sectionBox: 'background: #f8f9fa; border: 1px solid #e9ecef; border-radius: 8px; padding: 15px; margin: 15px 0;',
-            table: 'width: 100%; border-collapse: collapse; margin: 10px 0;',
-            tableCell: 'padding: 8px; border-bottom: 1px solid #dee2e6; color: #000;', // Added color: #000
-            diagnosisBox: 'background: #fff; border: 1px solid #ddd; border-radius: 8px; padding: 15px; margin: 10px 0; page-break-inside: avoid;',
-            severityBadge: {
-                severe: 'background: #dc3545; color: white; padding: 3px 8px; border-radius: 4px; font-size: 12px;',
-                moderate: 'background: #ffc107; color: black; padding: 3px 8px; border-radius: 4px; font-size: 12px;',
-                mild: 'background: #28a745; color: white; padding: 3px 8px; border-radius: 4px; font-size: 12px;'
-            },
-            text: 'color: #000;' // Added new style for regular text
-        };
+function exportToPDF() {
+    const userName = localStorage.getItem('userName') || 'Patient';
+    const currentDate = new Date().toLocaleDateString();
+    const currentTime = new Date().toLocaleTimeString();
+    const formattedRegion = userInputs.region.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+    const formattedGender = userInputs.gender.charAt(0).toUpperCase() + userInputs.gender.slice(1);
 
-        const pdfContent = document.createElement('div');
-        pdfContent.innerHTML = `
-            <div style="padding: 20px; width: 210mm;">
-                <!-- Header Section -->
-                <div style="text-align: center; ${styles.sectionBox}">
-                    <img src="assets/images/logo1.png" alt="MediMentor Logo" style="width: 80px; height: 80px;">
-                    <h1 style="${styles.header}">Medical Consultation Report</h1>
-                    <p style="${styles.text}">Generated on ${currentDate} at ${currentTime}</p>
-                </div>
+    // PDF Styles
+    const styles = {
+        header: 'color: #007acc; font-size: 24px; margin: 10px 0; font-weight: bold;',
+        subHeader: 'color: #333; font-size: 18px; border-bottom: 2px solid #007acc; padding-bottom: 5px; margin: 20px 0 10px 0;',
+        sectionBox: 'background: #f8f9fa; border: 1px solid #e9ecef; border-radius: 8px; padding: 15px; margin: 15px 0;',
+        table: 'width: 100%; border-collapse: collapse; margin: 10px 0;',
+        tableCell: 'padding: 8px; border-bottom: 1px solid #dee2e6; color: #000;', // Added color: #000
+        diagnosisBox: 'background: #fff; border: 1px solid #ddd; border-radius: 8px; padding: 15px; margin: 10px 0; page-break-inside: avoid;',
+        severityBadge: {
+            severe: 'background: #dc3545; color: white; padding: 3px 8px; border-radius: 4px; font-size: 12px;',
+            moderate: 'background: #ffc107; color: black; padding: 3px 8px; border-radius: 4px; font-size: 12px;',
+            mild: 'background: #28a745; color: white; padding: 3px 8px; border-radius: 4px; font-size: 12px;'
+        },
+        text: 'color: #000;' // Added new style for regular text
+    };
 
-                <!-- Patient Information Section -->
-                <div style="${styles.sectionBox}">
-                    <h2 style="${styles.subHeader}">Patient Information</h2>
-                    <table style="${styles.table}">
-                        <tr>
-                            <td style="${styles.tableCell}"><strong>Patient Name:</strong></td>
-                            <td style="${styles.tableCell}">${userName}</td>
-                            <td style="${styles.tableCell}"><strong>Gender:</strong></td>
-                            <td style="${styles.tableCell}">${formattedGender}</td>
-                        </tr>
-                        <tr>
-                            <td style="${styles.tableCell}"><strong>Date of Birth:</strong></td>
-                            <td style="${styles.tableCell}">${userInputs.yearOfBirth}</td>
-                            <td style="${styles.tableCell}"><strong>Region:</strong></td>
-                            <td style="${styles.tableCell}">${formattedRegion}</td>
-                        </tr>
-                    </table>
-                </div>
+    const pdfContent = document.createElement('div');
+    pdfContent.innerHTML = `
+        <div style="padding: 20px; width: 210mm;">
+            <!-- Header Section -->
+            <div style="text-align: center; ${styles.sectionBox}">
+                <img src="assets/images/logo1.png" alt="MediMentor Logo" style="width: 80px; height: 80px;">
+                <h1 style="${styles.header}">Medical Consultation Report</h1>
+                <p style="${styles.text}">Generated on ${currentDate} at ${currentTime}</p>
+            </div>
 
-                <!-- Symptoms Summary -->
-                <div style="${styles.sectionBox}">
-                    <h2 style="${styles.subHeader}">Symptoms Assessment</h2>
-                    <table style="${styles.table}">
-                        <tr>
-                            <td style="${styles.tableCell}"><strong>Reported Symptoms:</strong></td>
-                            <td style="${styles.tableCell}">${userInputs.symptoms.join(', ')}</td>
-                        </tr>
-                        <tr>
-                            <td style="${styles.tableCell}"><strong>Onset Duration:</strong></td>
-                            <td style="${styles.tableCell}">${userInputs.symptomStart}</td>
-                        </tr>
-                    </table>
-                </div>
+            <!-- Patient Information Section -->
+            <div style="${styles.sectionBox}">
+                <h2 style="${styles.subHeader}">Patient Information</h2>
+                <table style="${styles.table}">
+                    <tr>
+                        <td style="${styles.tableCell}"><strong>Patient Name:</strong></td>
+                        <td style="${styles.tableCell}">${userName}</td>
+                        <td style="${styles.tableCell}"><strong>Gender:</strong></td>
+                        <td style="${styles.tableCell}">${formattedGender}</td>
+                    </tr>
+                    <tr>
+                        <td style="${styles.tableCell}"><strong>Date of Birth:</strong></td>
+                        <td style="${styles.tableCell}">${userInputs.yearOfBirth.includes('/') ? userInputs.yearOfBirth : 'Not provided'}</td>
+                        <td style="${styles.tableCell}"><strong>Region:</strong></td>
+                        <td style="${styles.tableCell}">${formattedRegion}</td>
+                    </tr>
+                </table>
+            </div>
 
-                <!-- Diagnostic Assessment -->
-                <h2 style="${styles.subHeader}">Diagnostic Assessment</h2>
-        `;
+            <!-- Symptoms Summary -->
+            <div style="${styles.sectionBox}">
+                <h2 style="${styles.subHeader}">Symptoms Assessment</h2>
+                <table style="${styles.table}">
+                    <tr>
+                        <td style="${styles.tableCell}"><strong>Reported Symptoms:</strong></td>
+                        <td style="${styles.tableCell}">${userInputs.symptoms.join(', ')}</td>
+                    </tr>
+                    <tr>
+                        <td style="${styles.tableCell}"><strong>Onset Duration:</strong></td>
+                        <td style="${styles.tableCell}">${userInputs.symptomStart}</td>
+                    </tr>
+                </table>
+            </div>
 
-        // Add diagnoses with improved styling
-        const diagnoses = document.querySelectorAll('.diagnosis');
-        diagnoses.forEach((diagnosis, index) => {
-            const name = diagnosis.querySelector('.diagnosis-name').textContent.trim();
-            const specialty = diagnosis.querySelector('.diagnosis-specialty').textContent;
-            const isRedFlag = name.includes('🚨');
-            const isCommon = diagnosis.querySelector('.status-common') !== null;
-            const recommendation = diagnosis.querySelector('.recommendation-text').textContent;
+            <!-- Diagnostic Assessment -->
+            <h2 style="${styles.subHeader}">Diagnostic Assessment</h2>
+    `;
 
-            const severityStyle = isRedFlag ? styles.severityBadge.severe :
-                                isCommon ? styles.severityBadge.mild :
-                                styles.severityBadge.moderate;
+    // Add diagnoses with improved styling
+    const diagnoses = document.querySelectorAll('.diagnosis');
+    diagnoses.forEach((diagnosis, index) => {
+        const name = diagnosis.querySelector('.diagnosis-name').textContent.trim();
+        const specialty = diagnosis.querySelector('.diagnosis-specialty').textContent;
+        const isRedFlag = name.includes('🚨');
+        const isCommon = diagnosis.querySelector('.status-common') !== null;
+        const recommendation = diagnosis.querySelector('.recommendation-text').textContent;
 
-            pdfContent.innerHTML += `
-                <div style="${styles.diagnosisBox}">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-                        <h3 style="margin: 0; color: #2c3e50; font-size: 18px;">
-                            ${index + 1}. ${name.replace('🚨', '')}
-                        </h3>
-                        <span style="${severityStyle}">
-                            ${isRedFlag ? 'Urgent' : isCommon ? 'Common' : 'Moderate'}
-                        </span>
-                    </div>
-                    <div style="color: #000; margin: 5px 0;">Specialty: ${specialty}</div>
-                    <div style="margin: 10px 0; padding: 10px; background: #f8f9fa; border-radius: 4px; color: #000;">
-                        ${recommendation}
-                    </div>
-                </div>
-            `;
-        });
+        const severityStyle = isRedFlag ? styles.severityBadge.severe :
+                            isCommon ? styles.severityBadge.mild :
+                            styles.severityBadge.moderate;
 
-        // Add disclaimer and footer
         pdfContent.innerHTML += `
-            <div style="margin-top: 30px; ${styles.sectionBox}">
-                <p style="color: #000; font-style: italic; font-size: 12px;">
-                    <strong>Important Notice:</strong> This report is generated based on the symptoms provided and should be used for informational purposes only. 
-                    It is not a substitute for professional medical diagnosis. Please consult with a qualified healthcare provider for proper medical evaluation and treatment.
-                </p>
-                <div style="text-align: right; margin-top: 15px; font-size: 12px; color: #000;">
-                    Report ID: ${Date.now().toString(36).toUpperCase()}<br>
-                    Generated by MediMentor Healthcare System
+            <div style="${styles.diagnosisBox}">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                    <h3 style="margin: 0; color: #2c3e50; font-size: 18px;">
+                        ${index + 1}. ${name.replace('🚨', '')}
+                    </h3>
+                    <span style="${severityStyle}">
+                        ${isRedFlag ? 'Urgent' : isCommon ? 'Common' : 'Moderate'}
+                    </span>
+                </div>
+                <div style="color: #000; margin: 5px 0;">Specialty: ${specialty}</div>
+                <div style="margin: 10px 0; padding: 10px; background: #f8f9fa; border-radius: 4px; color: #000;">
+                    ${recommendation}
                 </div>
             </div>
         `;
+    });
 
-        const opt = {
-            margin: [1.5, 1, 1.5, 1],
-            filename: `MediMentor_Report_${userName.replace(/\s+/g, '_')}_${currentDate.replace(/\//g, '-')}.pdf`,
-            image: { type: 'jpeg', quality: 0.98 },
-            html2canvas: { 
-                scale: 2,
-                logging: false,
-                useCORS: true,
-                allowTaint: true
-            },
-            jsPDF: { 
-                unit: 'cm',
-                format: 'a4',
-                orientation: 'portrait'
-            },
-            pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
-        };
+    // Add disclaimer and footer
+    pdfContent.innerHTML += `
+        <div style="margin-top: 30px; ${styles.sectionBox}">
+            <p style="color: #000; font-style: italic; font-size: 12px;">
+                <strong>Important Notice:</strong> This report is generated based on the symptoms provided and should be used for informational purposes only. 
+                It is not a substitute for professional medical diagnosis. Please consult with a qualified healthcare provider for proper medical evaluation and treatment.
+            </p>
+            <div style="text-align: right; margin-top: 15px; font-size: 12px; color: #000;">
+                Report ID: ${Date.now().toString(36).toUpperCase()}<br>
+                Generated by MediMentor Healthcare System
+            </div>
+        </div>
+    `;
 
-        html2pdf().set(opt).from(pdfContent).save();
-    }
+    const opt = {
+        margin: [1.5, 1, 1.5, 1],
+        filename: `MediMentor_Report_${userName.replace(/\s+/g, '_')}_${currentDate.replace(/\//g, '-')}.pdf`,
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { 
+            scale: 2,
+            logging: false,
+            useCORS: true,
+            allowTaint: true
+        },
+        jsPDF: { 
+            unit: 'cm',
+            format: 'a4',
+            orientation: 'portrait'
+        },
+        pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
+    };
+
+    html2pdf().set(opt).from(pdfContent).save();
+}
 
     // Add event listener for the export button
     document.addEventListener('click', (event) => {
