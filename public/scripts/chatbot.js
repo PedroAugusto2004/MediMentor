@@ -712,6 +712,25 @@ function exportToPDF() {
         displayWelcomeMessage();
     };
 
+    // Function to toggle send button state
+    const toggleSendButton = () => {
+        const inputField = currentStep === 3 ? dateInput : chatInput;
+        if (inputField.value.trim() !== '') {
+            sendButton.disabled = false;
+            sendButton.classList.add('active');
+        } else {
+            sendButton.disabled = true;
+            sendButton.classList.remove('active');
+        }
+    };
+
+    // Add event listener to chat input and date input for toggling send button
+    chatInput.addEventListener('input', toggleSendButton);
+    dateInput.addEventListener('input', toggleSendButton);
+
+    // Initial call to set the correct state on page load
+    toggleSendButton();
+
     sendButton.addEventListener('click', () => {
         const userInput = currentStep === 3 ? dateInput.value : chatInput.value.trim();
         if (!userInput) return;
@@ -726,16 +745,17 @@ function exportToPDF() {
             dateInput.classList.add('hidden');
         }
         chatInput.value = '';
+        toggleSendButton(); // Reset button state after sending
     });
 
     chatInput.addEventListener('keypress', (event) => {
-        if (event.key === 'Enter') {
+        if (event.key === 'Enter' && !sendButton.disabled) {
             sendButton.click();
         }
     });
 
     dateInput.addEventListener('keypress', (event) => {
-        if (event.key === 'Enter') {
+        if (event.key === 'Enter' && !sendButton.disabled) {
             sendButton.click();
         }
     });

@@ -938,9 +938,16 @@ header .logo {
     transition: all 0.3s ease 0s;
     cursor: pointer;
     outline: none;
+    background-color: #414141b7; /* Default disabled color */
+    cursor: not-allowed;
 }
 
-#sendButton:hover {
+#sendButton.active {
+    background-color: #0067bb; /* Active color */
+    cursor: pointer;
+}
+
+#sendButton.active:hover {
     background-color: #002d52;
     box-shadow: 0px 15px 20px rgba(0, 40, 73, 0.4);
     color: #fff;
