@@ -1520,7 +1520,7 @@ main {
 }
 
 .popup-content button#confirm-logout {
-    background-color: #fff;
+    background-color: #bebebe;
     color: #000;
 }
 
@@ -1532,7 +1532,7 @@ main {
 }
 
 .popup-content button#cancel-logout {
-    background-color: #fff;
+    background-color: #bebebe;
     color: #000;
 }
 

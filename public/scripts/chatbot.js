@@ -74,7 +74,9 @@ document.addEventListener('DOMContentLoaded', () => {
         'Please select your gender using the options below:',
         'Please enter your date of birth (MM/DD/YYYY):',
         'Please click one of the region options below:',
-        'I\'m here to help with symptoms and diagnoses. Could you describe how you\'re feeling?'
+        'On a scale of 1 to 10, how severe are your symptoms?',
+        'Do you have any additional symptoms such as fever or cough?',
+        'Are there any factors that trigger or alleviate your symptoms?'
     ];
 
     const addMessage = (message, sender) => {
@@ -246,6 +248,21 @@ const processDateInput = () => {
             return null; // No need for a special response, proceed with the flow
         }
 
+        // Check for severity
+        if (step === 5 && /^[1-9]$|^10$/.test(message)) {
+            return null; // Accept severity rating between 1 and 10
+        }
+
+        // Check for additional symptoms
+        if (step === 6) {
+            return null; // Accept any input for additional symptoms
+        }
+
+        // Check for triggering/alleviating factors
+        if (step === 7) {
+            return null; // Accept any input for triggering/alleviating factors
+        }
+
         // Check for medications
         const medications = ['aspirin', 'ibuprofen', 'paracetamol'];
         if (medications.some(med => message.includes(med))) {
@@ -310,6 +327,15 @@ const processDateInput = () => {
                 return; // Invalid date, don't proceed
             case 4:
                 userInputs.region = input.toLowerCase();
+                break;
+            case 5:
+                userInputs.severity = input;
+                break;
+            case 6:
+                userInputs.additionalSymptoms = input;
+                break;
+            case 7:
+                userInputs.triggers = input;
                 await analyzeSymptoms();
                 return;
         }
@@ -592,6 +618,18 @@ function exportToPDF() {
                     <tr>
                         <td style="${styles.tableCell}"><strong>Onset Duration:</strong></td>
                         <td style="${styles.tableCell}">${userInputs.symptomStart}</td>
+                    </tr>
+                    <tr>
+                        <td style="${styles.tableCell}"><strong>Symptom Severity:</strong></td>
+                        <td style="${styles.tableCell}">${userInputs.severity}</td>
+                    </tr>
+                    <tr>
+                        <td style="${styles.tableCell}"><strong>Additional Symptoms:</strong></td>
+                        <td style="${styles.tableCell}">${userInputs.additionalSymptoms}</td>
+                    </tr>
+                    <tr>
+                        <td style="${styles.tableCell}"><strong>Triggering/Alleviating Factors:</strong></td>
+                        <td style="${styles.tableCell}">${userInputs.triggers}</td>
                     </tr>
                 </table>
             </div>
