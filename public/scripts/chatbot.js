@@ -207,6 +207,14 @@ const processDateInput = () => {
     const getBotResponse = (userMessage, step) => {
         const message = userMessage.toLowerCase();
 
+        // Add this new condition for pregnancy step
+        if (step === 'pregnancy') {
+            if (message === 'yes' || message === 'no') {
+                return null; // Accept yes/no answers
+            }
+            return "Please answer with 'yes' or 'no'.";
+        }
+
         if (step === 0) {
             const userSymptoms = message
                 .split(/,|and|\+/g)
@@ -303,19 +311,60 @@ const processDateInput = () => {
                 break;
             case 2:
                 userInputs.gender = input.toLowerCase();
-                // Check if female between 13-64
-                const birthYear = parseInt(userInputs.yearOfBirth);
-                const currentYear = new Date().getFullYear();
-                const age = currentYear - birthYear;
-                if (userInputs.gender === 'female' && age >= 13 && age <= 64) {
-                    addMessage('Are you pregnant? (yes/no)', 'bot');
+                if (userInputs.gender === 'female') {
+                    addMessage('Are you currently pregnant? (yes/no)', 'bot');
                     currentStep = 'pregnancy';
+                    chatInput.disabled = false;
+                    chatInputContainer.classList.remove('hidden');
+                    genderSelection.classList.add('hidden');
                     return;
                 }
-                break;
+                // If male, proceed to next question
+                currentStep = 3;
+                addMessage(steps[currentStep], 'bot');
+                chatInput.classList.add('hidden');
+                dateInput.classList.remove('hidden');
+                return;
             case 'pregnancy':
-                userInputs.pregnant = input.toLowerCase() === 'yes' ? 'y' : 'n';
-                break;
+                const pregnancyResponse = input.toLowerCase();
+                if (pregnancyResponse === 'yes' || pregnancyResponse === 'no') {
+                    userInputs.pregnant = pregnancyResponse === 'yes' ? 'y' : 'n';
+                    // Move to date of birth question
+                    currentStep = 3;
+                    addMessage(steps[currentStep], 'bot');
+                    
+                    // Configure date input
+                    chatInput.classList.add('hidden');
+                    dateInput.classList.remove('hidden');
+                    dateInput.value = ''; // Clear any previous value
+                    dateInput.type = 'text';
+                    dateInput.placeholder = 'MM/DD/YYYY';
+                    
+                    // Remove any previous event listeners
+                    dateInput.removeEventListener('input', formatDateInput);
+                    
+                    // Add date input formatting
+                    const formatDateInput = (e) => {
+                        let value = e.target.value.replace(/\D/g, '');
+                        if (value.length >= 2) value = value.slice(0, 2) + '/' + value.slice(2);
+                        if (value.length >= 5) value = value.slice(0, 5) + '/' + value.slice(5);
+                        if (value.length > 10) value = value.slice(0, 10);
+                        e.target.value = value;
+                        
+                        // Enable/disable send button based on valid date
+                        sendButton.disabled = !validateDate(value);
+                        if (!sendButton.disabled) {
+                            sendButton.classList.add('active');
+                        } else {
+                            sendButton.classList.remove('active');
+                        }
+                    };
+                    
+                    dateInput.addEventListener('input', formatDateInput);
+                } else {
+                    addMessage('Please answer with yes or no.', 'bot');
+                }
+                return;
             case 3:
                 const dateValue = input;
                 if (validateDate(dateValue)) {
@@ -770,20 +819,29 @@ function exportToPDF() {
     toggleSendButton();
 
     sendButton.addEventListener('click', () => {
-        const userInput = currentStep === 3 ? dateInput.value : chatInput.value.trim();
+        let userInput;
+        if (currentStep === 3) {
+            userInput = dateInput.value.trim();
+            if (!validateDate(userInput)) {
+                addMessage('Please enter a valid date in MM/DD/YYYY format.', 'bot');
+                return;
+            }
+        } else {
+            userInput = chatInput.value.trim();
+        }
+        
         if (!userInput) return;
 
         addMessage(userInput, 'user');
         handleUserInput(userInput);
         
-        // Clear inputs and restore text input after date selection
+        // Clear inputs after sending
         if (currentStep === 3) {
             dateInput.value = '';
-            chatInput.classList.remove('hidden');
-            dateInput.classList.add('hidden');
+        } else {
+            chatInput.value = '';
         }
-        chatInput.value = '';
-        toggleSendButton(); // Reset button state after sending
+        toggleSendButton();
     });
 
     chatInput.addEventListener('keypress', (event) => {
