@@ -653,6 +653,12 @@ function exportToPDF() {
                         <td style="${styles.tableCell}"><strong>Region:</strong></td>
                         <td style="${styles.tableCell}">${formattedRegion}</td>
                     </tr>
+                    ${userInputs.gender === 'female' ? `
+                    <tr>
+                        <td style="${styles.tableCell}"><strong>Pregnancy Status:</strong></td>
+                        <td style="${styles.tableCell}" colspan="3">${userInputs.pregnant === 'y' ? 'Currently Pregnant' : 'Not Pregnant'}</td>
+                    </tr>
+                    ` : ''}
                 </table>
             </div>
 
