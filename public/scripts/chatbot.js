@@ -319,11 +319,10 @@ const processDateInput = () => {
                     genderSelection.classList.add('hidden');
                     return;
                 }
-                // If male, proceed to next question
+                // If male, proceed to date of birth question
                 currentStep = 3;
                 addMessage(steps[currentStep], 'bot');
-                chatInput.classList.add('hidden');
-                dateInput.classList.remove('hidden');
+                configureDateInput();
                 return;
             case 'pregnancy':
                 const pregnancyResponse = input.toLowerCase();
@@ -332,35 +331,7 @@ const processDateInput = () => {
                     // Move to date of birth question
                     currentStep = 3;
                     addMessage(steps[currentStep], 'bot');
-                    
-                    // Configure date input
-                    chatInput.classList.add('hidden');
-                    dateInput.classList.remove('hidden');
-                    dateInput.value = ''; // Clear any previous value
-                    dateInput.type = 'text';
-                    dateInput.placeholder = 'MM/DD/YYYY';
-                    
-                    // Remove any previous event listeners
-                    dateInput.removeEventListener('input', formatDateInput);
-                    
-                    // Add date input formatting
-                    const formatDateInput = (e) => {
-                        let value = e.target.value.replace(/\D/g, '');
-                        if (value.length >= 2) value = value.slice(0, 2) + '/' + value.slice(2);
-                        if (value.length >= 5) value = value.slice(0, 5) + '/' + value.slice(5);
-                        if (value.length > 10) value = value.slice(0, 10);
-                        e.target.value = value;
-                        
-                        // Enable/disable send button based on valid date
-                        sendButton.disabled = !validateDate(value);
-                        if (!sendButton.disabled) {
-                            sendButton.classList.add('active');
-                        } else {
-                            sendButton.classList.remove('active');
-                        }
-                    };
-                    
-                    dateInput.addEventListener('input', formatDateInput);
+                    configureDateInput();
                 } else {
                     addMessage('Please answer with yes or no.', 'bot');
                 }
@@ -1041,3 +1012,33 @@ function exportToPDF() {
         }
     });
 });
+
+function configureDateInput() {
+    chatInput.classList.add('hidden');
+    dateInput.classList.remove('hidden');
+    dateInput.value = ''; // Clear any previous value
+    dateInput.type = 'text';
+    dateInput.placeholder = 'MM/DD/YYYY';
+
+    // Remove any previous event listeners
+    dateInput.removeEventListener('input', formatDateInput);
+
+    // Add date input formatting
+    const formatDateInput = (e) => {
+        let value = e.target.value.replace(/\D/g, '');
+        if (value.length >= 2) value = value.slice(0, 2) + '/' + value.slice(2);
+        if (value.length >= 5) value = value.slice(0, 5) + '/' + value.slice(5);
+        if (value.length > 10) value = value.slice(0, 10);
+        e.target.value = value;
+        
+        // Enable/disable send button based on valid date
+        sendButton.disabled = !validateDate(value);
+        if (!sendButton.disabled) {
+            sendButton.classList.add('active');
+        } else {
+            sendButton.classList.remove('active');
+        }
+    };
+    
+    dateInput.addEventListener('input', formatDateInput);
+}
