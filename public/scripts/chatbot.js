@@ -281,6 +281,7 @@ const processDateInput = () => {
         return "I can help you with symptom analysis. Could you describe your symptoms instead?";
     };
 
+    // Ensure configureDateInput is called when needed
     const handleUserInput = async (input) => {
         const botReply = getBotResponse(input, currentStep);
         if (botReply) {
@@ -366,25 +367,7 @@ const processDateInput = () => {
             chatInput.disabled = true; // Disable chat input
             chatInputContainer.classList.add('hidden');
         } else if (currentStep === 3) {
-            chatInput.disabled = false; // Re-enable chat input
-            chatInput.classList.add('hidden');
-            
-            // Configure date input for US format
-            dateInput.type = 'text'; // Change to text type instead of date
-            dateInput.setAttribute('placeholder', 'MM/DD/YYYY');
-            dateInput.setAttribute('pattern', '(0[1-9]|1[0-2])/(0[1-9]|[12][0-9]|3[01])/[0-9]{4}');
-            dateInput.setAttribute('maxlength', '10');
-            
-            // Add input validation
-            dateInput.addEventListener('input', function(e) {
-                let value = e.target.value;
-                value = value.replace(/\D/g, ''); // Remove non-digits
-                if (value.length >= 2) value = value.slice(0,2) + '/' + value.slice(2);
-                if (value.length >= 5) value = value.slice(0,5) + '/' + value.slice(5);
-                e.target.value = value;
-            });
-
-            dateInput.classList.remove('hidden');
+            configureDateInput();
         } else if (currentStep === 4) {
             regionSelection.classList.remove('hidden');
             chatInput.disabled = true; // Disable chat input
@@ -1020,12 +1003,9 @@ function configureDateInput() {
     dateInput.type = 'text';
     dateInput.placeholder = 'MM/DD/YYYY';
 
-    // Remove any previous event listeners
-    dateInput.removeEventListener('input', formatDateInput);
-
     // Add date input formatting
     const formatDateInput = (e) => {
-        let value = e.target.value.replace(/\D/g, '');
+        let value = e.target.value.replace(/\D/g, ''); // Remove non-digits
         if (value.length >= 2) value = value.slice(0, 2) + '/' + value.slice(2);
         if (value.length >= 5) value = value.slice(0, 5) + '/' + value.slice(5);
         if (value.length > 10) value = value.slice(0, 10);
