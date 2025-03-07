@@ -77,6 +77,12 @@
         "LogGroupName": "/aws/lambda/medimentor-auth-dev-app"
       }
     },
+    "ForgotPasswordLogGroup": {
+      "Type": "AWS::Logs::LogGroup",
+      "Properties": {
+        "LogGroupName": "/aws/lambda/medimentor-auth-dev-forgotPassword"
+      }
+    },
     "IamRoleLambdaExecution": {
       "Type": "AWS::IAM::Role",
       "Properties": {
@@ -162,7 +168,7 @@
           "S3Bucket": {
             "Ref": "ServerlessDeploymentBucket"
           },
-          "S3Key": "serverless/medimentor-auth/dev/1739474018336-2025-02-13T19:13:38.336Z/medimentor-auth.zip"
+          "S3Key": "serverless/medimentor-auth/dev/1741358807296-2025-03-07T14:46:47.296Z/medimentor-auth.zip"
         },
         "Handler": "server.handler",
         "Runtime": "nodejs18.x",
@@ -187,14 +193,56 @@
         "AppLogGroup"
       ]
     },
-    "AppLambdaVersiongdVxViRv3pUf5xLcajJDoby47cerreEn1Tx2OBuLbI": {
+    "ForgotPasswordLambdaFunction": {
+      "Type": "AWS::Lambda::Function",
+      "Properties": {
+        "Code": {
+          "S3Bucket": {
+            "Ref": "ServerlessDeploymentBucket"
+          },
+          "S3Key": "serverless/medimentor-auth/dev/1741358807296-2025-03-07T14:46:47.296Z/medimentor-auth.zip"
+        },
+        "Handler": "handler.forgotPassword",
+        "Runtime": "nodejs18.x",
+        "FunctionName": "medimentor-auth-dev-forgotPassword",
+        "MemorySize": 128,
+        "Timeout": 10,
+        "Environment": {
+          "Variables": {
+            "COGNITO_USER_POOL_ID": "us-east-1_d37gujEI3",
+            "COGNITO_USER_POOL_WEB_CLIENT_ID": "2vvgnjl549elp95j7gi9iit3oj",
+            "COGNITO_REGION": "us-east-1"
+          }
+        },
+        "Role": {
+          "Fn::GetAtt": [
+            "IamRoleLambdaExecution",
+            "Arn"
+          ]
+        }
+      },
+      "DependsOn": [
+        "ForgotPasswordLogGroup"
+      ]
+    },
+    "AppLambdaVersionosFRyGR3i1l91xvHbn6Dw5s84jXtxAm9dVBF6TI": {
       "Type": "AWS::Lambda::Version",
       "DeletionPolicy": "Retain",
       "Properties": {
         "FunctionName": {
           "Ref": "AppLambdaFunction"
         },
-        "CodeSha256": "fa1Fu+wx3xZekR7CkyIyv35acXGtDQKVw8JofhB3+oo="
+        "CodeSha256": "SsTu3Qrynvlc7wACbdixqxws1THQSY7kKZXEruAaQzU="
+      }
+    },
+    "ForgotPasswordLambdaVersion9BntrXBZ3RMUeccI7lE77MuUdvipGj64Lx4nMEERI": {
+      "Type": "AWS::Lambda::Version",
+      "DeletionPolicy": "Retain",
+      "Properties": {
+        "FunctionName": {
+          "Ref": "ForgotPasswordLambdaFunction"
+        },
+        "CodeSha256": "SsTu3Qrynvlc7wACbdixqxws1THQSY7kKZXEruAaQzU="
       }
     },
     "ApiGatewayRestApi": {
@@ -272,37 +320,16 @@
         }
       }
     },
-    "ApiGatewayResourceAuthForgotDashpassword": {
+    "ApiGatewayResourceForgotDashpassword": {
       "Type": "AWS::ApiGateway::Resource",
       "Properties": {
         "ParentId": {
-          "Ref": "ApiGatewayResourceAuth"
+          "Fn::GetAtt": [
+            "ApiGatewayRestApi",
+            "RootResourceId"
+          ]
         },
         "PathPart": "forgot-password",
-        "RestApiId": {
-          "Ref": "ApiGatewayRestApi"
-        }
-      }
-    },
-    "ApiGatewayResourceAuthConfirmDashpassword": {
-      "Type": "AWS::ApiGateway::Resource",
-      "Properties": {
-        "ParentId": {
-          "Ref": "ApiGatewayResourceAuth"
-        },
-        "PathPart": "confirm-password",
-        "RestApiId": {
-          "Ref": "ApiGatewayRestApi"
-        }
-      }
-    },
-    "ApiGatewayResourceAuthValidateDashtoken": {
-      "Type": "AWS::ApiGateway::Resource",
-      "Properties": {
-        "ParentId": {
-          "Ref": "ApiGatewayResourceAuth"
-        },
-        "PathPart": "validate-token",
         "RestApiId": {
           "Ref": "ApiGatewayRestApi"
         }
@@ -482,141 +509,6 @@
         },
         "ResourceId": {
           "Ref": "ApiGatewayResourceAuthResendDashcode"
-        },
-        "RestApiId": {
-          "Ref": "ApiGatewayRestApi"
-        }
-      }
-    },
-    "ApiGatewayMethodAuthForgotDashpasswordOptions": {
-      "Type": "AWS::ApiGateway::Method",
-      "Properties": {
-        "AuthorizationType": "NONE",
-        "HttpMethod": "OPTIONS",
-        "MethodResponses": [
-          {
-            "StatusCode": "200",
-            "ResponseParameters": {
-              "method.response.header.Access-Control-Allow-Origin": true,
-              "method.response.header.Access-Control-Allow-Headers": true,
-              "method.response.header.Access-Control-Allow-Methods": true
-            },
-            "ResponseModels": {}
-          }
-        ],
-        "RequestParameters": {},
-        "Integration": {
-          "Type": "MOCK",
-          "RequestTemplates": {
-            "application/json": "{statusCode:200}"
-          },
-          "ContentHandling": "CONVERT_TO_TEXT",
-          "IntegrationResponses": [
-            {
-              "StatusCode": "200",
-              "ResponseParameters": {
-                "method.response.header.Access-Control-Allow-Origin": "'*'",
-                "method.response.header.Access-Control-Allow-Headers": "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token,X-Amz-User-Agent,X-Amzn-Trace-Id'",
-                "method.response.header.Access-Control-Allow-Methods": "'OPTIONS,POST'"
-              },
-              "ResponseTemplates": {
-                "application/json": ""
-              }
-            }
-          ]
-        },
-        "ResourceId": {
-          "Ref": "ApiGatewayResourceAuthForgotDashpassword"
-        },
-        "RestApiId": {
-          "Ref": "ApiGatewayRestApi"
-        }
-      }
-    },
-    "ApiGatewayMethodAuthConfirmDashpasswordOptions": {
-      "Type": "AWS::ApiGateway::Method",
-      "Properties": {
-        "AuthorizationType": "NONE",
-        "HttpMethod": "OPTIONS",
-        "MethodResponses": [
-          {
-            "StatusCode": "200",
-            "ResponseParameters": {
-              "method.response.header.Access-Control-Allow-Origin": true,
-              "method.response.header.Access-Control-Allow-Headers": true,
-              "method.response.header.Access-Control-Allow-Methods": true
-            },
-            "ResponseModels": {}
-          }
-        ],
-        "RequestParameters": {},
-        "Integration": {
-          "Type": "MOCK",
-          "RequestTemplates": {
-            "application/json": "{statusCode:200}"
-          },
-          "ContentHandling": "CONVERT_TO_TEXT",
-          "IntegrationResponses": [
-            {
-              "StatusCode": "200",
-              "ResponseParameters": {
-                "method.response.header.Access-Control-Allow-Origin": "'*'",
-                "method.response.header.Access-Control-Allow-Headers": "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token,X-Amz-User-Agent,X-Amzn-Trace-Id'",
-                "method.response.header.Access-Control-Allow-Methods": "'OPTIONS,POST'"
-              },
-              "ResponseTemplates": {
-                "application/json": ""
-              }
-            }
-          ]
-        },
-        "ResourceId": {
-          "Ref": "ApiGatewayResourceAuthConfirmDashpassword"
-        },
-        "RestApiId": {
-          "Ref": "ApiGatewayRestApi"
-        }
-      }
-    },
-    "ApiGatewayMethodAuthValidateDashtokenOptions": {
-      "Type": "AWS::ApiGateway::Method",
-      "Properties": {
-        "AuthorizationType": "NONE",
-        "HttpMethod": "OPTIONS",
-        "MethodResponses": [
-          {
-            "StatusCode": "200",
-            "ResponseParameters": {
-              "method.response.header.Access-Control-Allow-Origin": true,
-              "method.response.header.Access-Control-Allow-Headers": true,
-              "method.response.header.Access-Control-Allow-Methods": true
-            },
-            "ResponseModels": {}
-          }
-        ],
-        "RequestParameters": {},
-        "Integration": {
-          "Type": "MOCK",
-          "RequestTemplates": {
-            "application/json": "{statusCode:200}"
-          },
-          "ContentHandling": "CONVERT_TO_TEXT",
-          "IntegrationResponses": [
-            {
-              "StatusCode": "200",
-              "ResponseParameters": {
-                "method.response.header.Access-Control-Allow-Origin": "'*'",
-                "method.response.header.Access-Control-Allow-Headers": "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token,X-Amz-User-Agent,X-Amzn-Trace-Id'",
-                "method.response.header.Access-Control-Allow-Methods": "'OPTIONS,GET'"
-              },
-              "ResponseTemplates": {
-                "application/json": ""
-              }
-            }
-          ]
-        },
-        "ResourceId": {
-          "Ref": "ApiGatewayResourceAuthValidateDashtoken"
         },
         "RestApiId": {
           "Ref": "ApiGatewayRestApi"
@@ -807,13 +699,13 @@
         "AppLambdaPermissionApiGateway"
       ]
     },
-    "ApiGatewayMethodAuthForgotDashpasswordPost": {
+    "ApiGatewayMethodForgotDashpasswordPost": {
       "Type": "AWS::ApiGateway::Method",
       "Properties": {
         "HttpMethod": "POST",
         "RequestParameters": {},
         "ResourceId": {
-          "Ref": "ApiGatewayResourceAuthForgotDashpassword"
+          "Ref": "ApiGatewayResourceForgotDashpassword"
         },
         "RestApiId": {
           "Ref": "ApiGatewayRestApi"
@@ -838,7 +730,7 @@
                 ":lambda:path/2015-03-31/functions/",
                 {
                   "Fn::GetAtt": [
-                    "AppLambdaFunction",
+                    "ForgotPasswordLambdaFunction",
                     "Arn"
                   ]
                 },
@@ -850,102 +742,10 @@
         "MethodResponses": []
       },
       "DependsOn": [
-        "AppLambdaPermissionApiGateway"
+        "ForgotPasswordLambdaPermissionApiGateway"
       ]
     },
-    "ApiGatewayMethodAuthConfirmDashpasswordPost": {
-      "Type": "AWS::ApiGateway::Method",
-      "Properties": {
-        "HttpMethod": "POST",
-        "RequestParameters": {},
-        "ResourceId": {
-          "Ref": "ApiGatewayResourceAuthConfirmDashpassword"
-        },
-        "RestApiId": {
-          "Ref": "ApiGatewayRestApi"
-        },
-        "ApiKeyRequired": false,
-        "AuthorizationType": "NONE",
-        "Integration": {
-          "IntegrationHttpMethod": "POST",
-          "Type": "AWS_PROXY",
-          "Uri": {
-            "Fn::Join": [
-              "",
-              [
-                "arn:",
-                {
-                  "Ref": "AWS::Partition"
-                },
-                ":apigateway:",
-                {
-                  "Ref": "AWS::Region"
-                },
-                ":lambda:path/2015-03-31/functions/",
-                {
-                  "Fn::GetAtt": [
-                    "AppLambdaFunction",
-                    "Arn"
-                  ]
-                },
-                "/invocations"
-              ]
-            ]
-          }
-        },
-        "MethodResponses": []
-      },
-      "DependsOn": [
-        "AppLambdaPermissionApiGateway"
-      ]
-    },
-    "ApiGatewayMethodAuthValidateDashtokenGet": {
-      "Type": "AWS::ApiGateway::Method",
-      "Properties": {
-        "HttpMethod": "GET",
-        "RequestParameters": {},
-        "ResourceId": {
-          "Ref": "ApiGatewayResourceAuthValidateDashtoken"
-        },
-        "RestApiId": {
-          "Ref": "ApiGatewayRestApi"
-        },
-        "ApiKeyRequired": false,
-        "AuthorizationType": "NONE",
-        "Integration": {
-          "IntegrationHttpMethod": "POST",
-          "Type": "AWS_PROXY",
-          "Uri": {
-            "Fn::Join": [
-              "",
-              [
-                "arn:",
-                {
-                  "Ref": "AWS::Partition"
-                },
-                ":apigateway:",
-                {
-                  "Ref": "AWS::Region"
-                },
-                ":lambda:path/2015-03-31/functions/",
-                {
-                  "Fn::GetAtt": [
-                    "AppLambdaFunction",
-                    "Arn"
-                  ]
-                },
-                "/invocations"
-              ]
-            ]
-          }
-        },
-        "MethodResponses": []
-      },
-      "DependsOn": [
-        "AppLambdaPermissionApiGateway"
-      ]
-    },
-    "ApiGatewayDeployment1739473814267": {
+    "ApiGatewayDeployment1741358607228": {
       "Type": "AWS::ApiGateway::Deployment",
       "Properties": {
         "RestApiId": {
@@ -958,16 +758,11 @@
         "ApiGatewayMethodAuthSignupOptions",
         "ApiGatewayMethodAuthConfirmOptions",
         "ApiGatewayMethodAuthResendDashcodeOptions",
-        "ApiGatewayMethodAuthForgotDashpasswordOptions",
-        "ApiGatewayMethodAuthConfirmDashpasswordOptions",
-        "ApiGatewayMethodAuthValidateDashtokenOptions",
         "ApiGatewayMethodAuthLoginPost",
         "ApiGatewayMethodAuthSignupPost",
         "ApiGatewayMethodAuthConfirmPost",
         "ApiGatewayMethodAuthResendDashcodePost",
-        "ApiGatewayMethodAuthForgotDashpasswordPost",
-        "ApiGatewayMethodAuthConfirmDashpasswordPost",
-        "ApiGatewayMethodAuthValidateDashtokenGet"
+        "ApiGatewayMethodForgotDashpasswordPost"
       ]
     },
     "AppLambdaPermissionApiGateway": {
@@ -976,6 +771,43 @@
         "FunctionName": {
           "Fn::GetAtt": [
             "AppLambdaFunction",
+            "Arn"
+          ]
+        },
+        "Action": "lambda:InvokeFunction",
+        "Principal": "apigateway.amazonaws.com",
+        "SourceArn": {
+          "Fn::Join": [
+            "",
+            [
+              "arn:",
+              {
+                "Ref": "AWS::Partition"
+              },
+              ":execute-api:",
+              {
+                "Ref": "AWS::Region"
+              },
+              ":",
+              {
+                "Ref": "AWS::AccountId"
+              },
+              ":",
+              {
+                "Ref": "ApiGatewayRestApi"
+              },
+              "/*/*"
+            ]
+          ]
+        }
+      }
+    },
+    "ForgotPasswordLambdaPermissionApiGateway": {
+      "Type": "AWS::Lambda::Permission",
+      "Properties": {
+        "FunctionName": {
+          "Fn::GetAtt": [
+            "ForgotPasswordLambdaFunction",
             "Arn"
           ]
         },
@@ -1020,10 +852,19 @@
     "AppLambdaFunctionQualifiedArn": {
       "Description": "Current Lambda function version",
       "Value": {
-        "Ref": "AppLambdaVersiongdVxViRv3pUf5xLcajJDoby47cerreEn1Tx2OBuLbI"
+        "Ref": "AppLambdaVersionosFRyGR3i1l91xvHbn6Dw5s84jXtxAm9dVBF6TI"
       },
       "Export": {
         "Name": "sls-medimentor-auth-dev-AppLambdaFunctionQualifiedArn"
+      }
+    },
+    "ForgotPasswordLambdaFunctionQualifiedArn": {
+      "Description": "Current Lambda function version",
+      "Value": {
+        "Ref": "ForgotPasswordLambdaVersion9BntrXBZ3RMUeccI7lE77MuUdvipGj64Lx4nMEERI"
+      },
+      "Export": {
+        "Name": "sls-medimentor-auth-dev-ForgotPasswordLambdaFunctionQualifiedArn"
       }
     },
     "ServiceEndpoint": {
