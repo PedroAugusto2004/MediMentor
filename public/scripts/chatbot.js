@@ -215,17 +215,26 @@ const processDateInput = () => {
             return "Please answer with 'yes' or 'no'.";
         }
 
+        // Update the step 0 condition in getBotResponse function
         if (step === 0) {
             const userSymptoms = message
                 .split(/,|and|\+/g)
                 .map(s => s.trim().toLowerCase())
                 .filter(s => s.length > 0);
 
-            if (userSymptoms.length > 0) {
-                return null; // Accept any non-empty symptoms since we're using the API
+            // Check if the input is empty
+            if (userSymptoms.length === 0) {
+                return "Please describe your symptoms. You can type to see suggestions and list multiple symptoms separated by commas.";
             }
 
-            return "Please describe your symptoms. You can type to see suggestions and list multiple symptoms separated by commas.";
+            // Check if it's a question or non-symptom input
+            if (message.includes('?') || 
+                /\b(hello|hi|hey|help|restart|what|who|why|where|when|how)\b/i.test(message)) {
+                return "I'm here to analyze your symptoms. Please tell me what symptoms you're experiencing. Start typing to see suggestions.";
+            }
+
+            // Input contains potential symptoms - let the API validation handle it
+            return null;
         }
 
         // Enhanced date understanding for step 1
