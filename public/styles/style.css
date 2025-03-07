@@ -183,7 +183,6 @@ body {
 
 /* Header styles */
 header {
-    background: var(--primary-color);
     color: #fff;
     padding: 0.4rem 1rem; /* Reduced padding */
     min-height: 55px; /* Reduced height */
@@ -204,6 +203,14 @@ header .logo {
     width: 50px; /* Reduced from 80px */
     height: 50px; /* Reduced from 80px */
     object-fit: contain;
+}
+
+.logo span {
+    color: rgb(31, 31, 31); /* Default color for light mode */
+}
+
+[data-theme="dark"] .logo span {
+    color: white; /* Color for dark mode */
 }
 
 /* Hero section styles */
