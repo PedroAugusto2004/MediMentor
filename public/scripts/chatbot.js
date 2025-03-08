@@ -18,7 +18,6 @@ document.addEventListener('DOMContentLoaded', () => {
         pregnant: 'n'
     };
 
-
     let currentStep = 0;
     let triageStep = 0;
 
@@ -103,16 +102,15 @@ document.addEventListener('DOMContentLoaded', () => {
             
             // Scroll to the new message
             messageElement.scrollIntoView({ behavior: 'smooth', block: 'end' });
-        }, sender === 'bot' ? 1000 : 0); // Add delay for bot messages
+        }, sender === 'bot' ? 1000 : 0);
     };
 
-    // Add these utility functions at the top level
+    // Utility functions for date parsing/formatting remain unchanged
     const parseRelativeDate = (input) => {
         const text = input.toLowerCase().trim();
         const today = new Date();
         const daysOfWeek = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
         
-        // Handle "X days/weeks/months ago"
         const agoMatch = text.match(/(\d+)\s*(day|week|month|year)s?\s*ago/);
         if (agoMatch) {
             const [_, number, unit] = agoMatch;
@@ -126,7 +124,6 @@ document.addEventListener('DOMContentLoaded', () => {
             return { date, duration: `${number} ${unit}${number > 1 ? 's' : ''}` };
         }
 
-        // Handle "yesterday", "today", etc.
         if (text === 'yesterday') {
             const date = new Date();
             date.setDate(date.getDate() - 1);
@@ -136,18 +133,16 @@ document.addEventListener('DOMContentLoaded', () => {
             return { date: today, duration: 'today' };
         }
 
-        // Handle day names (e.g., "last Monday")
         const dayMatch = text.match(/(last\s+)?(monday|tuesday|wednesday|thursday|friday|saturday|sunday)/);
         if (dayMatch) {
             const targetDay = daysOfWeek.indexOf(dayMatch[2]);
             const date = new Date();
             let diff = targetDay - date.getDay();
-            if (diff >= 0 || dayMatch[1]) diff -= 7; // Go to previous week if it's "last" or the day has passed
+            if (diff >= 0 || dayMatch[1]) diff -= 7;
             date.setDate(date.getDate() + diff);
             return { date, duration: `since ${dayMatch[2]}` };
         }
 
-        // Handle "X weeks/months" without "ago"
         const timeMatch = text.match(/(\d+)\s*(day|week|month|year)s?/);
         if (timeMatch) {
             return parseRelativeDate(`${timeMatch[1]} ${timeMatch[2]}s ago`);
@@ -155,79 +150,68 @@ document.addEventListener('DOMContentLoaded', () => {
 
         return null;
     };
-// Function to format date to MM/DD/YYYY
-const formatDateToAmerican = (date) => {
-    const [year, month, day] = date.split('-');
-    return `${month}/${day}/${year}`;
-};
 
-// Function to parse American date format to YYYY-MM-DD
-const parseAmericanDate = (date) => {
-    const [month, day, year] = date.split('/');
-    return `${year}-${month}-${day}`;
-};
+    const formatDateToAmerican = (date) => {
+        const [year, month, day] = date.split('-');
+        return `${month}/${day}/${year}`;
+    };
 
-// Add this function after the date format functions
-const validateDate = (date) => {
-    const regex = /^(0[1-9]|1[0-2])\/(0[1-9]|[12][0-9]|3[01])\/\d{4}$/;
-    if (!regex.test(date)) return false;
-    
-    const [month, day, year] = date.split('/').map(Number);
-    const d = new Date(year, month - 1, day);
-    
-    return d.getMonth() === month - 1 && 
-           d.getDate() === day && 
-           d.getFullYear() === year &&
-           year >= 1900 && 
-           year <= new Date().getFullYear();
-};
+    const parseAmericanDate = (date) => {
+        const [month, day, year] = date.split('/');
+        return `${year}-${month}-${day}`;
+    };
 
-// Example usage when setting or getting the date
-dateInput.addEventListener('change', (event) => {
-    const value = event.target.value;
-    if (!validateDate(value)) {
-        event.target.setCustomValidity('Please enter a valid date in MM/DD/YYYY format');
-        return;
-    }
-    event.target.setCustomValidity('');
-    const americanDate = formatDateToAmerican(event.target.value);
-    console.log('American Date Format:', americanDate);
-    // Use americanDate as needed
-});
+    const validateDate = (date) => {
+        const regex = /^(0[1-9]|1[0-2])\/(0[1-9]|[12][0-9]|3[01])\/\d{4}$/;
+        if (!regex.test(date)) return false;
+        
+        const [month, day, year] = date.split('/').map(Number);
+        const d = new Date(year, month - 1, day);
+        
+        return d.getMonth() === month - 1 && 
+               d.getDate() === day && 
+               d.getFullYear() === year &&
+               year >= 1900 && 
+               year <= new Date().getFullYear();
+    };
 
-// When submitting or processing the date
-const processDateInput = () => {
-    const americanDate = dateInput.value;
-    const isoDate = parseAmericanDate(americanDate);
-    console.log('ISO Date Format:', isoDate);
-    // Use isoDate for further processing
-};
+    dateInput.addEventListener('change', (event) => {
+        const value = event.target.value;
+        if (!validateDate(value)) {
+            event.target.setCustomValidity('Please enter a valid date in MM/DD/YYYY format');
+            return;
+        }
+        event.target.setCustomValidity('');
+        const americanDate = formatDateToAmerican(event.target.value);
+        console.log('American Date Format:', americanDate);
+    });
 
-    // Update the getBotResponse function
+    const processDateInput = () => {
+        const americanDate = dateInput.value;
+        const isoDate = parseAmericanDate(americanDate);
+        console.log('ISO Date Format:', isoDate);
+    };
+
     const getBotResponse = (userMessage, step) => {
         const message = userMessage.toLowerCase();
 
-        // Add this new condition for pregnancy step
         if (step === 'pregnancy') {
             if (message === 'yes' || message === 'no') {
-                return null; // Accept yes/no answers
+                return null;
             }
             return "Please answer with 'yes' or 'no'.";
         }
 
-        // Update the step 0 condition in getBotResponse function
         if (step === 0) {
             const userSymptoms = message
                 .split(/,|and|\+/g)
                 .map(s => s.trim().toLowerCase())
                 .filter(s => s.length > 0);
 
-            // Check if input is empty
             if (userSymptoms.length === 0) {
                 return "Please describe your symptoms. You can type to see suggestions and list multiple symptoms separated by commas.";
             }
 
-            // Check for non-symptom inputs first
             if (message.includes('?') || 
                 /\b(hello|hi|hey|help|restart)\b/i.test(message) ||
                 /\b(what|who|why|where|when|how)\b/.test(message) ||
@@ -235,30 +219,24 @@ const processDateInput = () => {
                 return "I'm here to analyze your symptoms. Please tell me what symptoms you're experiencing. Start typing to see suggestions.";
             }
 
-            // Check for common non-medical words or phrases
             const nonMedicalWords = /\b(weather|stock|movie|food|game|play|time|work|school)\b/i;
             if (nonMedicalWords.test(message)) {
                 return "Please describe only your medical symptoms. For example: headache, fever, cough, etc.";
             }
 
-            // Check if user is trying to enter a diagnosis instead of symptoms
             const commonDiagnoses = /\b(cancer|diabetes|covid|flu|arthritis|depression)\b/i;
             if (commonDiagnoses.test(message)) {
                 return "Please describe your symptoms rather than a diagnosis. What symptoms are you experiencing?";
             }
 
-            // Check if the input appears to be conversational
             const conversationalPattern = /\b(can you|could you|would you|i want|i need|i would like)\b/i;
             if (conversationalPattern.test(message)) {
                 return "Please directly state your symptoms. For example: headache, fever, cough, etc.";
             }
 
-            // If none of the above patterns match, assume it's a valid symptom input
-            // The actual validation will happen through the Isabel API
             return null;
         }
 
-        // Enhanced date understanding for step 1
         if (step === 1) {
             const parsedDate = parseRelativeDate(message);
             if (parsedDate) {
@@ -266,52 +244,42 @@ const processDateInput = () => {
                 userInputs.symptomDuration = parsedDate.duration;
                 return null;
             }
-            // If we can't parse the date, ask for clarification
             return "Could you please specify when the symptoms started? For example: '2 days ago' or 'last Monday'";
         }
 
-        // Check for gender
         if (step === 2 && (message === 'male' || message === 'female')) {
-            return null; // No need for a special response, proceed with the flow
+            return null;
         }
 
-        // Check for date of birth
         if (step === 3 && /^(0[1-9]|1[0-2])\/(0[1-9]|[12][0-9]|3[01])\/\d{4}$/.test(message)) {
-            return null; // No need for a special response, proceed with the flow
+            return null;
         }
 
-        // Check for region
         const regions = ['north-america', 'europe', 'asia', 'africa', 'south-america', 'australia'];
         if (step === 4 && regions.includes(message)) {
-            return null; // No need for a special response, proceed with the flow
+            return null;
         }
 
-        // Check for severity
         if (step === 5 && /^[1-9]$|^10$/.test(message)) {
-            return null; // Accept severity rating between 1 and 10
+            return null;
         }
 
-        // Check for additional symptoms
         if (step === 6) {
-            return null; // Accept any input for additional symptoms
+            return null;
         }
 
-        // Check for triggering/alleviating factors
         if (step === 7) {
-            return null; // Accept any input for triggering/alleviating factors
+            return null;
         }
 
-        // Check for medications
         const medications = ['aspirin', 'ibuprofen', 'paracetamol'];
         if (medications.some(med => message.includes(med))) {
             return "I'm unable to provide medication advice. Could you tell me more about your symptoms instead?";
         }
 
-        // Default response for unrelated inputs
         return "I can help you with symptom analysis. Could you describe your symptoms instead?";
     };
 
-    // Ensure configureDateInput is called when needed
     const handleUserInput = async (input) => {
         const botReply = getBotResponse(input, currentStep);
         if (botReply) {
@@ -350,7 +318,6 @@ const processDateInput = () => {
                     genderSelection.classList.add('hidden');
                     return;
                 }
-                // If male, proceed to date of birth question
                 currentStep = 3;
                 addMessage(steps[currentStep], 'bot');
                 configureDateInput();
@@ -359,7 +326,6 @@ const processDateInput = () => {
                 const pregnancyResponse = input.toLowerCase();
                 if (pregnancyResponse === 'yes' || pregnancyResponse === 'no') {
                     userInputs.pregnant = pregnancyResponse === 'yes' ? 'y' : 'n';
-                    // Move to date of birth question
                     currentStep = 3;
                     addMessage(steps[currentStep], 'bot');
                     configureDateInput();
@@ -370,12 +336,12 @@ const processDateInput = () => {
             case 3:
                 const dateValue = input;
                 if (validateDate(dateValue)) {
-                    userInputs.yearOfBirth = dateValue; // Store the full date MM/DD/YYYY
+                    userInputs.yearOfBirth = dateValue;
                     chatInput.classList.remove('hidden');
                     dateInput.classList.add('hidden');
                     break;
                 }
-                return; // Invalid date, don't proceed
+                return;
             case 4:
                 userInputs.region = input.toLowerCase();
                 break;
@@ -394,13 +360,13 @@ const processDateInput = () => {
         addMessage(steps[currentStep], 'bot');
         if (currentStep === 2) {
             genderSelection.classList.remove('hidden');
-            chatInput.disabled = true; // Disable chat input
+            chatInput.disabled = true;
             chatInputContainer.classList.add('hidden');
         } else if (currentStep === 3) {
             configureDateInput();
         } else if (currentStep === 4) {
             regionSelection.classList.remove('hidden');
-            chatInput.disabled = true; // Disable chat input
+            chatInput.disabled = true;
             chatInputContainer.classList.add('hidden');
         } else {
             chatInputContainer.classList.remove('hidden');
@@ -408,32 +374,31 @@ const processDateInput = () => {
             regionSelection.classList.add('hidden');
             chatInput.classList.remove('hidden');
             dateInput.classList.add('hidden');
-            chatInput.disabled = false; // Ensure chat input is enabled
+            chatInput.disabled = false;
         }
     };
 
-    // Update the loading spinner visibility handling in the analyzeSymptoms function
+    // Updated analyzeSymptoms function with new API endpoint and diagnosis mapping
     const analyzeSymptoms = async () => {
         const loadingSpinner = document.getElementById('loadingSpinner');
-        // Show loading overlay with animation
         loadingSpinner.classList.add('visible');
         
         try {
-            // Convert symptoms array to string array of actual symptom names
             const symptomNames = userInputs.symptoms
                 .map(symptom => symptom.trim().toLowerCase())
-                .filter(Boolean); // Remove empty strings
+                .filter(Boolean);
 
             const payload = {
                 symptoms: symptomNames,
                 gender: userInputs.gender.toLowerCase(),
-                yearOfBirth: userInputs.yearOfBirth.split('/')[2], // Extract just the year for the API
+                yearOfBirth: userInputs.yearOfBirth.split('/')[2],
                 region: userInputs.region.toLowerCase().replace('-', ' ')
             };
 
             console.log('Request payload:', payload);
 
-            const API_URL = 'https://1n6ajiuic7.execute-api.us-east-1.amazonaws.com/dev/analyze-symptoms';
+            // Updated endpoint URL
+            const API_URL = 'https://ozx557ly3h.execute-api.us-east-1.amazonaws.com/dev/analyze-symptoms';
 
             const response = await fetch(API_URL, {
                 method: 'POST',
@@ -454,31 +419,29 @@ const processDateInput = () => {
                 throw new Error(`Server returned ${response.status}: ${data.error || 'Unknown error'}`);
             }
 
-            const loadingSpinner = document.getElementById('loadingSpinner');
             loadingSpinner.classList.remove('hidden');
 
             if (!data.diagnoses || !Array.isArray(data.diagnoses)) {
                 throw new Error('Invalid response format: missing diagnoses array');
             }
 
-            // Process and display diagnoses
+            // Process and display diagnoses using boolean values directly
             const topDiagnoses = data.diagnoses.slice(0, 3);
             topDiagnoses.forEach(diagnosis => {
                 addDiagnosisToChat({
                     name: diagnosis.diagnosis_name,
                     specialty: diagnosis.specialty,
-                    redFlag: diagnosis.red_flag === "true",
-                    common: diagnosis.common_diagnosis === "true",
-                    explanation: `This condition is ${diagnosis.common_diagnosis === "true" ? "common" : "less common"} and ${diagnosis.red_flag === "true" ? "requires immediate medical attention" : "may be managed with appropriate care"}.`,
+                    redFlag: diagnosis.red_flag, // Using boolean value directly
+                    common: diagnosis.common_diagnosis, // Using boolean value directly
+                    explanation: `This condition is ${diagnosis.common_diagnosis ? "common" : "less common"} and ${diagnosis.red_flag ? "requires immediate medical attention" : "may be managed with appropriate care"}.`,
                     description: `This is a ${diagnosis.specialty.toLowerCase()} related condition.`,
                     knowledgeUrl: diagnosis.knowledge_window_api_url,
-                    recommendation: diagnosis.red_flag === "true" ? 
+                    recommendation: diagnosis.red_flag ? 
                         "Seek immediate medical attention" : 
                         "Consult with a healthcare provider for proper evaluation"
                 });
             });
 
-            // After displaying all diagnoses
             setTimeout(() => {
                 endChat();
             }, 1000);
@@ -492,38 +455,32 @@ const processDateInput = () => {
         }
     };
 
-// Add this after the analyzeSymptoms function
+    function disableChat() {
+        const elements = {
+            chatInput: document.getElementById('chatInput'),
+            sendButton: document.getElementById('sendButton'),
+            dateInput: document.getElementById('dateInput'),
+            chatInputContainer: document.getElementById('chatInputContainer'),
+            genderSelection: document.getElementById('genderSelection'),
+            regionSelection: document.getElementById('regionSelection')
+        };
 
-function disableChat() {
-    // Disable all input elements
-    const elements = {
-        chatInput: document.getElementById('chatInput'),
-        sendButton: document.getElementById('sendButton'),
-        dateInput: document.getElementById('dateInput'),
-        chatInputContainer: document.getElementById('chatInputContainer'),
-        genderSelection: document.getElementById('genderSelection'),
-        regionSelection: document.getElementById('regionSelection')
-    };
+        elements.chatInput.disabled = true;
+        elements.sendButton.disabled = true;
+        elements.dateInput.disabled = true;
 
-    // Disable inputs
-    elements.chatInput.disabled = true;
-    elements.sendButton.disabled = true;
-    elements.dateInput.disabled = true;
+        elements.chatInputContainer.classList.add('hidden');
+        elements.genderSelection.classList.add('hidden');
+        elements.regionSelection.classList.add('hidden');
 
-    // Hide input containers
-    elements.chatInputContainer.classList.add('hidden');
-    elements.genderSelection.classList.add('hidden');
-    elements.regionSelection.classList.add('hidden');
-
-    // Add message about chat being ended
-    const endMessage = `
-        <div class="end-chat-message error">
-            <p>This chat session has ended. Please click the restart button to begin a new consultation.</p>
-            <p class="disclaimer">If you were in the middle of symptom analysis, we recommend starting a new session.</p>
-        </div>
-    `;
-    addMessage(endMessage, 'bot');
-}
+        const endMessage = `
+            <div class="end-chat-message error">
+                <p>This chat session has ended. Please click the restart button to begin a new consultation.</p>
+                <p class="disclaimer">If you were in the middle of symptom analysis, we recommend starting a new session.</p>
+            </div>
+        `;
+        addMessage(endMessage, 'bot');
+    }
 
     function addDiagnosisToChat(diagnosis) {
         const severityClass = diagnosis.redFlag ? 'recommendation-severe' : 
@@ -536,7 +493,6 @@ function disableChat() {
             mild: 'ℹ️'
         };
 
-        // Format disease name for Wikipedia URL
         const wikipediaUrl = `https://en.wikipedia.org/wiki/${encodeURIComponent(diagnosis.name.replace(/ /g, '_'))}`;
 
         const diagnosisHtml = `
@@ -590,9 +546,7 @@ function disableChat() {
         addMessage(diagnosisHtml, 'bot');
     }
 
-    // Add this function after addDiagnosisToChat
     function endChat() {
-        // Disable input and send button
         const chatInput = document.getElementById('chatInput');
         const sendButton = document.getElementById('sendButton');
         const dateInput = document.getElementById('dateInput');
@@ -602,7 +556,6 @@ function disableChat() {
         sendButton.disabled = true;
         dateInput.disabled = true;
 
-        // Add end chat message with export button
         const endMessage = `
             <div class="end-chat-message">
                 <p>Chat session completed. Please click the restart button to start a new consultation.</p>
@@ -616,168 +569,157 @@ function disableChat() {
         `;
         addMessage(endMessage, 'bot');
 
-        // Hide input container
         chatInputContainer.classList.add('hidden');
     }
 
-    // Update the PDF generation section in the exportToPDF function:
+    function exportToPDF() {
+        const userName = localStorage.getItem('userName') || 'Patient';
+        const currentDate = new Date().toLocaleDateString();
+        const currentTime = new Date().toLocaleTimeString();
+        const formattedRegion = userInputs.region.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+        const formattedGender = userInputs.gender.charAt(0).toUpperCase() + userInputs.gender.slice(1);
 
-function exportToPDF() {
-    const userName = localStorage.getItem('userName') || 'Patient';
-    const currentDate = new Date().toLocaleDateString();
-    const currentTime = new Date().toLocaleTimeString();
-    const formattedRegion = userInputs.region.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
-    const formattedGender = userInputs.gender.charAt(0).toUpperCase() + userInputs.gender.slice(1);
+        const styles = {
+            header: 'color: #007acc; font-size: 24px; margin: 10px 0; font-weight: bold;',
+            subHeader: 'color: #333; font-size: 18px; border-bottom: 2px solid #007acc; padding-bottom: 5px; margin: 20px 0 10px 0;',
+            sectionBox: 'background: #f8f9fa; border: 1px solid #e9ecef; border-radius: 8px; padding: 15px; margin: 15px 0;',
+            table: 'width: 100%; border-collapse: collapse; margin: 10px 0;',
+            tableCell: 'padding: 8px; border-bottom: 1px solid #dee2e6; color: #000;',
+            diagnosisBox: 'background: #fff; border: 1px solid #ddd; border-radius: 8px; padding: 15px; margin: 10px 0; page-break-inside: avoid;',
+            severityBadge: {
+                severe: 'background: #dc3545; color: white; padding: 3px 8px; border-radius: 4px; font-size: 12px;',
+                moderate: 'background: #ffc107; color: black; padding: 3px 8px; border-radius: 4px; font-size: 12px;',
+                mild: 'background: #28a745; color: white; padding: 3px 8px; border-radius: 4px; font-size: 12px;'
+            },
+            text: 'color: #000;'
+        };
 
-    // PDF Styles
-    const styles = {
-        header: 'color: #007acc; font-size: 24px; margin: 10px 0; font-weight: bold;',
-        subHeader: 'color: #333; font-size: 18px; border-bottom: 2px solid #007acc; padding-bottom: 5px; margin: 20px 0 10px 0;',
-        sectionBox: 'background: #f8f9fa; border: 1px solid #e9ecef; border-radius: 8px; padding: 15px; margin: 15px 0;',
-        table: 'width: 100%; border-collapse: collapse; margin: 10px 0;',
-        tableCell: 'padding: 8px; border-bottom: 1px solid #dee2e6; color: #000;', // Added color: #000
-        diagnosisBox: 'background: #fff; border: 1px solid #ddd; border-radius: 8px; padding: 15px; margin: 10px 0; page-break-inside: avoid;',
-        severityBadge: {
-            severe: 'background: #dc3545; color: white; padding: 3px 8px; border-radius: 4px; font-size: 12px;',
-            moderate: 'background: #ffc107; color: black; padding: 3px 8px; border-radius: 4px; font-size: 12px;',
-            mild: 'background: #28a745; color: white; padding: 3px 8px; border-radius: 4px; font-size: 12px;'
-        },
-        text: 'color: #000;' // Added new style for regular text
-    };
+        const pdfContent = document.createElement('div');
+        pdfContent.innerHTML = `
+            <div style="padding: 20px; width: 210mm;">
+                <div style="text-align: center; ${styles.sectionBox}">
+                    <img src="assets/images/logo1.png" alt="MediMentor Logo" style="width: 80px; height: 80px;">
+                    <h1 style="${styles.header}">Medical Consultation Report</h1>
+                    <p style="${styles.text}">Generated on ${currentDate} at ${currentTime}</p>
+                </div>
 
-    const pdfContent = document.createElement('div');
-    pdfContent.innerHTML = `
-        <div style="padding: 20px; width: 210mm;">
-            <!-- Header Section -->
-            <div style="text-align: center; ${styles.sectionBox}">
-                <img src="assets/images/logo1.png" alt="MediMentor Logo" style="width: 80px; height: 80px;">
-                <h1 style="${styles.header}">Medical Consultation Report</h1>
-                <p style="${styles.text}">Generated on ${currentDate} at ${currentTime}</p>
-            </div>
+                <div style="${styles.sectionBox}">
+                    <h2 style="${styles.subHeader}">Patient Information</h2>
+                    <table style="${styles.table}">
+                        <tr>
+                            <td style="${styles.tableCell}"><strong>Patient Name:</strong></td>
+                            <td style="${styles.tableCell}">${userName}</td>
+                            <td style="${styles.tableCell}"><strong>Gender:</strong></td>
+                            <td style="${styles.tableCell}">${formattedGender}</td>
+                        </tr>
+                        <tr>
+                            <td style="${styles.tableCell}"><strong>Date of Birth:</strong></td>
+                            <td style="${styles.tableCell}">${userInputs.yearOfBirth.includes('/') ? userInputs.yearOfBirth : 'Not provided'}</td>
+                            <td style="${styles.tableCell}"><strong>Region:</strong></td>
+                            <td style="${styles.tableCell}">${formattedRegion}</td>
+                        </tr>
+                        ${userInputs.gender === 'female' ? `
+                        <tr>
+                            <td style="${styles.tableCell}"><strong>Pregnancy Status:</strong></td>
+                            <td style="${styles.tableCell}" colspan="3">${userInputs.pregnant === 'y' ? 'Currently Pregnant' : 'Not Pregnant'}</td>
+                        </tr>
+                        ` : ''}
+                    </table>
+                </div>
 
-            <!-- Patient Information Section -->
-            <div style="${styles.sectionBox}">
-                <h2 style="${styles.subHeader}">Patient Information</h2>
-                <table style="${styles.table}">
-                    <tr>
-                        <td style="${styles.tableCell}"><strong>Patient Name:</strong></td>
-                        <td style="${styles.tableCell}">${userName}</td>
-                        <td style="${styles.tableCell}"><strong>Gender:</strong></td>
-                        <td style="${styles.tableCell}">${formattedGender}</td>
-                    </tr>
-                    <tr>
-                        <td style="${styles.tableCell}"><strong>Date of Birth:</strong></td>
-                        <td style="${styles.tableCell}">${userInputs.yearOfBirth.includes('/') ? userInputs.yearOfBirth : 'Not provided'}</td>
-                        <td style="${styles.tableCell}"><strong>Region:</strong></td>
-                        <td style="${styles.tableCell}">${formattedRegion}</td>
-                    </tr>
-                    ${userInputs.gender === 'female' ? `
-                    <tr>
-                        <td style="${styles.tableCell}"><strong>Pregnancy Status:</strong></td>
-                        <td style="${styles.tableCell}" colspan="3">${userInputs.pregnant === 'y' ? 'Currently Pregnant' : 'Not Pregnant'}</td>
-                    </tr>
-                    ` : ''}
-                </table>
-            </div>
+                <div style="${styles.sectionBox}">
+                    <h2 style="${styles.subHeader}">Symptoms Assessment</h2>
+                    <table style="${styles.table}">
+                        <tr>
+                            <td style="${styles.tableCell}"><strong>Reported Symptoms:</strong></td>
+                            <td style="${styles.tableCell}">${userInputs.symptoms.join(', ')}</td>
+                        </tr>
+                        <tr>
+                            <td style="${styles.tableCell}"><strong>Onset Duration:</strong></td>
+                            <td style="${styles.tableCell}">${userInputs.symptomStart}</td>
+                        </tr>
+                        <tr>
+                            <td style="${styles.tableCell}"><strong>Symptom Severity:</strong></td>
+                            <td style="${styles.tableCell}">${userInputs.severity}</td>
+                        </tr>
+                        <tr>
+                            <td style="${styles.tableCell}"><strong>Additional Symptoms:</strong></td>
+                            <td style="${styles.tableCell}">${userInputs.additionalSymptoms}</td>
+                        </tr>
+                        <tr>
+                            <td style="${styles.tableCell}"><strong>Triggering/Alleviating Factors:</strong></td>
+                            <td style="${styles.tableCell}">${userInputs.triggers}</td>
+                        </tr>
+                    </table>
+                </div>
 
-            <!-- Symptoms Summary -->
-            <div style="${styles.sectionBox}">
-                <h2 style="${styles.subHeader}">Symptoms Assessment</h2>
-                <table style="${styles.table}">
-                    <tr>
-                        <td style="${styles.tableCell}"><strong>Reported Symptoms:</strong></td>
-                        <td style="${styles.tableCell}">${userInputs.symptoms.join(', ')}</td>
-                    </tr>
-                    <tr>
-                        <td style="${styles.tableCell}"><strong>Onset Duration:</strong></td>
-                        <td style="${styles.tableCell}">${userInputs.symptomStart}</td>
-                    </tr>
-                    <tr>
-                        <td style="${styles.tableCell}"><strong>Symptom Severity:</strong></td>
-                        <td style="${styles.tableCell}">${userInputs.severity}</td>
-                    </tr>
-                    <tr>
-                        <td style="${styles.tableCell}"><strong>Additional Symptoms:</strong></td>
-                        <td style="${styles.tableCell}">${userInputs.additionalSymptoms}</td>
-                    </tr>
-                    <tr>
-                        <td style="${styles.tableCell}"><strong>Triggering/Alleviating Factors:</strong></td>
-                        <td style="${styles.tableCell}">${userInputs.triggers}</td>
-                    </tr>
-                </table>
-            </div>
+                <h2 style="${styles.subHeader}">Diagnostic Assessment</h2>
+        `;
 
-            <!-- Diagnostic Assessment -->
-            <h2 style="${styles.subHeader}">Diagnostic Assessment</h2>
-    `;
+        const diagnoses = document.querySelectorAll('.diagnosis');
+        diagnoses.forEach((diagnosis, index) => {
+            const name = diagnosis.querySelector('.diagnosis-name').textContent.trim();
+            const specialty = diagnosis.querySelector('.diagnosis-specialty').textContent;
+            const isRedFlag = name.includes('🚨');
+            const isCommon = diagnosis.querySelector('.status-common') !== null;
+            const recommendation = diagnosis.querySelector('.recommendation-text').textContent;
 
-    // Add diagnoses with improved styling
-    const diagnoses = document.querySelectorAll('.diagnosis');
-    diagnoses.forEach((diagnosis, index) => {
-        const name = diagnosis.querySelector('.diagnosis-name').textContent.trim();
-        const specialty = diagnosis.querySelector('.diagnosis-specialty').textContent;
-        const isRedFlag = name.includes('🚨');
-        const isCommon = diagnosis.querySelector('.status-common') !== null;
-        const recommendation = diagnosis.querySelector('.recommendation-text').textContent;
+            const severityStyle = isRedFlag ? styles.severityBadge.severe :
+                                isCommon ? styles.severityBadge.mild :
+                                styles.severityBadge.moderate;
 
-        const severityStyle = isRedFlag ? styles.severityBadge.severe :
-                            isCommon ? styles.severityBadge.mild :
-                            styles.severityBadge.moderate;
+            pdfContent.innerHTML += `
+                <div style="${styles.diagnosisBox}">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                        <h3 style="margin: 0; color: #2c3e50; font-size: 18px;">
+                            ${index + 1}. ${name.replace('🚨', '')}
+                        </h3>
+                        <span style="${severityStyle}">
+                            ${isRedFlag ? 'Urgent' : isCommon ? 'Common' : 'Moderate'}
+                        </span>
+                    </div>
+                    <div style="color: #000; margin: 5px 0;">Specialty: ${specialty}</div>
+                    <div style="margin: 10px 0; padding: 10px; background: #f8f9fa; border-radius: 4px; color: #000;">
+                        ${recommendation}
+                    </div>
+                </div>
+            `;
+        });
 
         pdfContent.innerHTML += `
-            <div style="${styles.diagnosisBox}">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-                    <h3 style="margin: 0; color: #2c3e50; font-size: 18px;">
-                        ${index + 1}. ${name.replace('🚨', '')}
-                    </h3>
-                    <span style="${severityStyle}">
-                        ${isRedFlag ? 'Urgent' : isCommon ? 'Common' : 'Moderate'}
-                    </span>
-                </div>
-                <div style="color: #000; margin: 5px 0;">Specialty: ${specialty}</div>
-                <div style="margin: 10px 0; padding: 10px; background: #f8f9fa; border-radius: 4px; color: #000;">
-                    ${recommendation}
+            <div style="margin-top: 30px; ${styles.sectionBox}">
+                <p style="color: #000; font-style: italic; font-size: 12px;">
+                    <strong>Important Notice:</strong> This report is generated based on the symptoms provided and should be used for informational purposes only. 
+                    It is not a substitute for professional medical diagnosis. Please consult with a qualified healthcare provider for proper medical evaluation and treatment.
+                </p>
+                <div style="text-align: right; margin-top: 15px; font-size: 12px; color: #000;">
+                    Report ID: ${Date.now().toString(36).toUpperCase()}<br>
+                    Generated by MediMentor Healthcare System
                 </div>
             </div>
         `;
-    });
 
-    // Add disclaimer and footer
-    pdfContent.innerHTML += `
-        <div style="margin-top: 30px; ${styles.sectionBox}">
-            <p style="color: #000; font-style: italic; font-size: 12px;">
-                <strong>Important Notice:</strong> This report is generated based on the symptoms provided and should be used for informational purposes only. 
-                It is not a substitute for professional medical diagnosis. Please consult with a qualified healthcare provider for proper medical evaluation and treatment.
-            </p>
-            <div style="text-align: right; margin-top: 15px; font-size: 12px; color: #000;">
-                Report ID: ${Date.now().toString(36).toUpperCase()}<br>
-                Generated by MediMentor Healthcare System
-            </div>
-        </div>
-    `;
+        const opt = {
+            margin: [1.5, 1, 1.5, 1],
+            filename: `MediMentor_Report_${userName.replace(/\s+/g, '_')}_${currentDate.replace(/\//g, '-')}.pdf`,
+            image: { type: 'jpeg', quality: 0.98 },
+            html2canvas: { 
+                scale: 2,
+                logging: false,
+                useCORS: true,
+                allowTaint: true
+            },
+            jsPDF: { 
+                unit: 'cm',
+                format: 'a4',
+                orientation: 'portrait'
+            },
+            pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
+        };
 
-    const opt = {
-        margin: [1.5, 1, 1.5, 1],
-        filename: `MediMentor_Report_${userName.replace(/\s+/g, '_')}_${currentDate.replace(/\//g, '-')}.pdf`,
-        image: { type: 'jpeg', quality: 0.98 },
-        html2canvas: { 
-            scale: 2,
-            logging: false,
-            useCORS: true,
-            allowTaint: true
-        },
-        jsPDF: { 
-            unit: 'cm',
-            format: 'a4',
-            orientation: 'portrait'
-        },
-        pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
-    };
+        html2pdf().set(opt).from(pdfContent).save();
+    }
 
-    html2pdf().set(opt).from(pdfContent).save();
-}
-
-    // Add event listener for the export button
     document.addEventListener('click', (event) => {
         if (event.target.closest('#exportPdfButton')) {
             exportToPDF();
@@ -785,23 +727,19 @@ function exportToPDF() {
     });
 
     const resetConversation = () => {
-        // Reset UI elements
         dateInput.classList.add('hidden');
         genderSelection.classList.add('hidden');
         regionSelection.classList.add('hidden');
         chatInputContainer.classList.remove('hidden');
         chatInput.classList.remove('hidden');
 
-        // Enable input fields and buttons
         chatInput.disabled = false;
         sendButton.disabled = false;
         dateInput.disabled = false;
 
-        // Clear input fields
         chatInput.value = '';
         dateInput.value = '';
 
-        // Reset conversation state
         currentStep = 0;
         triageStep = 0;
         userInputs = {
@@ -813,17 +751,13 @@ function exportToPDF() {
             pregnant: 'n'
         };
 
-        // Clear chat history
         chatOutput.innerHTML = '';
 
-        // Show chat input container if it was hidden
         chatInputContainer.style.display = 'flex';
 
-        // Restart conversation with welcome message
         displayWelcomeMessage();
     };
 
-    // Function to toggle send button state
     const toggleSendButton = () => {
         const inputField = currentStep === 3 ? dateInput : chatInput;
         if (inputField.value.trim() !== '') {
@@ -835,11 +769,9 @@ function exportToPDF() {
         }
     };
 
-    // Add event listener to chat input and date input for toggling send button
     chatInput.addEventListener('input', toggleSendButton);
     dateInput.addEventListener('input', toggleSendButton);
 
-    // Initial call to set the correct state on page load
     toggleSendButton();
 
     sendButton.addEventListener('click', () => {
@@ -859,7 +791,6 @@ function exportToPDF() {
         addMessage(userInput, 'user');
         handleUserInput(userInput);
         
-        // Clear inputs after sending
         if (currentStep === 3) {
             dateInput.value = '';
         } else {
@@ -880,7 +811,6 @@ function exportToPDF() {
         }
     });
 
-    // Event listener for gender selection
     genderSelection.addEventListener('click', (event) => {
         if (event.target.classList.contains('optionButton')) {
             const gender = event.target.getAttribute('data-value');
@@ -891,7 +821,6 @@ function exportToPDF() {
         }
     });
 
-    // Event listener for region selection
     regionSelection.addEventListener('click', (event) => {
         if (event.target.classList.contains('optionButton')) {
             const region = event.target.getAttribute('data-value');
@@ -902,7 +831,6 @@ function exportToPDF() {
         }
     });
 
-    // Event listener for theme toggle
     themeToggle.forEach(radio => {
         radio.addEventListener('change', (event) => {
             const selectedTheme = event.target.value;
@@ -923,10 +851,8 @@ function exportToPDF() {
     document.querySelector(`.theme-toggle input[value="${savedTheme}"]`).checked = true;
     applyTheme(savedTheme);
 
-    // Event listener for restart button
     restartButton.addEventListener('click', resetConversation);
 
-    // Call displayWelcomeMessage instead of first step message
     displayWelcomeMessage();
 
     const createSuggestionsContainer = () => {
@@ -941,11 +867,10 @@ function exportToPDF() {
     let currentSuggestions = [];
     let selectedSuggestionIndex = -1;
 
-    // Add this function to handle predictive text
     const fetchPredictiveText = async (searchTerm) => {
         try {
             const response = await fetch(
-                `https://1n6ajiuic7.execute-api.us-east-1.amazonaws.com/dev/predictive-text?term=${encodeURIComponent(searchTerm)}`
+                `https://ozx557ly3h.execute-api.us-east-1.amazonaws.com/dev/predictive-text?term=${encodeURIComponent(searchTerm)}`
             );
             const data = await response.json();
             return data;
@@ -955,7 +880,6 @@ function exportToPDF() {
         }
     };
 
-    // Add debounce function
     const debounce = (func, wait) => {
         let timeout;
         return function executedFunction(...args) {
@@ -968,7 +892,6 @@ function exportToPDF() {
         };
     };
 
-    // Add suggestion handling
     const handleSuggestions = debounce(async (input) => {
         if (currentStep !== 0 || input.length < 2) {
             suggestionsContainer.classList.add('hidden');
@@ -1014,7 +937,6 @@ function exportToPDF() {
         handleSuggestions(searchTerm);
     });
 
-    // Add keyboard navigation
     chatInput.addEventListener('keydown', (event) => {
         if (suggestionsContainer.classList.contains('hidden')) return;
 
@@ -1051,7 +973,6 @@ function exportToPDF() {
         }
     });
 
-    // Hide suggestions when clicking outside
     document.addEventListener('click', (event) => {
         if (!event.target.closest('#chatInputContainer')) {
             suggestionsContainer.classList.add('hidden');
@@ -1063,19 +984,17 @@ function exportToPDF() {
 function configureDateInput() {
     chatInput.classList.add('hidden');
     dateInput.classList.remove('hidden');
-    dateInput.value = ''; // Clear any previous value
+    dateInput.value = '';
     dateInput.type = 'text';
     dateInput.placeholder = 'MM/DD/YYYY';
 
-    // Add date input formatting
     const formatDateInput = (e) => {
-        let value = e.target.value.replace(/\D/g, ''); // Remove non-digits
+        let value = e.target.value.replace(/\D/g, '');
         if (value.length >= 2) value = value.slice(0, 2) + '/' + value.slice(2);
         if (value.length >= 5) value = value.slice(0, 5) + '/' + value.slice(5);
         if (value.length > 10) value = value.slice(0, 10);
         e.target.value = value;
         
-        // Enable/disable send button based on valid date
         sendButton.disabled = !validateDate(value);
         if (!sendButton.disabled) {
             sendButton.classList.add('active');

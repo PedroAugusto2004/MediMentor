@@ -12,9 +12,22 @@ functions:
       - http:
           path: analyze-symptoms
           method: post
+          cors: true
       - http:
           path: analyze-symptoms
           method: get
+          cors: true
+      - http:
+          path: predictive-text
+          method: get
+          cors:
+            origin: '*'
+            headers:
+              - Content-Type
+              - Authorization
+              - Origin
+              - Accept
+            allowCredentials: false
     environment:
       NODE_ENV: production
 
