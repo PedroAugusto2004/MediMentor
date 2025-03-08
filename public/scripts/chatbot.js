@@ -222,18 +222,39 @@ const processDateInput = () => {
                 .map(s => s.trim().toLowerCase())
                 .filter(s => s.length > 0);
 
-            // Check if the input is empty
+            // Check if input is empty
             if (userSymptoms.length === 0) {
                 return "Please describe your symptoms. You can type to see suggestions and list multiple symptoms separated by commas.";
             }
 
-            // Check if it's a question or non-symptom input
+            // Check for non-symptom inputs first
             if (message.includes('?') || 
-                /\b(hello|hi|hey|help|restart|what|who|why|where|when|how)\b/i.test(message)) {
+                /\b(hello|hi|hey|help|restart)\b/i.test(message) ||
+                /\b(what|who|why|where|when|how)\b/.test(message) ||
+                /\b(thanks|thank you|ok|okay|bye|goodbye)\b/i.test(message)) {
                 return "I'm here to analyze your symptoms. Please tell me what symptoms you're experiencing. Start typing to see suggestions.";
             }
 
-            // Input contains potential symptoms - let the API validation handle it
+            // Check for common non-medical words or phrases
+            const nonMedicalWords = /\b(weather|stock|movie|food|game|play|time|work|school)\b/i;
+            if (nonMedicalWords.test(message)) {
+                return "Please describe only your medical symptoms. For example: headache, fever, cough, etc.";
+            }
+
+            // Check if user is trying to enter a diagnosis instead of symptoms
+            const commonDiagnoses = /\b(cancer|diabetes|covid|flu|arthritis|depression)\b/i;
+            if (commonDiagnoses.test(message)) {
+                return "Please describe your symptoms rather than a diagnosis. What symptoms are you experiencing?";
+            }
+
+            // Check if the input appears to be conversational
+            const conversationalPattern = /\b(can you|could you|would you|i want|i need|i would like)\b/i;
+            if (conversationalPattern.test(message)) {
+                return "Please directly state your symptoms. For example: headache, fever, cough, etc.";
+            }
+
+            // If none of the above patterns match, assume it's a valid symptom input
+            // The actual validation will happen through the Isabel API
             return null;
         }
 
@@ -467,8 +488,42 @@ const processDateInput = () => {
             console.error('API Error:', error);
             addMessage(`Error: ${error.message}. Please try again.`, 'bot');
             loadingSpinner.classList.remove('visible');
+            disableChat();
         }
     };
+
+// Add this after the analyzeSymptoms function
+
+function disableChat() {
+    // Disable all input elements
+    const elements = {
+        chatInput: document.getElementById('chatInput'),
+        sendButton: document.getElementById('sendButton'),
+        dateInput: document.getElementById('dateInput'),
+        chatInputContainer: document.getElementById('chatInputContainer'),
+        genderSelection: document.getElementById('genderSelection'),
+        regionSelection: document.getElementById('regionSelection')
+    };
+
+    // Disable inputs
+    elements.chatInput.disabled = true;
+    elements.sendButton.disabled = true;
+    elements.dateInput.disabled = true;
+
+    // Hide input containers
+    elements.chatInputContainer.classList.add('hidden');
+    elements.genderSelection.classList.add('hidden');
+    elements.regionSelection.classList.add('hidden');
+
+    // Add message about chat being ended
+    const endMessage = `
+        <div class="end-chat-message error">
+            <p>This chat session has ended. Please click the restart button to begin a new consultation.</p>
+            <p class="disclaimer">If you were in the middle of symptom analysis, we recommend starting a new session.</p>
+        </div>
+    `;
+    addMessage(endMessage, 'bot');
+}
 
     function addDiagnosisToChat(diagnosis) {
         const severityClass = diagnosis.redFlag ? 'recommendation-severe' : 
