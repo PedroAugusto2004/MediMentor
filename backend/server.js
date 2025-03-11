@@ -124,14 +124,28 @@ async function analyzeSymptoms({ symptoms, gender, yearOfBirth, region, pregnant
         });
 
         console.log('Diagnosis API Response:', response.data);
-        return {
-            diagnoses: response.data?.diagnoses_checklist?.diagnoses.map(d => ({
+        
+        // Calculate percentages based on ranking
+        const diagnoses = response.data?.diagnoses_checklist?.diagnoses || [];
+        const totalDiagnoses = diagnoses.length;
+        
+        const diagnosesWithPercentages = diagnoses.map((d, index) => {
+            // Calculate percentage based on position (inverse ranking)
+            // First position gets highest percentage
+            const percentage = ((totalDiagnoses - index) / totalDiagnoses).toFixed(4);
+            
+            return {
                 diagnosis_name: d.diagnosis_name,
                 specialty: d.specialty,
-                red_flag: d.red_flag === 'true',  // Convert string to boolean
-                common_diagnosis: d.common_diagnosis === 'true',  // Convert string to boolean
-                knowledge_window_api_url: d.knowledge_window_api_url
-            })) || [],
+                red_flag: d.red_flag === 'true',
+                common_diagnosis: d.common_diagnosis === 'true',
+                knowledge_window_api_url: d.knowledge_window_api_url,
+                percentage: parseFloat(percentage) // Convert to number
+            };
+        });
+
+        return {
+            diagnoses: diagnosesWithPercentages,
             triageUrl: response.data?.diagnoses_checklist?.triage_api_url,
         };
     } catch (error) {

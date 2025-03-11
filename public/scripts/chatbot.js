@@ -397,7 +397,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
             console.log('Request payload:', payload);
 
-            // Updated endpoint URL
             const API_URL = 'https://ozx557ly3h.execute-api.us-east-1.amazonaws.com/dev/analyze-symptoms';
 
             const response = await fetch(API_URL, {
@@ -425,14 +424,22 @@ document.addEventListener('DOMContentLoaded', () => {
                 throw new Error('Invalid response format: missing diagnoses array');
             }
 
-            // Process and display diagnoses using boolean values directly
-            const topDiagnoses = data.diagnoses.slice(0, 3);
-            topDiagnoses.forEach(diagnosis => {
+            // Sort diagnoses by percentage and display at least 5
+            const sortedDiagnoses = data.diagnoses
+                .sort((a, b) => b.percentage - a.percentage)
+                .slice(0, 5)
+                .map(diagnosis => ({
+                    ...diagnosis,
+                    percentage: diagnosis.percentage // Now this will be a number between 0 and 1
+                }));
+
+            sortedDiagnoses.forEach(diagnosis => {
                 addDiagnosisToChat({
                     name: diagnosis.diagnosis_name,
                     specialty: diagnosis.specialty,
-                    redFlag: diagnosis.red_flag, // Using boolean value directly
-                    common: diagnosis.common_diagnosis, // Using boolean value directly
+                    redFlag: diagnosis.red_flag,
+                    common: diagnosis.common_diagnosis,
+                    percentage: diagnosis.percentage,
                     explanation: `This condition is ${diagnosis.common_diagnosis ? "common" : "less common"} and ${diagnosis.red_flag ? "requires immediate medical attention" : "may be managed with appropriate care"}.`,
                     description: `This is a ${diagnosis.specialty.toLowerCase()} related condition.`,
                     knowledgeUrl: diagnosis.knowledge_window_api_url,
@@ -502,6 +509,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         ${diagnosis.redFlag ? '🚨 ' : ''}${diagnosis.name}
                     </h3>
                     <span class="diagnosis-specialty">${diagnosis.specialty}</span>
+                    <span class="diagnosis-percentage">${(diagnosis.percentage * 100).toFixed(1)}%</span>
                 </div>
                 
                 <div class="diagnosis-content">

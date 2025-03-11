@@ -626,6 +626,22 @@ header .logo {
     border: 1px solid rgba(0, 122, 204, 0.1);
 }
 
+.diagnosis-percentage {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--primary-color);
+    background: rgba(0, 122, 204, 0.1);
+    padding: 0.4rem 0.8rem;
+    border-radius: 20px;
+    min-width: 70px;
+    text-align: center;
+}
+
+[data-theme="dark"] .diagnosis-percentage {
+    background: rgba(255, 255, 255, 0.1);
+    color: #79c3ff;
+}
+
 /* More Info Link */
 .diagnosis-link {
     display: inline-flex;
