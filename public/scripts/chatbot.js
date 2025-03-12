@@ -424,6 +424,17 @@ document.addEventListener('DOMContentLoaded', () => {
                 throw new Error('Invalid response format: missing diagnoses array');
             }
 
+            // Add the introductory message before showing diagnoses
+            const introMessage = `
+                <div class="diagnosis-intro animate-in">
+                    <h3>🔍 Analysis Complete</h3>
+                    <p>Based on the symptoms and information you've provided, here are the most likely conditions to consider.</p>
+                    <p>Remember: This is not a definitive diagnosis. Always consult with a healthcare professional.</p>
+                    <p class="restart-hint">Want to start a new consultation? Click the restart button above.</p>
+                </div>
+            `;
+            addMessage(introMessage, 'bot');
+
             // Sort diagnoses by percentage and display at least 5
             const sortedDiagnoses = data.diagnoses
                 .sort((a, b) => b.percentage - a.percentage)
