@@ -100,8 +100,24 @@ document.addEventListener('DOMContentLoaded', () => {
             messageElement.innerHTML = message;
             chatOutput.appendChild(messageElement);
             
-            // Scroll to the new message
-            messageElement.scrollIntoView({ behavior: 'smooth', block: 'end' });
+            // Check if this is a diagnosis-related message
+            const isDiagnosisIntro = message.includes('diagnosis-intro');
+            const isDiagnosisCard = message.includes('class="diagnosis');
+            const isEndMessage = message.includes('end-chat-message');
+            
+            // Special handling for different message types
+            if (isDiagnosisIntro) {
+                // For the intro, scroll to show just the intro message
+                setTimeout(() => {
+                    messageElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }, 100);
+            } else if (isDiagnosisCard || isEndMessage) {
+                // For actual diagnosis cards or end message, don't auto-scroll
+                // Let the user scroll manually to view them
+            } else {
+                // For all other messages, scroll into view as normal
+                messageElement.scrollIntoView({ behavior: 'smooth', block: 'end' });
+            }
         }, sender === 'bot' ? 1000 : 0);
     };
 
@@ -430,7 +446,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     <h3>🔍 Analysis Complete</h3>
                     <p>Based on the symptoms and information you've provided, here are the most likely conditions to consider.</p>
                     <p>Remember: This is not a definitive diagnosis. Always consult with a healthcare professional.</p>
-                    <p class="restart-hint">Want to start a new consultation? Click the restart button above.</p>
+                    <p class="restart-hint">Want to start a new consultation? Click the restart button.</p>
                 </div>
             `;
             addMessage(introMessage, 'bot');
