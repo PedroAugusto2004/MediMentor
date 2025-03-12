@@ -434,35 +434,41 @@ document.addEventListener('DOMContentLoaded', () => {
                 </div>
             `;
             addMessage(introMessage, 'bot');
-
-            // Sort diagnoses by percentage and display at least 5
-            const sortedDiagnoses = data.diagnoses
-                .sort((a, b) => b.percentage - a.percentage)
-                .slice(0, 5)
-                .map(diagnosis => ({
-                    ...diagnosis,
-                    percentage: diagnosis.percentage // Now this will be a number between 0 and 1
-                }));
-
-            sortedDiagnoses.forEach(diagnosis => {
-                addDiagnosisToChat({
-                    name: diagnosis.diagnosis_name,
-                    specialty: diagnosis.specialty,
-                    redFlag: diagnosis.red_flag,
-                    common: diagnosis.common_diagnosis,
-                    percentage: diagnosis.percentage,
-                    explanation: `This condition is ${diagnosis.common_diagnosis ? "common" : "less common"} and ${diagnosis.red_flag ? "requires immediate medical attention" : "may be managed with appropriate care"}.`,
-                    description: `This is a ${diagnosis.specialty.toLowerCase()} related condition.`,
-                    knowledgeUrl: diagnosis.knowledge_window_api_url,
-                    recommendation: diagnosis.red_flag ? 
-                        "Seek immediate medical attention" : 
-                        "Consult with a healthcare provider for proper evaluation"
-                });
-            });
-
+            
+            // Add a delay before showing diagnoses
             setTimeout(() => {
-                endChat();
-            }, 1000);
+                // Sort diagnoses by percentage and display at least 5
+                const sortedDiagnoses = data.diagnoses
+                    .sort((a, b) => b.percentage - a.percentage)
+                    .slice(0, 5)
+                    .map(diagnosis => ({
+                        ...diagnosis,
+                        percentage: diagnosis.percentage
+                    }));
+
+                sortedDiagnoses.forEach((diagnosis, index) => {
+                    // Add additional delay between each diagnosis for a staggered effect
+                    setTimeout(() => {
+                        addDiagnosisToChat({
+                            name: diagnosis.diagnosis_name,
+                            specialty: diagnosis.specialty,
+                            redFlag: diagnosis.red_flag,
+                            common: diagnosis.common_diagnosis,
+                            percentage: diagnosis.percentage,
+                            explanation: `This condition is ${diagnosis.common_diagnosis ? "common" : "less common"} and ${diagnosis.red_flag ? "requires immediate medical attention" : "may be managed with appropriate care"}.`,
+                            description: `This is a ${diagnosis.specialty.toLowerCase()} related condition.`,
+                            knowledgeUrl: diagnosis.knowledge_window_api_url,
+                            recommendation: diagnosis.red_flag ? 
+                                "Seek immediate medical attention" : 
+                                "Consult with a healthcare provider for proper evaluation"
+                        });
+                    }, index * 500); // 500ms delay between each diagnosis
+                });
+
+                setTimeout(() => {
+                    endChat();
+                }, sortedDiagnoses.length * 500 + 1000);
+            }, 2000); // 2 second delay after intro message before showing first diagnosis
 
             loadingSpinner.classList.remove('visible');
         } catch (error) {
