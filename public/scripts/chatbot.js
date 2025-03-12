@@ -296,6 +296,7 @@ document.addEventListener('DOMContentLoaded', () => {
         return "I can help you with symptom analysis. Could you describe your symptoms instead?";
     };
 
+    // Update handleUserInput function where inputs get disabled
     const handleUserInput = async (input) => {
         const botReply = getBotResponse(input, currentStep);
         if (botReply) {
@@ -330,6 +331,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     addMessage('Are you currently pregnant? (yes/no)', 'bot');
                     currentStep = 'pregnancy';
                     chatInput.disabled = false;
+                    chatInput.placeholder = "Type your message...";
                     chatInputContainer.classList.remove('hidden');
                     genderSelection.classList.add('hidden');
                     return;
@@ -377,12 +379,14 @@ document.addEventListener('DOMContentLoaded', () => {
         if (currentStep === 2) {
             genderSelection.classList.remove('hidden');
             chatInput.disabled = true;
+            chatInput.placeholder = "Chat is disabled";
             chatInputContainer.classList.add('hidden');
         } else if (currentStep === 3) {
             configureDateInput();
         } else if (currentStep === 4) {
             regionSelection.classList.remove('hidden');
             chatInput.disabled = true;
+            chatInput.placeholder = "Chat is disabled";
             chatInputContainer.classList.add('hidden');
         } else {
             chatInputContainer.classList.remove('hidden');
@@ -391,6 +395,7 @@ document.addEventListener('DOMContentLoaded', () => {
             chatInput.classList.remove('hidden');
             dateInput.classList.add('hidden');
             chatInput.disabled = false;
+            chatInput.placeholder = "Type your message...";
         }
     };
 
@@ -495,6 +500,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
+    // Update the disableChat function
     function disableChat() {
         const elements = {
             chatInput: document.getElementById('chatInput'),
@@ -506,6 +512,7 @@ document.addEventListener('DOMContentLoaded', () => {
         };
 
         elements.chatInput.disabled = true;
+        elements.chatInput.placeholder = "Chat is disabled";
         elements.sendButton.disabled = true;
         elements.dateInput.disabled = true;
 
@@ -594,6 +601,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const chatInputContainer = document.getElementById('chatInputContainer');
 
         chatInput.disabled = true;
+        chatInput.placeholder = "Chat is disabled";
         sendButton.disabled = true;
         dateInput.disabled = true;
 
@@ -767,6 +775,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+    // Update resetConversation function to reset the placeholder
     const resetConversation = () => {
         dateInput.classList.add('hidden');
         genderSelection.classList.add('hidden');
@@ -775,6 +784,7 @@ document.addEventListener('DOMContentLoaded', () => {
         chatInput.classList.remove('hidden');
 
         chatInput.disabled = false;
+        chatInput.placeholder = "Type your message...";
         sendButton.disabled = false;
         dateInput.disabled = false;
 
