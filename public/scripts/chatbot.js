@@ -20,7 +20,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let currentStep = 0;
     let triageStep = 0;
-
+    let triageAnswers = [];
+    let triageUrl = '';
+    
     const userName = localStorage.getItem('userName') || 'User';
     
     // Update welcome message function
@@ -298,12 +300,63 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Update handleUserInput function where inputs get disabled
     const handleUserInput = async (input) => {
+        if (triageStep > 0 && triageStep <= 7) {
+            const answer = parseInt(input);
+            if (isNaN(answer) || answer < 1 || answer > 4) {
+                addMessage("Please enter a number between 1 and 4.", 'bot');
+                return;
+            }
+            triageAnswers.push(answer);
+    
+            const questions = [
+                "How quickly did your symptoms develop? (1: Minutes/Hours, 2: Days, 3: Weeks, 4: Months/Years)",
+                "Are your symptoms getting worse, better, or staying the same? (1: Worse, 2: Better, 3: Same)",
+                "How much pain or discomfort are you in? (1: None, 2: Mild, 3: Very Uncomfortable, 4: Unbearable)",
+                "Are your symptoms stopping you from doing normal activities? (1: Not at all, 2: A little, 3: Quite a bit, 4: Completely)",
+                "Have you taken anything to relieve your symptoms? Did it help? (1: Nothing taken, 2: No help, 3: Helped a little, 4: Helped a lot)",
+                "Do you have any serious conditions like heart disease or diabetes? (1: No, 2: Yes but controlled, 3: Yes and uncontrolled)",
+                "How worried are you about your symptoms? (1: Not worried, 2: Slightly, 3: Moderately, 4: Very worried)"
+            ];
+    
+            if (triageStep < 7) {
+                addMessage(questions[triageStep], 'bot');
+                triageStep++;
+            } else {
+                await processTriage();
+            }
+            return;
+        }
+        
+        // Handle triage questions separately - remove this block since it's replaced by the above code
+        if (currentStep === 'triage') {
+            const answer = input.trim();
+            
+            // Validate triage answer (should be 1-4)
+            if (!/^[1-4]$/.test(answer)) {
+                addMessage("Please enter a number between 1 and 4 to answer the question.", 'bot');
+                return;
+            }
+            
+            // Store the answer
+            triageAnswers.push(answer);
+            
+            // Move to next question or process results
+            if (triageStep < triageQuestions.length) {
+                addMessage(triageQuestions[triageStep], 'bot');
+                triageStep++;
+            } else {
+                // Process all triage answers and provide recommendation
+                await processTriage();
+            }
+            return;
+        }
+        
         const botReply = getBotResponse(input, currentStep);
         if (botReply) {
             addMessage(botReply, 'bot');
             return;
         }
-
+    
         switch (currentStep) {
             case 0:
                 userInputs.symptoms = input
@@ -311,7 +364,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     .split(/,|and|\+/g)
                     .map(symptom => symptom.trim())
                     .filter(Boolean);
-
+    
                 const symptomConfirmation = `I understand you're experiencing: ${userInputs.symptoms.join(', ')}. When did these symptoms start?`;
                 addMessage(symptomConfirmation, 'bot');
                 currentStep++;
@@ -433,7 +486,10 @@ document.addEventListener('DOMContentLoaded', () => {
             console.log('Response status:', response.status);
 
             const data = await response.json();
-            console.log('Response data:', data);
+            
+            // Add these logs after parsing the response
+            console.log('Received Diagnosis Data:', data);
+            console.log('Received Triage URL:', data.triageUrl);
 
             if (!response.ok) {
                 throw new Error(`Server returned ${response.status}: ${data.error || 'Unknown error'}`);
@@ -444,6 +500,9 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!data.diagnoses || !Array.isArray(data.diagnoses)) {
                 throw new Error('Invalid response format: missing diagnoses array');
             }
+
+            // Store triage URL from diagnosis response
+            triageUrl = data.triageUrl;
 
             // Add the introductory message before showing diagnoses
             const introMessage = `
@@ -486,17 +545,69 @@ document.addEventListener('DOMContentLoaded', () => {
                     }, index * 500); // 500ms delay between each diagnosis
                 });
 
+                // Start triage questions after diagnoses
                 setTimeout(() => {
-                    endChat();
+                    addMessage("To determine where you should seek care, please answer 7 quick questions. First: How quickly did your symptoms develop? (1: Minutes/Hours, 2: Days, 3: Weeks, 4: Months/Years)", 'bot');
+                    currentStep = 'triage';
+                    triageStep = 1;
+                    chatInput.disabled = false;
+                    chatInput.placeholder = "Type 1, 2, 3, or 4...";
+                    chatInputContainer.classList.remove('hidden');
                 }, sortedDiagnoses.length * 500 + 1000);
+
+                loadingSpinner.classList.remove('visible');
             }, 2000); // 2 second delay after intro message before showing first diagnosis
 
-            loadingSpinner.classList.remove('visible');
         } catch (error) {
             console.error('API Error:', error);
             addMessage(`Error: ${error.message}. Please try again.`, 'bot');
             loadingSpinner.classList.remove('visible');
             disableChat();
+        }
+    };
+
+    // Define triage questions
+    const triageQuestions = [
+        "How quickly did your symptoms develop? (1: Minutes/Hours, 2: Days, 3: Weeks, 4: Months/Years)",
+        "How severe are your symptoms? (1: Mild, 2: Moderate, 3: Severe, 4: Unbearable)",
+        "Are your symptoms getting worse? (1: Yes rapidly, 2: Yes gradually, 3: No change, 4: Improving)",
+        "Has your ability to perform daily activities been affected? (1: Severely affected, 2: Moderately affected, 3: Slightly affected, 4: Not affected)",
+        "Do you have any pre-existing medical conditions? (1: Several serious conditions, 2: One serious condition, 3: Minor conditions, 4: None)",
+        "Have you tried any home treatments? (1: None, 2: Without relief, 3: With some relief, 4: With significant relief)",
+        "Do you have any high-risk symptoms? (1: Yes serious ones, 2: Possibly concerning ones, 3: Minor concerning ones, 4: None)"
+    ];
+
+    // Process triage response and decide next steps
+    const processTriage = async () => {
+        // Add this log before the fetch request
+        console.log('Triage Payload:', { answers: triageAnswers, triageUrl });
+        
+        try {
+            const response = await fetch('https://ozx557ly3h.execute-api.us-east-1.amazonaws.com/dev/process-triage', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ answers: triageAnswers, triageUrl })
+            });
+            const data = await response.json();
+    
+            if (!response.ok) {
+                throw new Error(data.error || 'Failed to process triage');
+            }
+    
+            const triageHtml = `
+                <div class="triage-result">
+                    <h3>Where to Seek Care</h3>
+                    <p>Triage Score: ${data.score}/150</p>
+                    <input type="range" min="0" max="150" value="${data.score}" disabled class="triage-slider">
+                    <p><strong>Recommendation:</strong> ${data.careVenue}</p>
+                </div>
+            `;
+            addMessage(triageHtml, 'bot');
+            endChat();
+        } catch (error) {
+            console.error('Triage Processing Error:', error);
+            addMessage(`Error processing triage: ${error.message}`, 'bot');
+            endChat();
         }
     };
 
@@ -748,6 +859,33 @@ document.addEventListener('DOMContentLoaded', () => {
             </div>
         `;
 
+        // Add triage recommendation to PDF if available
+        const triageRecommendation = document.querySelector('.triage-recommendation');
+        if (triageRecommendation) {
+            const recommendationType = triageRecommendation.classList.contains('emergency') ? 'Emergency Care' :
+                                      triageRecommendation.classList.contains('urgent') ? 'Urgent Care' :
+                                      triageRecommendation.classList.contains('primary') ? 'Primary Care' : 'Self Care';
+            
+            pdfContent.querySelector('div').innerHTML += `
+                <div style="${styles.sectionBox}">
+                    <h2 style="${styles.subHeader}">Care Recommendation</h2>
+                    <div style="padding: 10px; background: ${
+                        recommendationType === 'Emergency Care' ? '#ffebee' :
+                        recommendationType === 'Urgent Care' ? '#fff3e0' :
+                        recommendationType === 'Primary Care' ? '#e8f5e9' : '#e3f2fd'
+                    }; border-radius: 8px; margin: 10px 0;">
+                        <h3 style="color: ${
+                            recommendationType === 'Emergency Care' ? '#c62828' :
+                            recommendationType === 'Urgent Care' ? '#ef6c00' :
+                            recommendationType === 'Primary Care' ? '#2e7d32' : '#1565c0'
+                        }; margin: 5px 0;">${recommendationType} Recommended</h3>
+                        <p style="margin: 10px 0; color: #000;">${triageRecommendation.querySelector('p').textContent}</p>
+                        <p style="margin: 10px 0; color: #000;"><strong>${triageRecommendation.querySelector('p:last-child').textContent}</strong></p>
+                    </div>
+                </div>
+            `;
+        }
+
         const opt = {
             margin: [1.5, 1, 1.5, 1],
             filename: `MediMentor_Report_${userName.replace(/\s+/g, '_')}_${currentDate.replace(/\//g, '-')}.pdf`,
@@ -793,6 +931,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
         currentStep = 0;
         triageStep = 0;
+        triageAnswers = [];
+        triageUrl = '';
         userInputs = {
             symptoms: [],
             gender: '',

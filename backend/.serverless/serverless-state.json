@@ -103,7 +103,7 @@
             "Properties": {
               "Code": {
                 "S3Bucket": "serverless-framework-deployments-us-east-1-0dc208ae-8d7a",
-                "S3Key": "serverless/medimentor/dev/1741708214232-2025-03-11T15:50:14.232Z/medimentor.zip"
+                "S3Key": "serverless/medimentor/dev/1741919958102-2025-03-14T02:39:18.102Z/medimentor.zip"
               },
               "Handler": "server.handler",
               "Runtime": "nodejs18.x",
@@ -126,14 +126,14 @@
               "ApiLogGroup"
             ]
           },
-          "ApiLambdaVersionH9ZHHvuPN2AzreXDnCh49fCG82Rxq3QuhDP2yDvOlk": {
+          "ApiLambdaVersionmpR7DJsWCgZN70WqkQslbOIHMsYjcwijVfyJA4PkM": {
             "Type": "AWS::Lambda::Version",
             "DeletionPolicy": "Retain",
             "Properties": {
               "FunctionName": {
                 "Ref": "ApiLambdaFunction"
               },
-              "CodeSha256": "JJXZ3PkG6kGzErLhBdMzkPieI1HeQnM/oJ7LAG2LD4w="
+              "CodeSha256": "mV/t0WKgSntDOcu96UyPGu1VLwge+X/o3j+s6mgNKwk="
             }
           },
           "ApiGatewayRestApi": {
@@ -173,6 +173,21 @@
                 ]
               },
               "PathPart": "predictive-text",
+              "RestApiId": {
+                "Ref": "ApiGatewayRestApi"
+              }
+            }
+          },
+          "ApiGatewayResourceProcessDashtriage": {
+            "Type": "AWS::ApiGateway::Resource",
+            "Properties": {
+              "ParentId": {
+                "Fn::GetAtt": [
+                  "ApiGatewayRestApi",
+                  "RootResourceId"
+                ]
+              },
+              "PathPart": "process-triage",
               "RestApiId": {
                 "Ref": "ApiGatewayRestApi"
               }
@@ -262,6 +277,51 @@
               },
               "ResourceId": {
                 "Ref": "ApiGatewayResourcePredictiveDashtext"
+              },
+              "RestApiId": {
+                "Ref": "ApiGatewayRestApi"
+              }
+            }
+          },
+          "ApiGatewayMethodProcessDashtriageOptions": {
+            "Type": "AWS::ApiGateway::Method",
+            "Properties": {
+              "AuthorizationType": "NONE",
+              "HttpMethod": "OPTIONS",
+              "MethodResponses": [
+                {
+                  "StatusCode": "200",
+                  "ResponseParameters": {
+                    "method.response.header.Access-Control-Allow-Origin": true,
+                    "method.response.header.Access-Control-Allow-Headers": true,
+                    "method.response.header.Access-Control-Allow-Methods": true
+                  },
+                  "ResponseModels": {}
+                }
+              ],
+              "RequestParameters": {},
+              "Integration": {
+                "Type": "MOCK",
+                "RequestTemplates": {
+                  "application/json": "{statusCode:200}"
+                },
+                "ContentHandling": "CONVERT_TO_TEXT",
+                "IntegrationResponses": [
+                  {
+                    "StatusCode": "200",
+                    "ResponseParameters": {
+                      "method.response.header.Access-Control-Allow-Origin": "'*'",
+                      "method.response.header.Access-Control-Allow-Headers": "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token,X-Amz-User-Agent,X-Amzn-Trace-Id'",
+                      "method.response.header.Access-Control-Allow-Methods": "'OPTIONS,POST'"
+                    },
+                    "ResponseTemplates": {
+                      "application/json": ""
+                    }
+                  }
+                ]
+              },
+              "ResourceId": {
+                "Ref": "ApiGatewayResourceProcessDashtriage"
               },
               "RestApiId": {
                 "Ref": "ApiGatewayRestApi"
@@ -406,7 +466,53 @@
               "ApiLambdaPermissionApiGateway"
             ]
           },
-          "ApiGatewayDeployment1741708180798": {
+          "ApiGatewayMethodProcessDashtriagePost": {
+            "Type": "AWS::ApiGateway::Method",
+            "Properties": {
+              "HttpMethod": "POST",
+              "RequestParameters": {},
+              "ResourceId": {
+                "Ref": "ApiGatewayResourceProcessDashtriage"
+              },
+              "RestApiId": {
+                "Ref": "ApiGatewayRestApi"
+              },
+              "ApiKeyRequired": false,
+              "AuthorizationType": "NONE",
+              "Integration": {
+                "IntegrationHttpMethod": "POST",
+                "Type": "AWS_PROXY",
+                "Uri": {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "arn:",
+                      {
+                        "Ref": "AWS::Partition"
+                      },
+                      ":apigateway:",
+                      {
+                        "Ref": "AWS::Region"
+                      },
+                      ":lambda:path/2015-03-31/functions/",
+                      {
+                        "Fn::GetAtt": [
+                          "ApiLambdaFunction",
+                          "Arn"
+                        ]
+                      },
+                      "/invocations"
+                    ]
+                  ]
+                }
+              },
+              "MethodResponses": []
+            },
+            "DependsOn": [
+              "ApiLambdaPermissionApiGateway"
+            ]
+          },
+          "ApiGatewayDeployment1741919941941": {
             "Type": "AWS::ApiGateway::Deployment",
             "Properties": {
               "RestApiId": {
@@ -417,9 +523,11 @@
             "DependsOn": [
               "ApiGatewayMethodAnalyzeDashsymptomsOptions",
               "ApiGatewayMethodPredictiveDashtextOptions",
+              "ApiGatewayMethodProcessDashtriageOptions",
               "ApiGatewayMethodAnalyzeDashsymptomsPost",
               "ApiGatewayMethodAnalyzeDashsymptomsGet",
-              "ApiGatewayMethodPredictiveDashtextGet"
+              "ApiGatewayMethodPredictiveDashtextGet",
+              "ApiGatewayMethodProcessDashtriagePost"
             ]
           },
           "ApiLambdaPermissionApiGateway": {
@@ -470,7 +578,7 @@
           "ApiLambdaFunctionQualifiedArn": {
             "Description": "Current Lambda function version",
             "Value": {
-              "Ref": "ApiLambdaVersionH9ZHHvuPN2AzreXDnCh49fCG82Rxq3QuhDP2yDvOlk"
+              "Ref": "ApiLambdaVersionmpR7DJsWCgZN70WqkQslbOIHMsYjcwijVfyJA4PkM"
             },
             "Export": {
               "Name": "sls-medimentor-dev-ApiLambdaFunctionQualifiedArn"
@@ -587,6 +695,30 @@
               },
               "integration": "AWS_PROXY"
             }
+          },
+          {
+            "http": {
+              "path": "process-triage",
+              "method": "post",
+              "cors": {
+                "origin": "*",
+                "methods": [
+                  "OPTIONS",
+                  "POST"
+                ],
+                "headers": [
+                  "Content-Type",
+                  "X-Amz-Date",
+                  "Authorization",
+                  "X-Api-Key",
+                  "X-Amz-Security-Token",
+                  "X-Amz-User-Agent",
+                  "X-Amzn-Trace-Id"
+                ],
+                "allowCredentials": false
+              },
+              "integration": "AWS_PROXY"
+            }
           }
         ],
         "environment": {
@@ -598,7 +730,7 @@
         "timeout": 6,
         "runtime": "nodejs18.x",
         "vpc": {},
-        "versionLogicalId": "ApiLambdaVersionH9ZHHvuPN2AzreXDnCh49fCG82Rxq3QuhDP2yDvOlk"
+        "versionLogicalId": "ApiLambdaVersionmpR7DJsWCgZN70WqkQslbOIHMsYjcwijVfyJA4PkM"
       }
     },
     "configValidationMode": "warn",
@@ -624,7 +756,7 @@
     "artifact": "C:\\MediMentor\\backend\\.serverless\\medimentor.zip"
   },
   "package": {
-    "artifactDirectoryName": "serverless/medimentor/dev/1741708214232-2025-03-11T15:50:14.232Z",
+    "artifactDirectoryName": "serverless/medimentor/dev/1741919958102-2025-03-14T02:39:18.102Z",
     "artifact": "medimentor.zip"
   }
 }

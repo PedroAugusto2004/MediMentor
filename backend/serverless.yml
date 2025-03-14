@@ -28,6 +28,10 @@ functions:
               - Origin
               - Accept
             allowCredentials: false
+      - http:
+          path: process-triage
+          method: post
+          cors: true
     environment:
       NODE_ENV: production
 
