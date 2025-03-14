@@ -594,14 +594,71 @@ document.addEventListener('DOMContentLoaded', () => {
                 throw new Error(data.error || 'Failed to process triage');
             }
     
+            // Determine severity category and color based on score
+            const severityCategory = data.score >= 100 ? 'High Urgency' :
+                                  data.score >= 70 ? 'Moderate Urgency' :
+                                  data.score >= 40 ? 'Low Urgency' : 'Non-Urgent';
+            
+            const severityColor = data.score >= 100 ? '#d32f2f' :  // Red for high
+                               data.score >= 70 ? '#ff9800' :   // Orange for moderate
+                               data.score >= 40 ? '#ffeb3b' :   // Yellow for low
+                               '#4caf50';                      // Green for non-urgent
+            
+            // Create more detailed recommendation based on score
+            let detailedRecommendation = '';
+            let timeframe = '';
+            let additionalInfo = '';
+    
+            if (data.score >= 100) {
+                timeframe = 'Seek care immediately';
+                additionalInfo = 'Your symptoms indicate a potentially serious condition that requires immediate professional evaluation.';
+            } else if (data.score >= 70) {
+                timeframe = 'Seek care within 24 hours';
+                additionalInfo = 'Your symptoms should be evaluated by a medical professional within a day.';
+            } else if (data.score >= 40) {
+                timeframe = 'Seek care within the next few days';
+                additionalInfo = 'Your symptoms warrant evaluation, but are not immediately life-threatening.';
+            } else {
+                timeframe = 'Seek care at your convenience';
+                additionalInfo = 'Your symptoms appear mild and can likely be managed with self-care or a routine appointment.';
+            }
+    
+            // Generate HTML for the enhanced triage result
             const triageHtml = `
                 <div class="triage-result">
-                    <h3>Where to Seek Care</h3>
-                    <p>Triage Score: ${data.score}/150</p>
-                    <input type="range" min="0" max="150" value="${data.score}" disabled class="triage-slider">
-                    <p><strong>Recommendation:</strong> ${data.careVenue}</p>
+                    <h3>Care Recommendation</h3>
+                    <div class="triage-score-container">
+                        <div class="triage-score-label">Urgency Level: <span style="color: ${severityColor}; font-weight: bold;">${severityCategory}</span></div>
+                        <div class="triage-score-value">Score: ${data.score}/150</div>
+                        <div class="triage-slider-container">
+                            <input type="range" min="0" max="150" value="${data.score}" disabled class="triage-slider">
+                            <div class="triage-labels">
+                                <span>Non-Urgent</span>
+                                <span>Low</span>
+                                <span>Moderate</span>
+                                <span>High</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="triage-recommendation" style="border-left: 4px solid ${severityColor}; padding-left: 12px; margin: 15px 0;">
+                        <h4>Recommended Care: ${data.careVenue}</h4>
+                        <p><strong>${timeframe}</strong></p>
+                        <p>${additionalInfo}</p>
+                    </div>
+                    
+                    <div class="triage-guidelines">
+                        <h4>What This Means</h4>
+                        <ul>
+                            <li><strong>Emergency Services (Score 85+):</strong> Hospital emergency department or call emergency services</li>
+                            <li><strong>Urgent Care (Score 40-84):</strong> Walk-in clinic or scheduled same-day appointment with your doctor</li>
+                            <li><strong>Routine Care (Score 0-39):</strong> Telehealth consultation or regular appointment with primary care</li>
+                        </ul>
+                        <p class="triage-disclaimer">This recommendation is based on the information you provided and should not replace professional medical advice.</p>
+                    </div>
                 </div>
             `;
+            
             addMessage(triageHtml, 'bot');
             endChat();
         } catch (error) {

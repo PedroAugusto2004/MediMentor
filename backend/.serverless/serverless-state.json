@@ -103,7 +103,7 @@
             "Properties": {
               "Code": {
                 "S3Bucket": "serverless-framework-deployments-us-east-1-0dc208ae-8d7a",
-                "S3Key": "serverless/medimentor/dev/1741919958102-2025-03-14T02:39:18.102Z/medimentor.zip"
+                "S3Key": "serverless/medimentor/dev/1741978932787-2025-03-14T19:02:12.787Z/medimentor.zip"
               },
               "Handler": "server.handler",
               "Runtime": "nodejs18.x",
@@ -512,7 +512,7 @@
               "ApiLambdaPermissionApiGateway"
             ]
           },
-          "ApiGatewayDeployment1741919941941": {
+          "ApiGatewayDeployment1741978910913": {
             "Type": "AWS::ApiGateway::Deployment",
             "Properties": {
               "RestApiId": {
@@ -756,7 +756,7 @@
     "artifact": "C:\\MediMentor\\backend\\.serverless\\medimentor.zip"
   },
   "package": {
-    "artifactDirectoryName": "serverless/medimentor/dev/1741919958102-2025-03-14T02:39:18.102Z",
+    "artifactDirectoryName": "serverless/medimentor/dev/1741978932787-2025-03-14T19:02:12.787Z",
     "artifact": "medimentor.zip"
   }
 }

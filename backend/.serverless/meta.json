@@ -104,7 +104,7 @@
               "Properties": {
                 "Code": {
                   "S3Bucket": "serverless-framework-deployments-us-east-1-0dc208ae-8d7a",
-                  "S3Key": "serverless/medimentor/dev/1741919958102-2025-03-14T02:39:18.102Z/medimentor.zip"
+                  "S3Key": "serverless/medimentor/dev/1741978932787-2025-03-14T19:02:12.787Z/medimentor.zip"
                 },
                 "Handler": "server.handler",
                 "Runtime": "nodejs18.x",
@@ -513,7 +513,7 @@
                 "ApiLambdaPermissionApiGateway"
               ]
             },
-            "ApiGatewayDeployment1741919941941": {
+            "ApiGatewayDeployment1741978910913": {
               "Type": "AWS::ApiGateway::Deployment",
               "Properties": {
                 "RestApiId": {
@@ -833,7 +833,7 @@
             "Properties": {
               "Code": {
                 "S3Bucket": "serverless-framework-deployments-us-east-1-0dc208ae-8d7a",
-                "S3Key": "serverless/medimentor/dev/1741919958102-2025-03-14T02:39:18.102Z/medimentor.zip"
+                "S3Key": "serverless/medimentor/dev/1741978932787-2025-03-14T19:02:12.787Z/medimentor.zip"
               },
               "Handler": "server.handler",
               "Runtime": "nodejs18.x",
@@ -1242,7 +1242,7 @@
               "ApiLambdaPermissionApiGateway"
             ]
           },
-          "ApiGatewayDeployment1741919941941": {
+          "ApiGatewayDeployment1741978910913": {
             "Type": "AWS::ApiGateway::Deployment",
             "Properties": {
               "RestApiId": {
@@ -1366,12 +1366,12 @@
     "serviceProviderAwsCfStackName": "medimentor-dev",
     "serviceProviderAwsCfStackId": "arn:aws:cloudformation:us-east-1:808117419296:stack/medimentor-dev/d2c6fd80-fc59-11ef-bc5d-12b6b618187f",
     "serviceProviderAwsCfStackCreated": "2025-03-08T20:13:39.147Z",
-    "serviceProviderAwsCfStackUpdated": "2025-03-14T01:34:03.348Z",
+    "serviceProviderAwsCfStackUpdated": "2025-03-14T17:57:07.127Z",
     "serviceProviderAwsCfStackStatus": "UPDATE_COMPLETE",
     "serviceProviderAwsCfStackOutputs": [
       {
         "OutputKey": "ApiLambdaFunctionQualifiedArn",
-        "OutputValue": "arn:aws:lambda:us-east-1:808117419296:function:medimentor-dev-api:44",
+        "OutputValue": "arn:aws:lambda:us-east-1:808117419296:function:medimentor-dev-api:46",
         "Description": "Current Lambda function version",
         "ExportName": "sls-medimentor-dev-ApiLambdaFunctionQualifiedArn"
       },
@@ -1480,7 +1480,7 @@
           "Properties": {
             "Code": {
               "S3Bucket": "serverless-framework-deployments-us-east-1-0dc208ae-8d7a",
-              "S3Key": "serverless/medimentor/dev/1741919958102-2025-03-14T02:39:18.102Z/medimentor.zip"
+              "S3Key": "serverless/medimentor/dev/1741978932787-2025-03-14T19:02:12.787Z/medimentor.zip"
             },
             "Handler": "server.handler",
             "Runtime": "nodejs18.x",
@@ -1889,7 +1889,7 @@
             "ApiLambdaPermissionApiGateway"
           ]
         },
-        "ApiGatewayDeployment1741919941941": {
+        "ApiGatewayDeployment1741978910913": {
           "Type": "AWS::ApiGateway::Deployment",
           "Properties": {
             "RestApiId": {
