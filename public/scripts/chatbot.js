@@ -552,6 +552,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     triageStep = 1;
                     chatInput.disabled = false;
                     chatInput.placeholder = "Type 1, 2, 3, or 4...";
+                    chatInput.maxLength = 1; // Restrict to single digit
+                    chatInput.pattern = "[1-4]"; // HTML5 pattern for validation
+                    chatInput.inputMode = "numeric"; // Show numeric keyboard on mobile
                     chatInputContainer.classList.remove('hidden');
                 }, sortedDiagnoses.length * 500 + 1000);
 
@@ -1043,6 +1046,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
         chatInputContainer.style.display = 'flex';
 
+        chatInput.disabled = false;
+        chatInput.placeholder = "Type your message...";
+        chatInput.maxLength = 524288; // Reset to default max length
+        chatInput.pattern = ""; // Remove pattern restriction
+        chatInput.inputMode = "text"; // Reset to normal text input
+
         displayWelcomeMessage();
     };
 
@@ -1265,6 +1274,46 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!event.target.closest('#chatInputContainer')) {
             suggestionsContainer.classList.add('hidden');
             selectedSuggestionIndex = -1;
+        }
+    });
+
+    // Add this after your other event listeners
+
+    chatInput.addEventListener('keydown', (event) => {
+        // Only apply this restriction during triage questions
+        if (currentStep === 'triage' || triageStep > 0) {
+            // Allow only numbers 1-4, backspace, delete and arrow keys
+            const allowedKeys = ['1', '2', '3', '4', 'Backspace', 'Delete', 'ArrowLeft', 'ArrowRight', 'Tab'];
+            
+            if (!allowedKeys.includes(event.key)) {
+                event.preventDefault();
+            }
+        }
+    });
+
+    // Modify input validation to automatically accept and submit valid answers
+    chatInput.addEventListener('input', (event) => {
+        // Handle suggestions for symptom input
+        const input = event.target.value;
+        
+        // Toggle send button state
+        toggleSendButton();
+        
+        // For triage questions, automatically submit valid answers (1-4)
+        if ((currentStep === 'triage' || triageStep > 0) && /^[1-4]$/.test(input)) {
+            // Small delay to let user see what they typed before submitting
+            setTimeout(() => {
+                sendButton.click();
+            }, 300);
+        }
+        
+        // Handle suggestions for symptom entry (only in step 0)
+        if (currentStep === 0) {
+            const lastComma = input.lastIndexOf(',');
+            const searchTerm = lastComma !== -1 ? 
+                input.substring(lastComma + 1).trim() : 
+                input.trim();
+            handleSuggestions(searchTerm);
         }
     });
 });
