@@ -795,7 +795,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const currentTime = new Date().toLocaleTimeString();
         const formattedRegion = userInputs.region.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
         const formattedGender = userInputs.gender.charAt(0).toUpperCase() + userInputs.gender.slice(1);
-
+    
         const styles = {
             header: 'color: #007acc; font-size: 24px; margin: 10px 0; font-weight: bold;',
             subHeader: 'color: #333; font-size: 18px; border-bottom: 2px solid #007acc; padding-bottom: 5px; margin: 20px 0 10px 0;',
@@ -810,16 +810,16 @@ document.addEventListener('DOMContentLoaded', () => {
             },
             text: 'color: #000;'
         };
-
-        const pdfContent = document.createElement('div');
-        pdfContent.innerHTML = `
+    
+        // Start building the PDF content with the main container
+        let pdfContent = `
             <div style="padding: 20px; width: 210mm;">
                 <div style="text-align: center; ${styles.sectionBox}">
                     <img src="assets/images/logo1.png" alt="MediMentor Logo" style="width: 80px; height: 80px;">
                     <h1 style="${styles.header}">Medical Consultation Report</h1>
                     <p style="${styles.text}">Generated on ${currentDate} at ${currentTime}</p>
                 </div>
-
+    
                 <div style="${styles.sectionBox}">
                     <h2 style="${styles.subHeader}">Patient Information</h2>
                     <table style="${styles.table}">
@@ -843,7 +843,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         ` : ''}
                     </table>
                 </div>
-
+    
                 <div style="${styles.sectionBox}">
                     <h2 style="${styles.subHeader}">Symptoms Assessment</h2>
                     <table style="${styles.table}">
@@ -869,31 +869,88 @@ document.addEventListener('DOMContentLoaded', () => {
                         </tr>
                     </table>
                 </div>
-
-                <h2 style="${styles.subHeader}">Diagnostic Assessment</h2>
         `;
-
+    
+        // Add triage recommendation section (Care Recommendation)
+        const triageRecommendation = document.querySelector('.triage-recommendation');
+        if (triageRecommendation) {
+            const triageResult = document.querySelector('.triage-result');
+            const severityCategory = triageResult.querySelector('.triage-score-label span').textContent;
+            const scoreText = triageResult.querySelector('.triage-score-value').textContent;
+            
+            // Determine recommendation type based on text content
+            let recommendationType = 'Routine Care';
+            if (severityCategory.includes('High')) {
+                recommendationType = 'Emergency Care';
+            } else if (severityCategory.includes('Moderate')) {
+                recommendationType = 'Urgent Care';
+            } else if (severityCategory.includes('Low')) {
+                recommendationType = 'Primary Care';
+            }
+            
+            // Get background color based on recommendation type
+            const bgColor = recommendationType === 'Emergency Care' ? '#ffebee' :
+                            recommendationType === 'Urgent Care' ? '#fff3e0' :
+                            recommendationType === 'Primary Care' ? '#e8f5e9' : '#e3f2fd';
+                            
+            // Get text color based on recommendation type
+            const textColor = recommendationType === 'Emergency Care' ? '#c62828' :
+                              recommendationType === 'Urgent Care' ? '#ef6c00' :
+                              recommendationType === 'Primary Care' ? '#2e7d32' : '#1565c0';
+            
+            pdfContent += `
+                <div style="${styles.sectionBox}">
+                    <h2 style="${styles.subHeader}">Care Recommendation</h2>
+                    <div style="padding: 10px; background: ${bgColor}; border-radius: 8px; margin: 10px 0;">
+                        <h3 style="color: ${textColor}; margin: 5px 0;">${recommendationType}</h3>
+                        <p style="margin: 10px 0; color: #000;"><strong>${scoreText}</strong></p>
+                        <p style="margin: 10px 0; color: #000;"><strong>${triageRecommendation.querySelector('h4').textContent}</strong></p>
+                        <p style="margin: 10px 0; color: #000;">${triageRecommendation.querySelector('p:nth-child(2)').textContent}</p>
+                        <p style="margin: 10px 0; color: #000;">${triageRecommendation.querySelector('p:nth-child(3)').textContent}</p>
+                    </div>
+                    
+                    <div style="margin-top: 15px; padding: 10px; background: #f5f5f5; border-radius: 8px;">
+                        <h4 style="margin: 5px 0; color: #333;">What This Means</h4>
+                        <ul style="margin: 10px 0; padding-left: 20px; color: #000;">
+                            <li style="margin: 5px 0;"><strong>Emergency Services (Score 85+):</strong> Hospital emergency department or call emergency services</li>
+                            <li style="margin: 5px 0;"><strong>Urgent Care (Score 40-84):</strong> Walk-in clinic or scheduled same-day appointment with your doctor</li>
+                            <li style="margin: 5px 0;"><strong>Routine Care (Score 0-39):</strong> Telehealth consultation or regular appointment with primary care</li>
+                        </ul>
+                    </div>
+                </div>
+            `;
+        }
+    
+        // Add the diagnostic assessment section
+        pdfContent += `<div style="${styles.sectionBox}">
+            <h2 style="${styles.subHeader}">Diagnostic Assessment</h2>`;
+    
+        // Get all diagnoses and add them to the PDF content
         const diagnoses = document.querySelectorAll('.diagnosis');
         diagnoses.forEach((diagnosis, index) => {
             const name = diagnosis.querySelector('.diagnosis-name').textContent.trim();
             const specialty = diagnosis.querySelector('.diagnosis-specialty').textContent;
+            const percentage = diagnosis.querySelector('.diagnosis-percentage').textContent;
             const isRedFlag = name.includes('🚨');
             const isCommon = diagnosis.querySelector('.status-common') !== null;
             const recommendation = diagnosis.querySelector('.recommendation-text').textContent;
-
+    
             const severityStyle = isRedFlag ? styles.severityBadge.severe :
-                                isCommon ? styles.severityBadge.mild :
-                                styles.severityBadge.moderate;
-
-            pdfContent.innerHTML += `
+                                  isCommon ? styles.severityBadge.mild :
+                                  styles.severityBadge.moderate;
+    
+            pdfContent += `
                 <div style="${styles.diagnosisBox}">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
                         <h3 style="margin: 0; color: #2c3e50; font-size: 18px;">
                             ${index + 1}. ${name.replace('🚨', '')}
                         </h3>
-                        <span style="${severityStyle}">
-                            ${isRedFlag ? 'Urgent' : isCommon ? 'Common' : 'Moderate'}
-                        </span>
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <span style="${severityStyle}">
+                                ${isRedFlag ? 'Urgent' : isCommon ? 'Common' : 'Moderate'}
+                            </span>
+                            <span style="font-weight: bold; color: #0078d4;">${percentage}</span>
+                        </div>
                     </div>
                     <div style="color: #000; margin: 5px 0;">Specialty: ${specialty}</div>
                     <div style="margin: 10px 0; padding: 10px; background: #f8f9fa; border-radius: 4px; color: #000;">
@@ -902,8 +959,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 </div>
             `;
         });
-
-        pdfContent.innerHTML += `
+    
+        // Close the diagnostic assessment section
+        pdfContent += `</div>`;
+    
+        // Add the footer section
+        pdfContent += `
             <div style="margin-top: 30px; ${styles.sectionBox}">
                 <p style="color: #000; font-style: italic; font-size: 12px;">
                     <strong>Important Notice:</strong> This report is generated based on the symptoms provided and should be used for informational purposes only. 
@@ -914,35 +975,13 @@ document.addEventListener('DOMContentLoaded', () => {
                     Generated by MediMentor Healthcare System
                 </div>
             </div>
-        `;
-
-        // Add triage recommendation to PDF if available
-        const triageRecommendation = document.querySelector('.triage-recommendation');
-        if (triageRecommendation) {
-            const recommendationType = triageRecommendation.classList.contains('emergency') ? 'Emergency Care' :
-                                      triageRecommendation.classList.contains('urgent') ? 'Urgent Care' :
-                                      triageRecommendation.classList.contains('primary') ? 'Primary Care' : 'Self Care';
-            
-            pdfContent.querySelector('div').innerHTML += `
-                <div style="${styles.sectionBox}">
-                    <h2 style="${styles.subHeader}">Care Recommendation</h2>
-                    <div style="padding: 10px; background: ${
-                        recommendationType === 'Emergency Care' ? '#ffebee' :
-                        recommendationType === 'Urgent Care' ? '#fff3e0' :
-                        recommendationType === 'Primary Care' ? '#e8f5e9' : '#e3f2fd'
-                    }; border-radius: 8px; margin: 10px 0;">
-                        <h3 style="color: ${
-                            recommendationType === 'Emergency Care' ? '#c62828' :
-                            recommendationType === 'Urgent Care' ? '#ef6c00' :
-                            recommendationType === 'Primary Care' ? '#2e7d32' : '#1565c0'
-                        }; margin: 5px 0;">${recommendationType} Recommended</h3>
-                        <p style="margin: 10px 0; color: #000;">${triageRecommendation.querySelector('p').textContent}</p>
-                        <p style="margin: 10px 0; color: #000;"><strong>${triageRecommendation.querySelector('p:last-child').textContent}</strong></p>
-                    </div>
-                </div>
-            `;
-        }
-
+        </div>`;
+    
+        // Create the PDF element
+        const pdfElement = document.createElement('div');
+        pdfElement.innerHTML = pdfContent;
+    
+        // Configure the PDF options
         const opt = {
             margin: [1.5, 1, 1.5, 1],
             filename: `MediMentor_Report_${userName.replace(/\s+/g, '_')}_${currentDate.replace(/\//g, '-')}.pdf`,
@@ -960,8 +999,9 @@ document.addEventListener('DOMContentLoaded', () => {
             },
             pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
         };
-
-        html2pdf().set(opt).from(pdfContent).save();
+    
+        // Generate and download the PDF
+        html2pdf().set(opt).from(pdfElement).save();
     }
 
     document.addEventListener('click', (event) => {
