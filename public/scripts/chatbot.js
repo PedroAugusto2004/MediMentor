@@ -302,10 +302,16 @@ document.addEventListener('DOMContentLoaded', () => {
     const handleUserInput = async (input) => {
         if (triageStep > 0 && triageStep <= 7) {
             const answer = parseInt(input);
-            if (isNaN(answer) || answer < 1 || answer > 4) {
-                addMessage("Please enter a number between 1 and 4.", 'bot');
+            const validInputs = getValidTriageInputs(triageStep);
+            const validNumbers = validInputs.map(n => parseInt(n));
+            
+            if (isNaN(answer) || !validNumbers.includes(answer)) {
+                // Show appropriate error message based on the valid range for this question
+                const maxOption = Math.max(...validNumbers);
+                addMessage(`Please enter a number between 1 and ${maxOption} for this question.`, 'bot');
                 return;
             }
+            
             triageAnswers.push(answer);
     
             const questions = [
@@ -321,6 +327,8 @@ document.addEventListener('DOMContentLoaded', () => {
             if (triageStep < 7) {
                 addMessage(questions[triageStep], 'bot');
                 triageStep++;
+                // Update placeholder for the new question
+                updateTriagePlaceholder(triageStep);
             } else {
                 await processTriage();
             }
@@ -551,7 +559,10 @@ document.addEventListener('DOMContentLoaded', () => {
                     currentStep = 'triage';
                     triageStep = 1;
                     chatInput.disabled = false;
-                    chatInput.placeholder = "Type 1, 2, 3, or 4...";
+                    
+                    // Update placeholder based on current question options
+                    updateTriagePlaceholder(triageStep);
+                    
                     chatInput.maxLength = 1; // Restrict to single digit
                     chatInput.pattern = "[1-4]"; // HTML5 pattern for validation
                     chatInput.inputMode = "numeric"; // Show numeric keyboard on mobile
@@ -572,12 +583,12 @@ document.addEventListener('DOMContentLoaded', () => {
     // Define triage questions
     const triageQuestions = [
         "How quickly did your symptoms develop? (1: Minutes/Hours, 2: Days, 3: Weeks, 4: Months/Years)",
-        "How severe are your symptoms? (1: Mild, 2: Moderate, 3: Severe, 4: Unbearable)",
-        "Are your symptoms getting worse? (1: Yes rapidly, 2: Yes gradually, 3: No change, 4: Improving)",
-        "Has your ability to perform daily activities been affected? (1: Severely affected, 2: Moderately affected, 3: Slightly affected, 4: Not affected)",
-        "Do you have any pre-existing medical conditions? (1: Several serious conditions, 2: One serious condition, 3: Minor conditions, 4: None)",
-        "Have you tried any home treatments? (1: None, 2: Without relief, 3: With some relief, 4: With significant relief)",
-        "Do you have any high-risk symptoms? (1: Yes serious ones, 2: Possibly concerning ones, 3: Minor concerning ones, 4: None)"
+        "Are your symptoms getting worse, better, or staying the same? (1: Worse, 2: Better, 3: Same)",
+        "How much pain or discomfort are you in? (1: None, 2: Mild, 3: Very Uncomfortable, 4: Unbearable)",
+        "Are your symptoms stopping you from doing normal activities? (1: Not at all, 2: A little, 3: Quite a bit, 4: Completely)",
+        "Have you taken anything to relieve your symptoms? Did it help? (1: Nothing taken, 2: No help, 3: Helped a little, 4: Helped a lot)",
+        "Do you have any serious conditions like heart disease or diabetes? (1: No, 2: Yes but controlled, 3: Yes and uncontrolled)",
+        "How worried are you about your symptoms? (1: Not worried, 2: Slightly, 3: Moderately, 4: Very worried)"
     ];
 
     // Process triage response and decide next steps
@@ -1282,8 +1293,9 @@ document.addEventListener('DOMContentLoaded', () => {
     chatInput.addEventListener('keydown', (event) => {
         // Only apply this restriction during triage questions
         if (currentStep === 'triage' || triageStep > 0) {
-            // Allow only numbers 1-4, backspace, delete and arrow keys
-            const allowedKeys = ['1', '2', '3', '4', 'Backspace', 'Delete', 'ArrowLeft', 'ArrowRight', 'Tab'];
+            const validInputs = getValidTriageInputs(triageStep);
+            // Allow only valid numbers for this question, plus navigation keys
+            const allowedKeys = [...validInputs, 'Backspace', 'Delete', 'ArrowLeft', 'ArrowRight', 'Tab'];
             
             if (!allowedKeys.includes(event.key)) {
                 event.preventDefault();
@@ -1300,11 +1312,16 @@ document.addEventListener('DOMContentLoaded', () => {
         toggleSendButton();
         
         // For triage questions, automatically submit valid answers (1-4)
-        if ((currentStep === 'triage' || triageStep > 0) && /^[1-4]$/.test(input)) {
-            // Small delay to let user see what they typed before submitting
-            setTimeout(() => {
-                sendButton.click();
-            }, 300);
+        if (currentStep === 'triage' || triageStep > 0) {
+            const validInputs = getValidTriageInputs(triageStep);
+            const isValidInput = validInputs.includes(input);
+            
+            if (isValidInput) {
+                // Small delay to let user see what they typed before submitting
+                setTimeout(() => {
+                    sendButton.click();
+                }, 300);
+            }
         }
         
         // Handle suggestions for symptom entry (only in step 0)
@@ -1316,6 +1333,102 @@ document.addEventListener('DOMContentLoaded', () => {
             handleSuggestions(searchTerm);
         }
     });
+
+    // Add this function to validate input based on current triage question
+    const getValidTriageInputs = (step) => {
+        // Special handling for questions with only 3 options
+        // Question 2 (index 1) is about symptoms getting worse/better/same
+        // Question 6 (index 5) is about serious conditions
+        if (step === 2 || step === 6) {
+            return ['1', '2', '3'];
+        }
+        // Default for questions with 4 options
+        return ['1', '2', '3', '4']; 
+    };
+
+    // Update the keydown event listener to use the new function
+    chatInput.addEventListener('keydown', (event) => {
+        // Only apply this restriction during triage questions
+        if (currentStep === 'triage' || triageStep > 0) {
+            const validInputs = getValidTriageInputs(triageStep);
+            // Allow only valid numbers for this question, plus navigation keys
+            const allowedKeys = [...validInputs, 'Backspace', 'Delete', 'ArrowLeft', 'ArrowRight', 'Tab'];
+            
+            if (!allowedKeys.includes(event.key)) {
+                event.preventDefault();
+            }
+        }
+    });
+
+    // Update the input event handler to match the validation function
+    chatInput.addEventListener('input', (event) => {
+        const input = event.target.value;
+        
+        // Toggle send button state
+        toggleSendButton();
+        
+        // For triage questions, automatically submit valid answers
+        if (currentStep === 'triage' || triageStep > 0) {
+            const validInputs = getValidTriageInputs(triageStep);
+            const isValidInput = validInputs.includes(input);
+            
+            if (isValidInput) {
+                // Small delay to let user see what they typed before submitting
+                setTimeout(() => {
+                    sendButton.click();
+                }, 300);
+            }
+        }
+        
+        // Handle suggestions for symptom entry (only in step 0)
+        if (currentStep === 0) {
+            const lastComma = input.lastIndexOf(',');
+            const searchTerm = lastComma !== -1 ? 
+                input.substring(lastComma + 1).trim() : 
+                input.trim();
+            handleSuggestions(searchTerm);
+        }
+    });
+
+    // Also update the placeholder text based on the current question
+    const updateTriagePlaceholder = (step) => {
+        const validInputs = getValidTriageInputs(step);
+        const maxOption = Math.max(...validInputs.map(n => parseInt(n)));
+        chatInput.placeholder = `Type ${validInputs.join(', ')} (1-${maxOption})`;
+    };
+
+    // Call this function whenever triageStep changes
+    // For example, add it in the section where you're setting up the triage questions:
+
+    setTimeout(() => {
+        addMessage("To determine where you should seek care, please answer 7 quick questions. First: How quickly did your symptoms develop? (1: Minutes/Hours, 2: Days, 3: Weeks, 4: Months/Years)", 'bot');
+        currentStep = 'triage';
+        triageStep = 1;
+        chatInput.disabled = false;
+        
+        // Update placeholder based on current question options
+        updateTriagePlaceholder(triageStep);
+        
+        chatInput.maxLength = 1; // Restrict to single digit
+        chatInput.pattern = "[1-4]"; // HTML5 pattern for validation
+        chatInput.inputMode = "numeric"; // Show numeric keyboard on mobile
+        chatInputContainer.classList.remove('hidden');
+    }, sortedDiagnoses.length * 500 + 1000);
+
+    // Also update the pattern when triageStep changes
+    // For example, in the handleUserInput function when processing triage answers:
+    if (triageStep > 0 && triageStep <= 7) {
+        triageAnswers.push(parseInt(input));
+        triageStep++;
+        
+        if (triageStep <= 7) {
+            addMessage(triageQuestions[triageStep - 1], 'bot');
+            // Update placeholder for the new question
+            updateTriagePlaceholder(triageStep);
+        } else {
+            // Process triage answers...
+        }
+    }
 });
 
 function configureDateInput() {
