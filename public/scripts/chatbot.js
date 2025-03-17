@@ -325,7 +325,7 @@ document.addEventListener('DOMContentLoaded', () => {
             ];
     
             if (triageStep < 7) {
-                addMessage(questions[triageStep], 'bot');
+                addMessage(triageQuestions[triageStep], 'bot');
                 triageStep++;
                 // Update placeholder for the new question
                 updateTriagePlaceholder(triageStep);
@@ -555,7 +555,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 // Start triage questions after diagnoses
                 setTimeout(() => {
-                    addMessage("To determine where you should seek care, please answer 7 quick questions. First: How quickly did your symptoms develop? (1: Minutes/Hours, 2: Days, 3: Weeks, 4: Months/Years)", 'bot');
+                    addMessage(triageQuestions[0], 'bot');
                     currentStep = 'triage';
                     triageStep = 1;
                     chatInput.disabled = false;
@@ -582,13 +582,74 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Define triage questions
     const triageQuestions = [
-        "How quickly did your symptoms develop? (1: Minutes/Hours, 2: Days, 3: Weeks, 4: Months/Years)",
-        "Are your symptoms getting worse, better, or staying the same? (1: Worse, 2: Better, 3: Same)",
-        "How much pain or discomfort are you in? (1: None, 2: Mild, 3: Very Uncomfortable, 4: Unbearable)",
-        "Are your symptoms stopping you from doing normal activities? (1: Not at all, 2: A little, 3: Quite a bit, 4: Completely)",
-        "Have you taken anything to relieve your symptoms? Did it help? (1: Nothing taken, 2: No help, 3: Helped a little, 4: Helped a lot)",
-        "Do you have any serious conditions like heart disease or diabetes? (1: No, 2: Yes but controlled, 3: Yes and uncontrolled)",
-        "How worried are you about your symptoms? (1: Not worried, 2: Slightly, 3: Moderately, 4: Very worried)"
+        `<div class="triage-question">
+            <h4>How quickly did your symptoms develop?</h4>
+            <div class="triage-options">
+                <div class="triage-option"><span class="option-number">1</span> Minutes/Hours</div>
+                <div class="triage-option"><span class="option-number">2</span> Days</div>
+                <div class="triage-option"><span class="option-number">3</span> Weeks</div>
+                <div class="triage-option"><span class="option-number">4</span> Months/Years</div>
+            </div>
+            <p class="triage-instruction">Type a number from 1-4 to select your answer</p>
+        </div>`,
+        `<div class="triage-question">
+            <h4>Are your symptoms getting worse, better, or staying the same?</h4>
+            <div class="triage-options">
+                <div class="triage-option"><span class="option-number">1</span> Getting worse</div>
+                <div class="triage-option"><span class="option-number">2</span> Getting better</div>
+                <div class="triage-option"><span class="option-number">3</span> Staying the same</div>
+            </div>
+            <p class="triage-instruction">Type a number from 1-3 to select your answer</p>
+        </div>`,
+        `<div class="triage-question">
+            <h4>How much pain or discomfort are you in?</h4>
+            <div class="triage-options">
+                <div class="triage-option"><span class="option-number">1</span> No pain</div>
+                <div class="triage-option"><span class="option-number">2</span> Mild discomfort</div>
+                <div class="triage-option"><span class="option-number">3</span> Very uncomfortable</div>
+                <div class="triage-option"><span class="option-number">4</span> Unbearable pain</div>
+            </div>
+            <p class="triage-instruction">Type a number from 1-4 to select your answer</p>
+        </div>`,
+        `<div class="triage-question">
+            <h4>Are your symptoms stopping you from doing normal activities?</h4>
+            <div class="triage-options">
+                <div class="triage-option"><span class="option-number">1</span> Not at all</div>
+                <div class="triage-option"><span class="option-number">2</span> A little</div>
+                <div class="triage-option"><span class="option-number">3</span> Quite a bit</div>
+                <div class="triage-option"><span class="option-number">4</span> Completely</div>
+            </div>
+            <p class="triage-instruction">Type a number from 1-4 to select your answer</p>
+        </div>`,
+        `<div class="triage-question">
+            <h4>Have you taken anything to relieve your symptoms? Did it help?</h4>
+            <div class="triage-options">
+                <div class="triage-option"><span class="option-number">1</span> Nothing taken</div>
+                <div class="triage-option"><span class="option-number">2</span> Taken but no help</div>
+                <div class="triage-option"><span class="option-number">3</span> Helped a little</div>
+                <div class="triage-option"><span class="option-number">4</span> Helped a lot</div>
+            </div>
+            <p class="triage-instruction">Type a number from 1-4 to select your answer</p>
+        </div>`,
+        `<div class="triage-question">
+            <h4>Do you have any serious conditions like heart disease or diabetes?</h4>
+            <div class="triage-options">
+                <div class="triage-option"><span class="option-number">1</span> No</div>
+                <div class="triage-option"><span class="option-number">2</span> Yes, but controlled</div>
+                <div class="triage-option"><span class="option-number">3</span> Yes, and uncontrolled</div>
+            </div>
+            <p class="triage-instruction">Type a number from 1-3 to select your answer</p>
+        </div>`,
+        `<div class="triage-question">
+            <h4>How worried are you about your symptoms?</h4>
+            <div class="triage-options">
+                <div class="triage-option"><span class="option-number">1</span> Not worried</div>
+                <div class="triage-option"><span class="option-number">2</span> Slightly worried</div>
+                <div class="triage-option"><span class="option-number">3</span> Moderately worried</div>
+                <div class="triage-option"><span class="option-number">4</span> Very worried</div>
+            </div>
+            <p class="triage-instruction">Type a number from 1-4 to select your answer</p>
+        </div>`
     ];
 
     // Process triage response and decide next steps
@@ -1415,14 +1476,14 @@ document.addEventListener('DOMContentLoaded', () => {
         chatInputContainer.classList.remove('hidden');
     }, sortedDiagnoses.length * 500 + 1000);
 
-    // Also update the pattern when triageStep changes
+    // Also update where the triageStep is changed
     // For example, in the handleUserInput function when processing triage answers:
     if (triageStep > 0 && triageStep <= 7) {
         triageAnswers.push(parseInt(input));
         triageStep++;
         
         if (triageStep <= 7) {
-            addMessage(triageQuestions[triageStep - 1], 'bot');
+            addMessage(triageQuestions[triageStep-1], 'bot');
             // Update placeholder for the new question
             updateTriagePlaceholder(triageStep);
         } else {
