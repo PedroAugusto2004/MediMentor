@@ -388,29 +388,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 break;
             case 2:
                 userInputs.gender = input.toLowerCase();
-                if (userInputs.gender === 'female') {
-                    addMessage('Are you currently pregnant? (yes/no)', 'bot');
-                    currentStep = 'pregnancy';
-                    chatInput.disabled = false;
-                    chatInput.placeholder = "Type your message...";
-                    chatInputContainer.classList.remove('hidden');
-                    genderSelection.classList.add('hidden');
-                    return;
-                }
+                // Remove pregnancy check here - move directly to DOB for all users
                 currentStep = 3;
                 addMessage(steps[currentStep], 'bot');
                 configureDateInput();
-                return;
-            case 'pregnancy':
-                const pregnancyResponse = input.toLowerCase();
-                if (pregnancyResponse === 'yes' || pregnancyResponse === 'no') {
-                    userInputs.pregnant = pregnancyResponse === 'yes' ? 'y' : 'n';
-                    currentStep = 3;
-                    addMessage(steps[currentStep], 'bot');
-                    configureDateInput();
-                } else {
-                    addMessage('Please answer with yes or no.', 'bot');
-                }
                 return;
             case 3:
                 const dateValue = input;
@@ -418,7 +399,45 @@ document.addEventListener('DOMContentLoaded', () => {
                     userInputs.yearOfBirth = dateValue;
                     chatInput.classList.remove('hidden');
                     dateInput.classList.add('hidden');
-                    break;
+                    
+                    // Check if the user is female and within childbearing age (13-65)
+                    if (userInputs.gender === 'female') {
+                        const birthYear = parseInt(dateValue.split('/')[2]);
+                        const currentYear = new Date().getFullYear();
+                        const age = currentYear - birthYear;
+                        
+                        // Only ask pregnancy question for females of childbearing age (13-64)
+                        if (age >= 13 && age < 65) {
+                            addMessage('Are you currently pregnant? (yes/no)', 'bot');
+                            currentStep = 'pregnancy';
+                            chatInput.disabled = false;
+                            chatInput.placeholder = "Type your message...";
+                            chatInputContainer.classList.remove('hidden');
+                            return;
+                        }
+                    }
+                    // If not female of childbearing age, continue to next step
+                    currentStep = 4;
+                    addMessage(steps[currentStep], 'bot');
+                    regionSelection.classList.remove('hidden');
+                    chatInput.disabled = true;
+                    chatInput.placeholder = "Chat is disabled";
+                    chatInputContainer.classList.add('hidden');
+                    return;
+                }
+                return;
+            case 'pregnancy':
+                const pregnancyResponse = input.toLowerCase();
+                if (pregnancyResponse === 'yes' || pregnancyResponse === 'no') {
+                    userInputs.pregnant = pregnancyResponse === 'yes' ? 'y' : 'n';
+                    currentStep = 4;
+                    addMessage(steps[currentStep], 'bot');
+                    regionSelection.classList.remove('hidden');
+                    chatInput.disabled = true;
+                    chatInput.placeholder = "Chat is disabled";
+                    chatInputContainer.classList.add('hidden');
+                } else {
+                    addMessage('Please answer with yes or no.', 'bot');
                 }
                 return;
             case 4:
