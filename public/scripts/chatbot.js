@@ -107,6 +107,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const isDiagnosisIntro = message.includes('diagnosis-intro');
             const isDiagnosisCard = message.includes('class="diagnosis');
             const isEndMessage = message.includes('end-chat-message');
+            const isLoadingSpinner = message.includes('dot-spinner');
             
             // Special handling for different message types
             if (isDiagnosisIntro) {
@@ -117,11 +118,20 @@ document.addEventListener('DOMContentLoaded', () => {
             } else if (isDiagnosisCard || isEndMessage) {
                 // For actual diagnosis cards or end message, don't auto-scroll
                 // Let the user scroll manually to view them
+            } else if (isLoadingSpinner) {
+                // For loading spinner, ensure it's visible
+                messageElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
             } else {
                 // For all other messages, scroll into view as normal
                 messageElement.scrollIntoView({ behavior: 'smooth', block: 'end' });
             }
+            
+            // Return the message element for reference
+            return messageElement;
         }, sender === 'bot' ? 1000 : 0);
+        
+        // Return a placeholder (though the actual element is created asynchronously)
+        return null;
     };
 
     // Utility functions for date parsing/formatting remain unchanged
@@ -533,13 +543,31 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    // Updated analyzeSymptoms function with loading spinner removed
+    // Updated analyzeSymptoms function with loading animation
     const analyzeSymptoms = async () => {
-        // Remove the loading spinner completely
-        // const loadingSpinner = document.getElementById('loadingSpinner');
-        // loadingSpinner.classList.add('visible');
-        
         try {
+            // Show processing message with spinner
+            const loadingSpinnerHtml = `
+                <div class="loading-message">Analyzing your symptoms and preparing assessment...</div>
+                <div class="dot-spinner">
+                    <div class="dot-spinner__dot"></div>
+                    <div class="dot-spinner__dot"></div>
+                    <div class="dot-spinner__dot"></div>
+                    <div class="dot-spinner__dot"></div>
+                    <div class="dot-spinner__dot"></div>
+                    <div class="dot-spinner__dot"></div>
+                    <div class="dot-spinner__dot"></div>
+                    <div class="dot-spinner__dot"></div>
+                </div>
+            `;
+            
+            // Add the loading spinner to the chat
+            const spinnerMessageId = addMessage(loadingSpinnerHtml, 'bot');
+            
+            // Disable input during processing
+            chatInput.disabled = true;
+            chatInput.placeholder = "Processing...";
+            
             const symptomNames = userInputs.symptoms
                 .map(symptom => symptom.trim().toLowerCase())
                 .filter(Boolean);
@@ -584,7 +612,7 @@ document.addEventListener('DOMContentLoaded', () => {
             // Store triage URL from diagnosis response
             triageUrl = data.triageUrl;
 
-            // CHANGED: Store the diagnoses instead of displaying them
+            // Store the diagnoses instead of displaying them
             storedDiagnoses = data.diagnoses
                 .sort((a, b) => b.percentage - a.percentage)
                 .slice(0, 5)
@@ -593,28 +621,32 @@ document.addEventListener('DOMContentLoaded', () => {
                     percentage: diagnosis.percentage
                 }));
             
-            // Remove the code that hides the loading spinner
-            // loadingSpinner.classList.remove('visible');
-            
-            // Start triage questions immediately without showing diagnoses
-            addMessage(triageQuestions[0], 'bot');
-            currentStep = 'triage';
-            triageStep = 1;
-            chatInput.disabled = false;
-            
-            // Update placeholder based on current question options
-            updateTriagePlaceholder(triageStep);
-            
-            chatInput.maxLength = 1;
-            chatInput.pattern = "[1-4]";
-            chatInput.inputMode = "numeric";
-            chatInputContainer.classList.remove('hidden');
+            // Add a delay before showing the first triage question to allow users to see the spinner
+            setTimeout(() => {
+                // Find and remove the loading spinner message if it exists
+                const spinnerMessage = document.querySelector('.bot-message:has(.dot-spinner)');
+                if (spinnerMessage) {
+                    spinnerMessage.remove();
+                }
+                
+                // Start triage questions
+                addMessage(triageQuestions[0], 'bot');
+                currentStep = 'triage';
+                triageStep = 1;
+                chatInput.disabled = false;
+                
+                // Update placeholder based on current question options
+                updateTriagePlaceholder(triageStep);
+                
+                chatInput.maxLength = 1;
+                chatInput.pattern = "[1-4]";
+                chatInput.inputMode = "numeric";
+                chatInputContainer.classList.remove('hidden');
+            }, 2500); // Show spinner for 2.5 seconds
 
         } catch (error) {
             console.error('API Error:', error);
             addMessage(`Error: ${error.message}. Please try again.`, 'bot');
-            // Also remove this line
-            // loadingSpinner.classList.remove('visible');
             disableChat();
         }
     };
