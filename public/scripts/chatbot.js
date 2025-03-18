@@ -22,6 +22,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let triageStep = 0;
     let triageAnswers = [];
     let triageUrl = '';
+    let storedDiagnoses = [];
     
     const userName = localStorage.getItem('userName') || 'User';
     
@@ -522,8 +523,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 throw new Error(`Server returned ${response.status}: ${data.error || 'Unknown error'}`);
             }
 
-            loadingSpinner.classList.remove('hidden');
-
             if (!data.diagnoses || !Array.isArray(data.diagnoses)) {
                 throw new Error('Invalid response format: missing diagnoses array');
             }
@@ -531,65 +530,31 @@ document.addEventListener('DOMContentLoaded', () => {
             // Store triage URL from diagnosis response
             triageUrl = data.triageUrl;
 
-            // Add the introductory message before showing diagnoses
-            const introMessage = `
-                <div class="diagnosis-intro animate-in">
-                    <h3>🔍 Analysis Complete</h3>
-                    <p>Based on the symptoms and information you've provided, here are the most likely conditions to consider.</p>
-                    <p>Remember: This is not a definitive diagnosis. Always consult with a healthcare professional.</p>
-                    <p class="restart-hint">Want to start a new consultation? Click the restart button.</p>
-                </div>
-            `;
-            addMessage(introMessage, 'bot');
+            // CHANGED: Store the diagnoses instead of displaying them
+            storedDiagnoses = data.diagnoses
+                .sort((a, b) => b.percentage - a.percentage)
+                .slice(0, 5)
+                .map(diagnosis => ({
+                    ...diagnosis,
+                    percentage: diagnosis.percentage
+                }));
             
-            // Add a delay before showing diagnoses
-            setTimeout(() => {
-                // Sort diagnoses by percentage and display at least 5
-                const sortedDiagnoses = data.diagnoses
-                    .sort((a, b) => b.percentage - a.percentage)
-                    .slice(0, 5)
-                    .map(diagnosis => ({
-                        ...diagnosis,
-                        percentage: diagnosis.percentage
-                    }));
-
-                sortedDiagnoses.forEach((diagnosis, index) => {
-                    // Add additional delay between each diagnosis for a staggered effect
-                    setTimeout(() => {
-                        addDiagnosisToChat({
-                            name: diagnosis.diagnosis_name,
-                            specialty: diagnosis.specialty,
-                            redFlag: diagnosis.red_flag,
-                            common: diagnosis.common_diagnosis,
-                            percentage: diagnosis.percentage,
-                            explanation: `This condition is ${diagnosis.common_diagnosis ? "common" : "less common"} and ${diagnosis.red_flag ? "requires immediate medical attention" : "may be managed with appropriate care"}.`,
-                            description: `This is a ${diagnosis.specialty.toLowerCase()} related condition.`,
-                            knowledgeUrl: diagnosis.knowledge_window_api_url,
-                            recommendation: diagnosis.red_flag ? 
-                                "Seek immediate medical attention" : 
-                                "Consult with a healthcare provider for proper evaluation"
-                        });
-                    }, index * 500); // 500ms delay between each diagnosis
-                });
-
-                // Start triage questions after diagnoses
-                setTimeout(() => {
-                    addMessage(triageQuestions[0], 'bot');
-                    currentStep = 'triage';
-                    triageStep = 1;
-                    chatInput.disabled = false;
-                    
-                    // Update placeholder based on current question options
-                    updateTriagePlaceholder(triageStep);
-                    
-                    chatInput.maxLength = 1; // Restrict to single digit
-                    chatInput.pattern = "[1-4]"; // HTML5 pattern for validation
-                    chatInput.inputMode = "numeric"; // Show numeric keyboard on mobile
-                    chatInputContainer.classList.remove('hidden');
-                }, sortedDiagnoses.length * 500 + 1000);
-
-                loadingSpinner.classList.remove('visible');
-            }, 2000); // 2 second delay after intro message before showing first diagnosis
+            // FIXED: Make sure to hide loading spinner before showing triage questions
+            loadingSpinner.classList.remove('visible');
+            
+            // Start triage questions immediately without showing diagnoses
+            addMessage(triageQuestions[0], 'bot');
+            currentStep = 'triage';
+            triageStep = 1;
+            chatInput.disabled = false;
+            
+            // Update placeholder based on current question options
+            updateTriagePlaceholder(triageStep);
+            
+            chatInput.maxLength = 1;
+            chatInput.pattern = "[1-4]";
+            chatInput.inputMode = "numeric";
+            chatInputContainer.classList.remove('hidden');
 
         } catch (error) {
             console.error('API Error:', error);
@@ -755,7 +720,42 @@ document.addEventListener('DOMContentLoaded', () => {
                 </div>
             `;
             addMessage(triageHtml, 'bot');
-            endChat();
+            
+            // ADDED: Now display the diagnosis intro and stored diagnoses
+            const introMessage = `
+                <div class="diagnosis-intro animate-in">
+                    <h3>🔍 Analysis Complete</h3>
+                    <p>Based on the symptoms and information you've provided, here are the most likely conditions to consider.</p>
+                    <p>Remember: This is not a definitive diagnosis. Always consult with a healthcare professional.</p>
+                    <p class="restart-hint">Want to start a new consultation? Click the restart button.</p>
+                </div>
+            `;
+            addMessage(introMessage, 'bot');
+            
+            // Display stored diagnoses with delay for staggered effect
+            storedDiagnoses.forEach((diagnosis, index) => {
+                setTimeout(() => {
+                    addDiagnosisToChat({
+                        name: diagnosis.diagnosis_name,
+                        specialty: diagnosis.specialty,
+                        redFlag: diagnosis.red_flag,
+                        common: diagnosis.common_diagnosis,
+                        percentage: diagnosis.percentage,
+                        explanation: `This condition is ${diagnosis.common_diagnosis ? "common" : "less common"} and ${diagnosis.red_flag ? "requires immediate medical attention" : "may be managed with appropriate care"}.`,
+                        description: `This is a ${diagnosis.specialty.toLowerCase()} related condition.`,
+                        knowledgeUrl: diagnosis.knowledge_window_api_url,
+                        recommendation: diagnosis.red_flag ? 
+                            "Seek immediate medical attention" : 
+                            "Consult with a healthcare provider for proper evaluation"
+                    });
+                }, index * 500);
+            });
+            
+            // End the chat after showing all content
+            setTimeout(() => {
+                endChat();
+            }, storedDiagnoses.length * 500 + 1000);
+            
         } catch (error) {
             console.error('Triage Error:', error);
             addMessage(`Error: ${error.message}. Defaulting to local analysis.`, 'bot');
