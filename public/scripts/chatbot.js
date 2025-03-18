@@ -911,9 +911,9 @@ document.addEventListener('DOMContentLoaded', () => {
             text: 'color: #000;'
         };
     
-        // Start building the PDF content with the main container
+        // Start building the PDF content with the main container - reduce width to avoid overflow
         let pdfContent = `
-            <div style="padding: 20px; width: 210mm;">
+            <div style="padding: 15px; width: 190mm; max-width: 100%; box-sizing: border-box;">
                 <div style="text-align: center; ${styles.sectionBox}">
                     <img src="assets/images/logo1.png" alt="MediMentor Logo" style="width: 80px; height: 80px;">
                     <h1 style="${styles.header}">Medical Consultation Report</h1>
@@ -924,10 +924,10 @@ document.addEventListener('DOMContentLoaded', () => {
                     <h2 style="${styles.subHeader}">Patient Information</h2>
                     <table style="${styles.table}">
                         <tr>
-                            <td style="${styles.tableCell}"><strong>Patient Name:</strong></td>
-                            <td style="${styles.tableCell}">${userName}</td>
-                            <td style="${styles.tableCell}"><strong>Gender:</strong></td>
-                            <td style="${styles.tableCell}">${formattedGender}</td>
+                            <td style="${styles.tableCell}" width="25%"><strong>Patient Name:</strong></td>
+                            <td style="${styles.tableCell}" width="25%">${userName}</td>
+                            <td style="${styles.tableCell}" width="25%"><strong>Gender:</strong></td>
+                            <td style="${styles.tableCell}" width="25%">${formattedGender}</td>
                         </tr>
                         <tr>
                             <td style="${styles.tableCell}"><strong>Date of Birth:</strong></td>
@@ -948,8 +948,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     <h2 style="${styles.subHeader}">Symptoms Assessment</h2>
                     <table style="${styles.table}">
                         <tr>
-                            <td style="${styles.tableCell}"><strong>Reported Symptoms:</strong></td>
-                            <td style="${styles.tableCell}">${userInputs.symptoms.join(', ')}</td>
+                            <td style="${styles.tableCell}" width="35%"><strong>Reported Symptoms:</strong></td>
+                            <td style="${styles.tableCell}" width="65%">${userInputs.symptoms.join(', ')}</td>
                         </tr>
                         <tr>
                             <td style="${styles.tableCell}"><strong>Onset Duration:</strong></td>
@@ -1001,20 +1001,20 @@ document.addEventListener('DOMContentLoaded', () => {
             pdfContent += `
                 <div style="${styles.sectionBox}">
                     <h2 style="${styles.subHeader}">Care Recommendation</h2>
-                    <div style="padding: 10px; background: ${bgColor}; border-radius: 8px; margin: 10px 0;">
-                        <h3 style="color: ${textColor}; margin: 5px 0;">${recommendationType}</h3>
-                        <p style="margin: 10px 0; color: #000;"><strong>${scoreText}</strong></p>
-                        <p style="margin: 10px 0; color: #000;"><strong>${triageRecommendation.querySelector('h4').textContent}</strong></p>
-                        <p style="margin: 10px 0; color: #000;">${triageRecommendation.querySelector('p:nth-child(2)').textContent}</p>
-                        <p style="margin: 10px 0; color: #000;">${triageRecommendation.querySelector('p:nth-child(3)').textContent}</p>
+                    <div style="padding: 15px; background: ${bgColor}; border-radius: 8px; margin: 10px 0; overflow: hidden;">
+                        <h3 style="color: ${textColor}; margin: 5px 0; word-wrap: break-word; overflow-wrap: break-word;">${recommendationType}</h3>
+                        <p style="margin: 12px 0; color: #000; word-wrap: break-word; overflow-wrap: break-word;">${scoreText}</p>
+                        <p style="margin: 12px 0; color: #000; word-wrap: break-word; overflow-wrap: break-word; font-weight: bold;">${triageRecommendation.querySelector('h4').textContent}</p>
+                        <p style="margin: 12px 0; color: #000; word-wrap: break-word; overflow-wrap: break-word;">${triageRecommendation.querySelector('p:nth-child(2)').textContent}</p>
+                        <p style="margin: 12px 0; color: #000; word-wrap: break-word; overflow-wrap: break-word;">${triageRecommendation.querySelector('p:nth-child(3)').textContent}</p>
                     </div>
                     
-                    <div style="margin-top: 15px; padding: 10px; background: #f5f5f5; border-radius: 8px;">
+                    <div style="margin-top: 15px; padding: 15px; background: #f5f5f5; border-radius: 8px;">
                         <h4 style="margin: 5px 0; color: #333;">What This Means</h4>
                         <ul style="margin: 10px 0; padding-left: 20px; color: #000;">
-                            <li style="margin: 5px 0;"><strong>Emergency Services (Score 85+):</strong> Hospital emergency department or call emergency services</li>
-                            <li style="margin: 5px 0;"><strong>Urgent Care (Score 40-84):</strong> Walk-in clinic or scheduled same-day appointment with your doctor</li>
-                            <li style="margin: 5px 0;"><strong>Routine Care (Score 0-39):</strong> Telehealth consultation or regular appointment with primary care</li>
+                            <li style="margin: 10px 0; word-wrap: break-word; overflow-wrap: break-word;"><strong>Emergency Services (Score 85+):</strong> Hospital emergency department or call emergency services</li>
+                            <li style="margin: 10px 0; word-wrap: break-word; overflow-wrap: break-word;"><strong>Urgent Care (Score 40-84):</strong> Walk-in clinic or scheduled same-day appointment with your doctor</li>
+                            <li style="margin: 10px 0; word-wrap: break-word; overflow-wrap: break-word;"><strong>Routine Care (Score 0-39):</strong> Telehealth consultation or regular appointment with primary care</li>
                         </ul>
                     </div>
                 </div>
@@ -1041,19 +1041,25 @@ document.addEventListener('DOMContentLoaded', () => {
     
             pdfContent += `
                 <div style="${styles.diagnosisBox}">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-                        <h3 style="margin: 0; color: #2c3e50; font-size: 18px;">
-                            ${index + 1}. ${name.replace('🚨', '')}
-                        </h3>
-                        <div style="display: flex; align-items: center; gap: 10px;">
-                            <span style="${severityStyle}">
-                                ${isRedFlag ? 'Urgent' : isCommon ? 'Common' : 'Moderate'}
-                            </span>
-                            <span style="font-weight: bold; color: #0078d4;">${percentage}</span>
-                        </div>
+                    <div style="margin-bottom: 12px;">
+                        <table style="width: 100%; border-collapse: collapse;">
+                            <tr>
+                                <td style="width: 70%; vertical-align: top;">
+                                    <h3 style="margin: 0; color: #2c3e50; font-size: 18px; word-wrap: break-word; overflow-wrap: break-word;">
+                                        ${index + 1}. ${name.replace('🚨', '')}
+                                    </h3>
+                                    <div style="color: #000; margin: 8px 0; word-wrap: break-word; overflow-wrap: break-word;">Specialty: ${specialty}</div>
+                                </td>
+                                <td style="width: 30%; text-align: right; vertical-align: top;">
+                                    <span style="${severityStyle}; display: inline-block; margin-bottom: 8px;">
+                                        ${isRedFlag ? 'Urgent' : isCommon ? 'Common' : 'Moderate'}
+                                    </span><br>
+                                    <span style="font-weight: bold; color: #0078d4; display: inline-block;">${percentage}</span>
+                                </td>
+                            </tr>
+                        </table>
                     </div>
-                    <div style="color: #000; margin: 5px 0;">Specialty: ${specialty}</div>
-                    <div style="margin: 10px 0; padding: 10px; background: #f8f9fa; border-radius: 4px; color: #000;">
+                    <div style="margin: 10px 0; padding: 12px; background: #f8f9fa; border-radius: 4px; color: #000; word-wrap: break-word; overflow-wrap: break-word;">
                         ${recommendation}
                     </div>
                 </div>
@@ -1066,7 +1072,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // Add the footer section
         pdfContent += `
             <div style="margin-top: 30px; ${styles.sectionBox}">
-                <p style="color: #000; font-style: italic; font-size: 12px;">
+                <p style="color: #000; font-style: italic; font-size: 12px; word-wrap: break-word; overflow-wrap: break-word;">
                     <strong>Important Notice:</strong> This report is generated based on the symptoms provided and should be used for informational purposes only. 
                     It is not a substitute for professional medical diagnosis. Please consult with a qualified healthcare provider for proper medical evaluation and treatment.
                 </p>
@@ -1083,7 +1089,7 @@ document.addEventListener('DOMContentLoaded', () => {
     
         // Configure the PDF options
         const opt = {
-            margin: [1.5, 1, 1.5, 1],
+            margin: [1.0, 1.0, 1.0, 1.0], // Reduce margins to give more space for content
             filename: `MediMentor_Report_${userName.replace(/\s+/g, '_')}_${currentDate.replace(/\//g, '-')}.pdf`,
             image: { type: 'jpeg', quality: 0.98 },
             html2canvas: { 
