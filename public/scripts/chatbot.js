@@ -301,6 +301,59 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Update handleUserInput function where inputs get disabled
     const handleUserInput = async (input) => {
+        // Handle view diagnoses state
+        if (currentStep === 'viewDiagnoses') {
+            const response = input.toLowerCase().trim();
+            
+            if (response === 'yes') {
+                // Show diagnosis intro
+                const introMessage = `
+                    <div class="diagnosis-intro animate-in">
+                        <h3>🔍 Analysis Complete</h3>
+                        <p>Based on the symptoms and information you've provided, here are the most likely conditions to consider.</p>
+                        <p>Remember: This is not a definitive diagnosis. Always consult with a healthcare professional.</p>
+                        <p class="restart-hint">Want to start a new consultation? Click the restart button.</p>
+                    </div>
+                `;
+                addMessage(introMessage, 'bot');
+                
+                // Display stored diagnoses with delay for staggered effect
+                storedDiagnoses.forEach((diagnosis, index) => {
+                    setTimeout(() => {
+                        addDiagnosisToChat({
+                            name: diagnosis.diagnosis_name,
+                            specialty: diagnosis.specialty,
+                            redFlag: diagnosis.red_flag,
+                            common: diagnosis.common_diagnosis,
+                            percentage: diagnosis.percentage,
+                            explanation: `This condition is ${diagnosis.common_diagnosis ? "common" : "less common"} and ${diagnosis.red_flag ? "requires immediate medical attention" : "may be managed with appropriate care"}.`,
+                            description: `This is a ${diagnosis.specialty.toLowerCase()} related condition.`,
+                            knowledgeUrl: diagnosis.knowledge_window_api_url,
+                            recommendation: diagnosis.red_flag ? 
+                                "Seek immediate medical attention" : 
+                                "Consult with a healthcare provider for proper evaluation"
+                        });
+                    }, index * 500);
+                });
+                
+                // End the chat after showing all diagnoses
+                setTimeout(() => {
+                    endChat();
+                }, storedDiagnoses.length * 500 + 1000);
+                
+            } else if (response === 'no') {
+                // Skip showing diagnoses and just end chat
+                addMessage("Thank you for using MediMentor. Remember to follow the care recommendation provided above.", 'bot');
+                endChat();
+            } else {
+                // Invalid response, ask again
+                addMessage("Please answer with 'yes' or 'no' to indicate if you'd like to see possible conditions.", 'bot');
+                return;
+            }
+            
+            return;
+        }
+        
         if (triageStep > 0 && triageStep <= 7) {
             const answer = parseInt(input);
             const validInputs = getValidTriageInputs(triageStep);
@@ -723,50 +776,46 @@ document.addEventListener('DOMContentLoaded', () => {
             `;
             addMessage(triageHtml, 'bot');
             
-            // ADDED: Now display the diagnosis intro and stored diagnoses
-            const introMessage = `
-                <div class="diagnosis-intro animate-in">
-                    <h3>🔍 Analysis Complete</h3>
-                    <p>Based on the symptoms and information you've provided, here are the most likely conditions to consider.</p>
-                    <p>Remember: This is not a definitive diagnosis. Always consult with a healthcare professional.</p>
-                    <p class="restart-hint">Want to start a new consultation? Click the restart button.</p>
-                </div>
-            `;
-            addMessage(introMessage, 'bot');
+            // Ask if user wants to see diagnoses instead of showing them automatically
+            addMessage("Would you like to see the list of possible conditions based on your symptoms? Type 'yes' or 'no'.", 'bot');
             
-            // Display stored diagnoses with delay for staggered effect
-            storedDiagnoses.forEach((diagnosis, index) => {
-                setTimeout(() => {
-                    addDiagnosisToChat({
-                        name: diagnosis.diagnosis_name,
-                        specialty: diagnosis.specialty,
-                        redFlag: diagnosis.red_flag,
-                        common: diagnosis.common_diagnosis,
-                        percentage: diagnosis.percentage,
-                        explanation: `This condition is ${diagnosis.common_diagnosis ? "common" : "less common"} and ${diagnosis.red_flag ? "requires immediate medical attention" : "may be managed with appropriate care"}.`,
-                        description: `This is a ${diagnosis.specialty.toLowerCase()} related condition.`,
-                        knowledgeUrl: diagnosis.knowledge_window_api_url,
-                        recommendation: diagnosis.red_flag ? 
-                            "Seek immediate medical attention" : 
-                            "Consult with a healthcare provider for proper evaluation"
-                    });
-                }, index * 500);
-            });
+            // Change to a new state for user to decide on viewing diagnoses
+            currentStep = 'viewDiagnoses';
             
-            // End the chat after showing all content
+            // IMPORTANT: Reset triageStep to 0 to disable numeric-only restrictions
+            triageStep = 0;
+            
+            // Use setTimeout with longer delay and more aggressive reset
             setTimeout(() => {
-                endChat();
-            }, storedDiagnoses.length * 500 + 1000);
+                try {
+                    // Force reset all input restrictions
+                    chatInput.disabled = false;
+                    chatInput.placeholder = "Type yes or no";
+                    chatInput.value = ""; // Clear any existing value
+                    
+                    // Completely reset input field properties
+                    chatInput.maxLength = 524288; // Reset to default
+                    chatInput.removeAttribute("pattern"); // Remove pattern attribute
+                    chatInput.removeAttribute("min");    // Remove any min value
+                    chatInput.removeAttribute("max");    // Remove any max value
+                    chatInput.inputMode = "text";        // Reset to text input
+                    
+                    // Make sure input container is visible
+                    chatInputContainer.classList.remove('hidden');
+                    
+                    // Focus the input field to help user
+                    chatInput.focus();
+                    
+                    console.log("Input field reset for yes/no response");
+                } catch (error) {
+                    console.error("Error resetting input field:", error);
+                }
+            }, 300); // Longer delay to ensure DOM updates properly
             
         } catch (error) {
-            console.error('Triage Error:', error);
-            addMessage(`Error: ${error.message}. Defaulting to local analysis.`, 'bot');
-            // Fallback to local score if API fails
-            const weights = [0.25, 0.15, 0.20, 0.15, 0.10, 0.10, 0.05];
-            const maxValues = [4, 3, 4, 4, 4, 3, 4];
-            const localScore = Math.round(triageAnswers.reduce((sum, a, i) => sum + (a - 1) / (maxValues[i] - 1) * weights[i] * 150, 0));
-            addMessage(`Local Score: ${localScore}/150. Consult a professional.`, 'bot');
-            endChat();
+            console.error('Triage API Error:', error);
+            addMessage(`Error: ${error.message}. Please try again.`, 'bot');
+            disableChat();
         }
     };
 
