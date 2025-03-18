@@ -480,10 +480,11 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    // Updated analyzeSymptoms function with new API endpoint and diagnosis mapping
+    // Updated analyzeSymptoms function with loading spinner removed
     const analyzeSymptoms = async () => {
-        const loadingSpinner = document.getElementById('loadingSpinner');
-        loadingSpinner.classList.add('visible');
+        // Remove the loading spinner completely
+        // const loadingSpinner = document.getElementById('loadingSpinner');
+        // loadingSpinner.classList.add('visible');
         
         try {
             const symptomNames = userInputs.symptoms
@@ -539,8 +540,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     percentage: diagnosis.percentage
                 }));
             
-            // FIXED: Make sure to hide loading spinner before showing triage questions
-            loadingSpinner.classList.remove('visible');
+            // Remove the code that hides the loading spinner
+            // loadingSpinner.classList.remove('visible');
             
             // Start triage questions immediately without showing diagnoses
             addMessage(triageQuestions[0], 'bot');
@@ -559,7 +560,8 @@ document.addEventListener('DOMContentLoaded', () => {
         } catch (error) {
             console.error('API Error:', error);
             addMessage(`Error: ${error.message}. Please try again.`, 'bot');
-            loadingSpinner.classList.remove('visible');
+            // Also remove this line
+            // loadingSpinner.classList.remove('visible');
             disableChat();
         }
     };
