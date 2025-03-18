@@ -673,70 +673,72 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Process triage response and decide next steps
     const processTriage = async () => {
-        // Add this log before the fetch request
         console.log('Triage Payload:', { answers: triageAnswers, triageUrl });
         
         try {
+            // Local weighted scoring
+            const weights = [0.25, 0.15, 0.20, 0.15, 0.10, 0.10, 0.05];
+            const maxValues = [4, 3, 4, 4, 4, 3, 4]; // Max possible answer for each question
+            let localScore = 0;
+
+            triageAnswers.forEach((answer, i) => {
+                const normalizedAnswer = (answer - 1) / (maxValues[i] - 1); // Normalize to 0-1
+                localScore += normalizedAnswer * weights[i] * 150; // Scale to 150
+            });
+
+            // API call
             const response = await fetch('https://ozx557ly3h.execute-api.us-east-1.amazonaws.com/dev/process-triage', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ answers: triageAnswers, triageUrl })
             });
             const data = await response.json();
-    
-            if (!response.ok) {
-                throw new Error(data.error || 'Failed to process triage');
-            }
-    
-            // Determine severity category and color based on score
-            const severityCategory = data.score >= 100 ? 'High Urgency' :
-                                  data.score >= 70 ? 'Moderate Urgency' :
-                                  data.score >= 40 ? 'Low Urgency' : 'Non-Urgent';
-            
-            const severityColor = data.score >= 100 ? '#d32f2f' :  // Red for high
-                               data.score >= 70 ? '#ff9800' :   // Orange for moderate
-                               data.score >= 40 ? '#ffeb3b' :   // Yellow for low
-                               '#4caf50';                      // Green for non-urgent
-            
-            // Create more detailed recommendation based on score
-            let detailedRecommendation = '';
-            let timeframe = '';
-            let additionalInfo = '';
-    
-            if (data.score >= 100) {
-                timeframe = 'Seek care immediately';
-                additionalInfo = 'Your symptoms indicate a potentially serious condition that requires immediate professional evaluation.';
-            } else if (data.score >= 70) {
-                timeframe = 'Seek care within 24 hours';
-                additionalInfo = 'Your symptoms should be evaluated by a medical professional within a day.';
-            } else if (data.score >= 40) {
-                timeframe = 'Seek care within the next few days';
-                additionalInfo = 'Your symptoms warrant evaluation, but are not immediately life-threatening.';
-            } else {
-                timeframe = 'Seek care at your convenience';
-                additionalInfo = 'Your symptoms appear mild and can likely be managed with self-care or a routine appointment.';
-            }
-    
-            // Generate HTML for the enhanced triage result
+
+            if (!response.ok) throw new Error(data.error || 'Failed to process triage');
+
+            // Blend scores
+            let finalScore = data.score && !isNaN(data.score) ? 
+                Math.round((data.score * 0.6) + (localScore * 0.4)) : 
+                Math.round(localScore);
+
+            // Enhanced severity mapping
+            const severityMap = {
+                'Emergency Services': finalScore >= 100,
+                'Urgent Care': finalScore >= 70 && finalScore < 100,
+                'Primary Care': finalScore >= 40 && finalScore < 70,
+                'Self-Care/Telehealth': finalScore < 40
+            };
+            const careVenue = Object.keys(severityMap).find(key => severityMap[key]);
+            const severityCategory = finalScore >= 100 ? 'High Urgency' :
+                                    finalScore >= 70 ? 'Moderate Urgency' :
+                                    finalScore >= 40 ? 'Low Urgency' : 'Non-Urgent';
+            const severityColor = finalScore >= 100 ? '#d32f2f' :
+                                 finalScore >= 70 ? '#ff9800' :
+                                 finalScore >= 40 ? '#ffeb3b' : '#4caf50';
+
+            // Detailed recommendation
+            const timeframe = finalScore >= 100 ? 'Seek care immediately' :
+                             finalScore >= 70 ? 'Seek care within 24 hours' :
+                             finalScore >= 40 ? 'Seek care within 72 hours' : 'Monitor and seek care if needed';
+            const additionalInfo = finalScore >= 100 ? 'Potentially serious condition requiring immediate attention.' :
+                                  finalScore >= 70 ? 'Requires prompt evaluation.' :
+                                  finalScore >= 40 ? 'Warrants medical review soon.' : 'Likely manageable with self-care.';
+
             const triageHtml = `
                 <div class="triage-result">
                     <h3>Care Recommendation</h3>
                     <div class="triage-score-container">
-                        <div class="triage-score-label">Urgency Level: <span style="color: ${severityColor}; font-weight: bold;">${severityCategory}</span></div>
-                        <div class="triage-score-value">Score: ${data.score}/150</div>
+                        <div class="triage-score-label">Urgency: <span style="color: ${severityColor}">${severityCategory}</span></div>
+                        <div class="triage-score-value">Score: ${finalScore}/150</div>
                         <div class="triage-slider-container">
-                            <input type="range" min="0" max="150" value="${data.score}" disabled class="triage-slider">
+                            <input type="range" min="0" max="150" value="${finalScore}" disabled class="triage-slider">
                             <div class="triage-labels">
-                                <span>Non-Urgent</span>
-                                <span>Low</span>
-                                <span>Moderate</span>
-                                <span>High</span>
+                                <span>Non-Urgent</span><span>Low</span><span>Moderate</span><span>High</span>
                             </div>
                         </div>
                     </div>
-                    
-                    <div class="triage-recommendation" style="border-left: 4px solid ${severityColor}; padding-left: 12px; margin: 15px 0;">
-                        <h4>Recommended Care: ${data.careVenue}</h4>
+                    <div class="triage-recommendation" style="border-left: 4px solid ${severityColor};">
+                        <h4>Recommended: ${careVenue}</h4>
                         <p><strong>${timeframe}</strong></p>
                         <p>${additionalInfo}</p>
                     </div>
@@ -752,12 +754,16 @@ document.addEventListener('DOMContentLoaded', () => {
                     </div>
                 </div>
             `;
-            
             addMessage(triageHtml, 'bot');
             endChat();
         } catch (error) {
-            console.error('Triage Processing Error:', error);
-            addMessage(`Error processing triage: ${error.message}`, 'bot');
+            console.error('Triage Error:', error);
+            addMessage(`Error: ${error.message}. Defaulting to local analysis.`, 'bot');
+            // Fallback to local score if API fails
+            const weights = [0.25, 0.15, 0.20, 0.15, 0.10, 0.10, 0.05];
+            const maxValues = [4, 3, 4, 4, 4, 3, 4];
+            const localScore = Math.round(triageAnswers.reduce((sum, a, i) => sum + (a - 1) / (maxValues[i] - 1) * weights[i] * 150, 0));
+            addMessage(`Local Score: ${localScore}/150. Consult a professional.`, 'bot');
             endChat();
         }
     };

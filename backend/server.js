@@ -289,67 +289,52 @@ app.post('/chat', async (req, res) => {
 app.post('/process-triage', async (req, res) => {
     try {
         const { answers, triageUrl } = req.body;
-        
         console.log('Received Triage Request:', { answers, triageUrl });
-        
+
         if (!triageUrl || !Array.isArray(answers) || answers.length !== 7) {
-            console.log('Validation Failed:', { 
-                triageUrlMissing: !triageUrl, 
-                answersNotArray: !Array.isArray(answers), 
-                answersLength: answers ? answers.length : 0,
-                answers,
-                triageUrl
-            });
             return res.status(400).json({ error: 'Invalid input: triageUrl and 7 answers required' });
         }
 
+        // Validate answer ranges
+        const validRanges = [[1, 4], [1, 3], [1, 4], [1, 4], [1, 4], [1, 3], [1, 4]];
+        for (let i = 0; i < answers.length; i++) {
+            if (answers[i] < validRanges[i][0] || answers[i] > validRanges[i][1]) {
+                return res.status(400).json({ error: `Answer ${i + 1} must be between ${validRanges[i][0]} and ${validRanges[i][1]}` });
+            }
+        }
+
+        // Local weighted score
+        const weights = [0.25, 0.15, 0.20, 0.15, 0.10, 0.10, 0.05];
+        const maxValues = [4, 3, 4, 4, 4, 3, 4];
+        let localScore = answers.reduce((sum, a, i) => {
+            const normalized = (a - 1) / (maxValues[i] - 1);
+            return sum + normalized * weights[i] * 150;
+        }, 0);
+
+        // API call
         const urlParams = new URLSearchParams(triageUrl.split('?')[1]);
         answers.forEach((a, i) => urlParams.set(`Q${i + 1}`, encodeURIComponent(a)));
         const fullUrl = `${triageUrl.split('?')[0]}?${urlParams.toString()}`;
-
-        console.log('Isabel API Request:', fullUrl);
-
-        const response = await axios.get(
-            fullUrl,
-            { headers: { Authorization: await getIsabelApiKey() } }
-        );
-        
-        console.log('Isabel API Response:', response.data);
-
-        const triageScoreRaw = response.data.where_to_now?.triage_score;
-        let triageScore;
-
-        if (typeof triageScoreRaw === 'string') {
-            if (triageScoreRaw.startsWith('Please send relevant responses')) {
-                console.warn('Sandbox limitation detected:', triageScoreRaw);
-                triageScore = 50; // Mock score for sandbox
-            } else {
-                triageScore = parseInt(triageScoreRaw, 10);
-            }
-        } else {
-            triageScore = triageScoreRaw;
-        }
-
-        if (typeof triageScore !== 'number' || isNaN(triageScore)) {
-            console.error('Invalid triage score received:', response.data);
-            triageScore = 50; // Fallback mock score
-            console.warn('Using mock triage score (50) due to invalid response');
-        }
-
-        const careVenue = triageScore >= 85 ? 'Emergency Services' :
-                          triageScore >= 40 ? 'Urgent Care/Family Physician' :
-                          'Telemedicine/Walk-in Clinic';
-
-        res.json({ score: triageScore, careVenue });
-    } catch (error) {
-        console.error('Triage Error:', error.message, error.stack);
-        if (error.response) {
-            console.error('API Error Response:', error.response.data, error.response.status);
-        }
-        res.status(500).json({ 
-            error: 'Error processing triage', 
-            details: error.message || 'Unknown server error'
+        const response = await axios.get(fullUrl, {
+            headers: { Authorization: await getIsabelApiKey() }
         });
+
+        let triageScore = response.data.where_to_now?.triage_score;
+        if (typeof triageScore === 'string' || isNaN(triageScore)) {
+            console.warn('Invalid API score, using local score:', triageScore);
+            triageScore = localScore;
+        } else {
+            triageScore = Math.round((parseInt(triageScore, 10) * 0.6) + (localScore * 0.4));
+        }
+
+        const careVenue = triageScore >= 100 ? 'Emergency Services' :
+                         triageScore >= 70 ? 'Urgent Care' :
+                         triageScore >= 40 ? 'Primary Care' : 'Self-Care/Telehealth';
+
+        res.json({ score: triageScore, careVenue, localScore });
+    } catch (error) {
+        console.error('Triage Error:', error.message);
+        res.status(500).json({ error: 'Error processing triage', details: error.message });
     }
 });
 
