@@ -2461,3 +2461,44 @@ main {
     color: var(--text-muted);
     font-size: 0.9em;
 }
+
+/* API Warning Popup specific styles */
+#api-warning-popup .popup-content {
+    border: 2px solid #d32f2f;
+    max-width: 450px;
+}
+
+#api-warning-popup .popup-content h3 {
+    font-size: 1.4rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+#api-warning-popup button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 200px;
+    height: 45px;
+    margin: 20px auto 0;
+    color: white;
+    font-size: 14px;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+    background-color: #d32f2f;
+    border: none;
+    border-radius: 25px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+#api-warning-popup button:hover {
+    background-color: #b71c1c;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(183, 28, 28, 0.3);
+}
+
+#api-warning-popup button:active {
+    transform: translateY(0);
+}

@@ -1,4 +1,12 @@
 document.addEventListener('DOMContentLoaded', () => {
+    // Add API warning popup handler
+    const apiWarningPopup = document.getElementById('api-warning-popup');
+    const acknowledgeButton = document.getElementById('acknowledge-warning');
+    
+    acknowledgeButton.addEventListener('click', () => {
+        apiWarningPopup.classList.remove('show');
+    });
+
     const chatInput = document.getElementById('chatInput');
     const dateInput = document.getElementById('dateInput');
     const sendButton = document.getElementById('sendButton');
