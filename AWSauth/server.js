@@ -23,9 +23,7 @@ const cognito = new AWS.CognitoIdentityServiceProvider({
   region: process.env.COGNITO_REGION,
 });
 
-// 🔹 Log every request (for debugging)
 app.use((req, res, next) => {
-    console.log(`[${new Date().toISOString()}] ${req.method} ${req.path}`);
     next();
 });
 

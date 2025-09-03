@@ -1,3 +1,9 @@
+/**
+ * MediMentor Backend Server
+ * AWS Lambda serverless backend for symptom analysis and user management
+ * Integrates with Isabel Healthcare API for medical diagnosis
+ */
+
 import express from 'express';
 import axios from 'axios';
 import dotenv from 'dotenv';
@@ -33,7 +39,11 @@ app.use((req, res, next) => {
 const ssmClient = new SSMClient({ region: process.env.AWS_REGION });
 const dynamoClient = new DynamoDBClient({ region: process.env.AWS_REGION });
 
-// Fetch Isabel API key
+/**
+ * Retrieves the Isabel Healthcare API key from AWS Systems Manager Parameter Store
+ * @returns {Promise<string>} The API key for Isabel Healthcare
+ * @throws {Error} If the API key cannot be retrieved
+ */
 async function getIsabelApiKey() {
     try {
         const command = new GetParameterCommand({
@@ -41,7 +51,7 @@ async function getIsabelApiKey() {
             WithDecryption: true,
         });
         const response = await ssmClient.send(command);
-        console.log('SSM Parameter Response:', response);
+
         return response.Parameter.Value;
     } catch (error) {
         console.error('Error fetching Isabel API key:', error);
@@ -87,7 +97,16 @@ async function saveSession(sessionId, sessionData) {
     await dynamoClient.send(command);
 }
 
-// Analyze symptoms
+/**
+ * Analyzes symptoms using Isabel Healthcare API
+ * @param {Object} params - Analysis parameters
+ * @param {string[]} params.symptoms - Array of symptoms
+ * @param {string} params.gender - User's gender
+ * @param {string} params.yearOfBirth - User's year of birth
+ * @param {string} params.region - User's region
+ * @param {string} params.pregnant - Pregnancy status
+ * @returns {Promise<Object>} Analysis results with diagnoses and recommendations
+ */
 async function analyzeSymptoms({ symptoms, gender, yearOfBirth, region, pregnant }) {
     try {
         // Normalize region: convert spaces to hyphens and make lowercase
@@ -117,13 +136,13 @@ async function analyzeSymptoms({ symptoms, gender, yearOfBirth, region, pregnant
             web_service: 'json',
         };
         const url = 'https://apiscsandbox.isabelhealthcare.com/v3/ranked_differential_diagnoses?' + new URLSearchParams(params).toString();
-        console.log('Diagnosis API Request URL:', url);
+
 
         const response = await axios.get(url, {
             headers: { Authorization: apiKey },
         });
 
-        console.log('Diagnosis API Response:', response.data);
+
         
         // Calculate percentages based on ranking
         const diagnoses = response.data?.diagnoses_checklist?.diagnoses || [];
@@ -153,7 +172,7 @@ async function analyzeSymptoms({ symptoms, gender, yearOfBirth, region, pregnant
             message: error.message,
             response: error.response?.data,
             status: error.response?.status,
-            requestData: { symptoms, gender, yearOfBirth, region, pregnant }  // Add request data to debug
+            requestData: { symptoms, gender, yearOfBirth, region, pregnant }
         });
         throw new Error(error.response?.data?.error || error.message);
     }
@@ -289,7 +308,7 @@ app.post('/chat', async (req, res) => {
 app.post('/process-triage', async (req, res) => {
     try {
         const { answers, triageUrl } = req.body;
-        console.log('Received Triage Request:', { answers, triageUrl });
+
 
         if (!triageUrl || !Array.isArray(answers) || answers.length !== 7) {
             return res.status(400).json({ error: 'Invalid input: triageUrl and 7 answers required' });
@@ -321,7 +340,7 @@ app.post('/process-triage', async (req, res) => {
 
         let triageScore = response.data.where_to_now?.triage_score;
         if (typeof triageScore === 'string' || isNaN(triageScore)) {
-            console.warn('Invalid API score, using local score:', triageScore);
+
             triageScore = localScore;
         } else {
             triageScore = Math.round((parseInt(triageScore, 10) * 0.6) + (localScore * 0.4));
@@ -349,7 +368,7 @@ app.post('/analyze-symptoms', async (req, res) => {
         const diagnosis = await analyzeSymptoms({ symptoms, gender, yearOfBirth, region });
         
         // Add this log before sending the response
-        console.log('Sending Diagnosis Response:', diagnosis);
+
         
         res.setHeader('Content-Type', 'application/json');
         res.send(JSON.stringify(diagnosis, null, 2));

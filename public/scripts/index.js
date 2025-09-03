@@ -1,4 +1,10 @@
+/**
+ * MediMentor Authentication Module
+ * Handles user authentication, registration, and password management
+ */
+
 document.addEventListener('DOMContentLoaded', () => {
+    // DOM Elements
     const loginForm = document.getElementById('login-form');
     const signupForm = document.getElementById('signup-form');
     const signupBtn = document.getElementById('signup-btn');
@@ -7,9 +13,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const forgotPasswordForm = document.getElementById('forgot-password-form');
     const backToLoginFromForgot = document.getElementById('back-to-login-from-forgot');
 
-    const apiUrl = 'https://o3jowgm41d.execute-api.us-east-1.amazonaws.com/dev'; // Update with your deployed API endpoint
+    // API Configuration
+    const apiUrl = 'https://o3jowgm41d.execute-api.us-east-1.amazonaws.com/dev';
 
-    // Add loading state management
+    /**
+     * Sets loading state for form submission buttons
+     * @param {HTMLElement} form - The form element
+     * @param {boolean} isLoading - Whether to show loading state
+     */
     const setLoading = (form, isLoading) => {
         const submitBtn = form.querySelector('button[type="submit"]');
         const originalText = submitBtn.dataset.originalText || submitBtn.textContent;
@@ -112,7 +123,10 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Replace the existing showError function with this enhanced version
+    /**
+     * Displays error messages to the user with animation
+     * @param {string} message - The error message to display
+     */
     const showError = (message) => {
         // Remove any existing alerts
         const existingAlert = document.querySelector('.alert-message');
@@ -159,14 +173,9 @@ document.addEventListener('DOMContentLoaded', () => {
     signupForm.addEventListener('submit', async (event) => {
         event.preventDefault();
         
-        // Add console.log for debugging
-        console.log('Form submitted');
-        
         const termsCheckbox = document.getElementById('terms-checkbox');
-        console.log('Terms checked:', termsCheckbox.checked);  // Debug log
         
         if (!termsCheckbox.checked) {
-            console.log('Terms not checked, showing error');  // Debug log
             showError('You must agree to the terms and conditions to sign up');
             return;
         }
@@ -197,7 +206,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const data = await response.json();
             if (response.ok) {
-                alert('Sign up successful! Please check your email for verification code.');
+                showError('Sign up successful! Please check your email for verification code.');
                 await handleSignupConfirmation(email);
             } else {
                 if (data.message.includes('User already exists')) {
@@ -271,16 +280,12 @@ function checkPasswordMatch() {
     // Update the forgot password form submission handler
     forgotPasswordForm.addEventListener('submit', async (event) => {
         event.preventDefault();
-        console.log('Form submitted'); // Debug log
-
         const emailInput = document.getElementById('forgot-password-email');
         const email = emailInput.value;
-        console.log('Email:', email); // Debug log
 
         setLoading(forgotPasswordForm, true);
 
         try {
-            console.log('Sending request...'); // Debug log
             const response = await fetch(`${apiUrl}/auth/forgot-password`, {
                 method: 'POST',
                 headers: {
@@ -290,10 +295,9 @@ function checkPasswordMatch() {
             });
 
             const data = await response.json();
-            console.log('Response:', data); // Debug log
             
             if (response.ok) {
-                alert('Please check your email for the password reset code.');
+                showError('Please check your email for the password reset code.');
                 
                 const code = prompt('Enter the verification code from your email:');
                 if (!code) {
@@ -314,10 +318,9 @@ function checkPasswordMatch() {
                 });
 
                 const confirmData = await confirmResponse.json();
-                console.log('Confirm response:', confirmData); // Debug log
                 
                 if (confirmResponse.ok) {
-                    alert('Password has been reset successfully! You can now login with your new password.');
+                    showError('Password has been reset successfully! You can now login with your new password.');
                     document.querySelector('.forgot-password-section').style.display = 'none';
                     document.querySelector('.login-section').style.display = 'flex';
                     emailInput.value = '';
@@ -362,12 +365,12 @@ function checkPasswordMatch() {
 
             const data = await response.json();
             if (response.ok) {
-                alert('Email confirmed successfully! Please login.');
+                showError('Email confirmed successfully! Please login.');
                 // Switch to login section
                 document.querySelector('.signup-section').style.display = 'none';
                 document.querySelector('.login-section').style.display = 'flex';
             } else {
-                alert(data.message || 'Confirmation failed');
+                showError(data.message || 'Confirmation failed');
                 // Add resend code option
                 if (confirm('Would you like to resend the confirmation code?')) {
                     await resendConfirmationCode(email);
@@ -375,7 +378,7 @@ function checkPasswordMatch() {
             }
         } catch (error) {
             console.error('Confirmation error:', error);
-            alert('Confirmation failed. Please try again.');
+            showError('Confirmation failed. Please try again.');
         }
     }
 
@@ -391,13 +394,13 @@ function checkPasswordMatch() {
 
             const data = await response.json();
             if (response.ok) {
-                alert('Verification code has been resent to your email');
+                showError('Verification code has been resent to your email');
             } else {
-                alert(data.message || 'Failed to resend code');
+                showError(data.message || 'Failed to resend code');
             }
         } catch (error) {
             console.error('Resend code error:', error);
-            alert('Failed to resend code. Please try again.');
+            showError('Failed to resend code. Please try again.');
         }
     }
 
@@ -413,13 +416,13 @@ function checkPasswordMatch() {
             });
             const data = await response.json();
             if (data.success) {
-                alert('Password reset code sent to your email.');
+                showError('Password reset code sent to your email.');
             } else {
-                alert('Error: ' + data.message);
+                showError('Error: ' + data.message);
             }
         } catch (error) {
             console.error('Error:', error);
-            alert('An error occurred. Please try again.');
+            showError('An error occurred. Please try again.');
         }
     }
 

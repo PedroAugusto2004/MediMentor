@@ -1,5 +1,10 @@
+/**
+ * MediMentor Chatbot Module
+ * Handles symptom analysis conversation flow and medical API integration
+ */
+
 document.addEventListener('DOMContentLoaded', () => {
-    // Add API warning popup handler
+    // API Warning Popup Handler
     const apiWarningPopup = document.getElementById('api-warning-popup');
     const acknowledgeButton = document.getElementById('acknowledge-warning');
     
@@ -220,13 +225,13 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         event.target.setCustomValidity('');
         const americanDate = formatDateToAmerican(event.target.value);
-        console.log('American Date Format:', americanDate);
+
     });
 
     const processDateInput = () => {
         const americanDate = dateInput.value;
         const isoDate = parseAmericanDate(americanDate);
-        console.log('ISO Date Format:', isoDate);
+
     };
 
     const getBotResponse = (userMessage, step) => {
@@ -587,7 +592,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 region: userInputs.region.toLowerCase().replace('-', ' ')
             };
 
-            console.log('Request payload:', payload);
+
 
             const API_URL = 'https://ozx557ly3h.execute-api.us-east-1.amazonaws.com/dev/analyze-symptoms';
 
@@ -601,13 +606,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 body: JSON.stringify(payload)
             });
 
-            console.log('Response status:', response.status);
+
 
             const data = await response.json();
             
-            // Add these logs after parsing the response
-            console.log('Received Diagnosis Data:', data);
-            console.log('Received Triage URL:', data.triageUrl);
+
 
             if (!response.ok) {
                 throw new Error(`Server returned ${response.status}: ${data.error || 'Unknown error'}`);
@@ -733,7 +736,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Process triage response and decide next steps
     const processTriage = async () => {
-        console.log('Triage Payload:', { answers: triageAnswers, triageUrl });
+
         
         try {
             // Local weighted scoring
@@ -846,7 +849,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     // Focus the input field to help user
                     chatInput.focus();
                     
-                    console.log("Input field reset for yes/no response");
+
                 } catch (error) {
                     console.error("Error resetting input field:", error);
                 }
