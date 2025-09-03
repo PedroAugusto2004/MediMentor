@@ -7,7 +7,7 @@
 
 **🥇 Hackathon Winner - EQ Hacks Stanford University**
 
-[![Live Demo](https://img.shields.io/badge/Live-Demo-brightgreen)](https://your-demo-link.com)
+
 [![AWS](https://img.shields.io/badge/AWS-Cloud-orange)](https://aws.amazon.com/)
 [![Isabel Healthcare](https://img.shields.io/badge/Powered%20by-Isabel%20Healthcare-blue)](https://www.isabelhealthcare.com)
 [![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
