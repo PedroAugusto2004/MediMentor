@@ -37,27 +37,90 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    // Improved login form submission
+    // Request deduplication flag
+    let isLoginInProgress = false;
+
+    /**
+     * Fetch with retry logic and proper abort handling
+     * @param {string} url - The URL to fetch
+     * @param {Object} options - Fetch options
+     * @param {number} maxRetries - Maximum number of retries
+     * @param {number} timeout - Request timeout in milliseconds
+     * @returns {Promise<Response>} The fetch response
+     */
+    const fetchWithRetry = async (url, options, maxRetries = 1, timeout = 15000) => {
+        let lastError;
+        
+        for (let attempt = 0; attempt <= maxRetries; attempt++) {
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), timeout);
+            
+            try {
+                const response = await fetch(url, {
+                    ...options,
+                    signal: controller.signal
+                });
+                clearTimeout(timeoutId);
+                return response;
+            } catch (error) {
+                clearTimeout(timeoutId);
+                lastError = error;
+                
+                // Don't retry if it was manually aborted or not a timeout/network error
+                if (error.name === 'AbortError') {
+                    console.log(`Request attempt ${attempt + 1} timed out, ${attempt < maxRetries ? 'retrying...' : 'no more retries'}`);
+                } else if (!error.message.includes('fetch')) {
+                    throw error; // Re-throw non-network errors immediately
+                }
+                
+                // Wait before retrying (exponential backoff: 3s, 6s, etc.)
+                if (attempt < maxRetries) {
+                    await new Promise(resolve => setTimeout(resolve, 3000 * (attempt + 1)));
+                }
+            }
+        }
+        
+        throw new Error(lastError?.name === 'AbortError' 
+            ? 'Connection timed out. Please check your internet and try again.' 
+            : lastError?.message || 'Network error');
+    };
+
+    // Pre-warm the Lambda function on page load to reduce cold start latency
+    const prewarmAuth = () => {
+        fetch(`${apiUrl}/health`, { method: 'GET', mode: 'cors' }).catch(() => {});
+    };
+    // Trigger prewarm after a short delay to not block page load
+    setTimeout(prewarmAuth, 1000);
+
+    // Optimized login form submission with retry logic
     loginForm.addEventListener('submit', async (event) => {
         event.preventDefault();
+        
+        // Prevent duplicate submissions
+        if (isLoginInProgress) {
+            console.log('Login already in progress, ignoring duplicate submission');
+            return;
+        }
+        
+        isLoginInProgress = true;
         setLoading(loginForm, true);
 
         const email = event.target.querySelector('input[type="email"]').value;
         const password = event.target.querySelector('input[type="password"]').value;
 
         try {
-            const response = await Promise.race([
-                fetch(`${apiUrl}/auth/login`, {
+            const response = await fetchWithRetry(
+                `${apiUrl}/auth/login`,
+                {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                     },
                     body: JSON.stringify({ email, password })
-                }),
-                new Promise((_, reject) => 
-                    setTimeout(() => reject(new Error('Request timeout')), 10000)
-                )
-            ]);
+                },
+                1,  // 1 retry
+                15000  // 15 second timeout (allows for Lambda cold start + Cognito auth)
+            );
 
             const data = await response.json();
             
@@ -119,6 +182,7 @@ document.addEventListener('DOMContentLoaded', () => {
             console.error('Login error:', error);
             showError(error.message || 'Login failed. Please try again.');
         } finally {
+            isLoginInProgress = false;
             setLoading(loginForm, false);
         }
     });

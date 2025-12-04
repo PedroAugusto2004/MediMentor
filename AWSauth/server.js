@@ -20,7 +20,7 @@ app.use(cors({
 }));
 
 const cognito = new AWS.CognitoIdentityServiceProvider({
-  region: process.env.COGNITO_REGION,
+    region: process.env.COGNITO_REGION,
 });
 
 app.use((req, res, next) => {
@@ -51,11 +51,11 @@ app.post('/auth/login', (req, res) => {
     const cognitoUser = new CognitoUser({ Username: email, Pool: userPool });
     const authenticationDetails = new AuthenticationDetails({ Username: email, Password: password });
 
-    // Set request timeout
+    // Set request timeout (12s to accommodate cold starts and Cognito latency)
     const requestTimeout = new Promise((_, reject) => {
         setTimeout(() => {
             reject(new Error('Authentication timeout'));
-        }, 8000);
+        }, 12000);
     });
 
     // Authentication promise
@@ -80,7 +80,7 @@ app.post('/auth/login', (req, res) => {
         .catch(err => {
             console.error('Login error:', err);
             res.status(err.message === 'Authentication timeout' ? 504 : 401)
-               .json({ success: false, message: err.message || 'Login failed' });
+                .json({ success: false, message: err.message || 'Login failed' });
         });
 });
 
@@ -115,14 +115,14 @@ app.post('/auth/signup', (req, res) => {
             if (err) {
                 console.error('Sign up error:', err);
                 if (err.code === 'UsernameExistsException') {
-                    return res.status(400).json({ 
-                        success: false, 
-                        message: 'User already exists' 
+                    return res.status(400).json({
+                        success: false,
+                        message: 'User already exists'
                     });
                 }
-                return res.status(400).json({ 
-                    success: false, 
-                    message: err.message || 'Sign up failed' 
+                return res.status(400).json({
+                    success: false,
+                    message: err.message || 'Sign up failed'
                 });
             }
             res.json({ success: true, message: 'Sign up successful' });
@@ -186,16 +186,16 @@ app.post('/auth/forgot-password', (req, res) => {
 
     cognitoUser.forgotPassword({
         onSuccess: () => {
-            res.json({ 
-                success: true, 
-                message: 'Password reset code sent successfully' 
+            res.json({
+                success: true,
+                message: 'Password reset code sent successfully'
             });
         },
         onFailure: (err) => {
             console.error('Forgot password error:', err);
-            res.status(400).json({ 
-                success: false, 
-                message: err.message || 'Failed to initiate password reset' 
+            res.status(400).json({
+                success: false,
+                message: err.message || 'Failed to initiate password reset'
             });
         }
     });
@@ -205,9 +205,9 @@ app.post('/auth/forgot-password', (req, res) => {
 app.post('/auth/confirm-password', async (req, res) => {
     const { email, code, newPassword } = req.body;
     if (!email || !code || !newPassword) {
-        return res.status(400).json({ 
-            success: false, 
-            message: 'Email, verification code, and new password are required' 
+        return res.status(400).json({
+            success: false,
+            message: 'Email, verification code, and new password are required'
         });
     }
 
@@ -223,9 +223,9 @@ app.post('/auth/confirm-password', async (req, res) => {
         res.json({ success: true, message: 'Password reset successful' });
     } catch (err) {
         console.error('Confirm password error:', err);
-        res.status(400).json({ 
-            success: false, 
-            message: err.message || 'Failed to reset password' 
+        res.status(400).json({
+            success: false,
+            message: err.message || 'Failed to reset password'
         });
     }
 });
